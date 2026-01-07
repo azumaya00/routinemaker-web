@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Routinemaker",
-  description: "Minimal auth scaffolding for Routinemaker",
+  title: "RoutineMaker",
+  description: "Minimal auth scaffolding for RoutineMaker",
 };
 
 export default function RootLayout({

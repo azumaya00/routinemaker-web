@@ -57,7 +57,7 @@ const Header = () => {
 
   return (
     <header className="flex items-center justify-between border-b border-slate-200 px-6 py-3">
-      <div className="text-sm font-semibold">Routinemaker</div>
+      <div className="text-sm font-semibold">RoutineMaker</div>
       <div className="flex items-center gap-2 text-sm">
         {status === "authenticated" ? (
           <>
