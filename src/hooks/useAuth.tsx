@@ -5,7 +5,15 @@
 
 import { createContext, useCallback, useContext, useMemo, useState } from "react";
 
-import { fetchMe, getCsrfCookie, login, logout } from "@/lib/api";
+import {
+  type ApiResult,
+  fetchMe,
+  getCsrfCookie,
+  login,
+  logout,
+  type UserSettings,
+  updateSettings,
+} from "@/lib/api";
 
 type AuthStatus = "loading" | "authenticated" | "unauthenticated";
 
@@ -19,12 +27,14 @@ type AuthUser = {
 type AuthContextValue = {
   status: AuthStatus;
   user: AuthUser | null;
+  settings: UserSettings | null;
   error: string | null;
   isLoggingOut: boolean;
   finishLogout: () => void;
   me: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  saveSettings: (payload: Partial<UserSettings>) => Promise<ApiResult>;
 };
 
 // 画面側は AuthContext を経由して状態を読む前提。
@@ -34,6 +44,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [status, setStatus] = useState<AuthStatus>("loading");
   const [user, setUser] = useState<AuthUser | null>(null);
+  const [settings, setSettings] = useState<UserSettings | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -44,9 +55,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (result.status === 200) {
       try {
         const payload = JSON.parse(result.body) as {
-          data?: { user?: AuthUser };
+          data?: { user?: AuthUser; settings?: UserSettings };
         };
         setUser(payload.data?.user ?? null);
+        setSettings(payload.data?.settings ?? null);
       } catch {
         setUser(null);
         setError("Failed to parse /api/me response.");
@@ -57,11 +69,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     if (result.status === 401) {
       setUser(null);
+      setSettings(null);
       setStatus("unauthenticated");
       return;
     }
 
     setUser(null);
+    setSettings(null);
     setStatus("unauthenticated");
     setError(result.body);
   }, []);
@@ -86,6 +100,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setIsLoggingOut(true);
     setStatus("loading");
     setUser(null);
+    setSettings(null);
     await getCsrfCookie();
     const result = await logout();
     if (result.status !== 204) {
@@ -100,18 +115,49 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setIsLoggingOut(false);
   }, []);
 
+  // 設定更新は API に寄せ、成功時だけローカルを更新する。
+  const saveSettings = useCallback(async (payload: Partial<UserSettings>) => {
+    setError(null);
+    await getCsrfCookie();
+    const result = await updateSettings(payload);
+    if (result.status === 200) {
+      try {
+        const parsed = JSON.parse(result.body) as { data?: UserSettings };
+        setSettings(parsed.data ?? null);
+      } catch {
+        setError("Failed to parse /api/settings response.");
+      }
+    } else if (result.status !== 204) {
+      setError(result.body);
+    }
+    return result;
+  }, []);
+
   const value = useMemo(
     () => ({
       status,
       user,
+      settings,
       error,
       isLoggingOut,
       finishLogout,
       me,
       login: handleLogin,
       logout: handleLogout,
+      saveSettings,
     }),
-    [status, user, error, isLoggingOut, finishLogout, me, handleLogin, handleLogout]
+    [
+      status,
+      user,
+      settings,
+      error,
+      isLoggingOut,
+      finishLogout,
+      me,
+      handleLogin,
+      handleLogout,
+      saveSettings,
+    ]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

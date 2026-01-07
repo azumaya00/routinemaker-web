@@ -114,8 +114,11 @@ export default function PreflightPage() {
     // 開始は履歴 API を起点にし、historyId を受け取って遷移する。
     const startResult = await startHistory(routine.id);
     if (startResult.status === 201) {
-      const parsed = parseJson<{ data: History }>(startResult.body);
+      const parsed = parseJson<{ data: History & { started_at?: string } }>(
+        startResult.body
+      );
       const historyId = parsed?.data?.id;
+      const startedAt = parsed?.data?.started_at ?? null;
       if (!historyId) {
         setError("履歴IDが取得できませんでした。");
         return;
@@ -124,7 +127,7 @@ export default function PreflightPage() {
       // /run 側でタスクを参照できるよう、historyId 単位で保存する。
       sessionStorage.setItem(
         `run:${historyId}`,
-        JSON.stringify({ title: routine.title, tasks })
+        JSON.stringify({ title: routine.title, tasks, started_at: startedAt })
       );
 
       router.push(`/run/${historyId}`);

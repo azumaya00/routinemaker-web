@@ -6,6 +6,16 @@ export type ApiResult = {
   body: string;
 };
 
+// 設定は API の user_settings に合わせた最小形で扱う。
+export type UserSettings = {
+  theme: "light" | "soft" | "dark";
+  dark_mode: "system" | "on" | "off";
+  show_remaining_tasks: boolean;
+  show_elapsed_time: boolean;
+  enable_task_estimated_time: boolean;
+  show_celebration: boolean;
+};
+
 // 環境ごとの API を差し替えるための唯一の入口。
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8001";
@@ -154,6 +164,20 @@ export const register = (
 // /api/me の成否を認証状態の唯一の判断材料に固定する。
 export const fetchMe = () => apiRequest("/api/me", { method: "GET" });
 export const getMe = fetchMe;
+
+// 設定は patch で更新し、レスポンスの settings を採用する前提。
+export const updateSettings = (payload: Partial<UserSettings>) =>
+  apiRequest(
+    "/api/settings",
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    },
+    { includeXsrfHeader: true }
+  );
 
 // Routine の Web 側モデルは最小形に固定する（Phase 3 まで）。
 export type RoutinePayload = {

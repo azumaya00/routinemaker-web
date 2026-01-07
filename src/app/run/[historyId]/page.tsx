@@ -12,15 +12,17 @@ import { useAuth } from "@/hooks/useAuth";
 type RunPayload = {
   title: string;
   tasks: string[];
+  started_at?: string | null;
 };
 
 export default function RunPage() {
   const router = useRouter();
   const params = useParams<{ historyId: string }>();
-  const { status, me } = useAuth();
+  const { status, me, settings } = useAuth();
   const [payload, setPayload] = useState<RunPayload | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [now, setNow] = useState<Date | null>(null);
 
   const historyId = Number(params?.historyId);
 
@@ -30,6 +32,24 @@ export default function RunPage() {
     }
     return payload.tasks[currentIndex] ?? null;
   }, [payload, currentIndex]);
+
+  const remainingCount = useMemo(() => {
+    if (!payload) {
+      return 0;
+    }
+    return Math.max(payload.tasks.length - currentIndex - 1, 0);
+  }, [payload, currentIndex]);
+
+  const estimatedMinutes = useMemo(() => {
+    if (!currentTask) {
+      return null;
+    }
+    const match = currentTask.match(/(\d+)\s?m/i);
+    if (!match) {
+      return null;
+    }
+    return Number(match[1]);
+  }, [currentTask]);
 
   // 認証判定は /api/me の成否のみで統一する。
   useEffect(() => {
@@ -57,6 +77,19 @@ export default function RunPage() {
       setError("実行情報の読み込みに失敗しました。");
     }
   }, [historyId]);
+
+  // 経過時間は分単位で良いので、軽い間隔で現在時刻を更新する。
+  useEffect(() => {
+    if (!settings?.show_elapsed_time) {
+      setNow(null);
+      return;
+    }
+    setNow(new Date());
+    const id = window.setInterval(() => {
+      setNow(new Date());
+    }, 30000);
+    return () => window.clearInterval(id);
+  }, [settings?.show_elapsed_time]);
 
   const handleComplete = async () => {
     if (!payload) {
@@ -120,6 +153,29 @@ export default function RunPage() {
     <section className="space-y-6">
       {/* 実行中は「今やる1つ」を最優先に視認させる。 */}
       <div className="text-4xl font-semibold">{currentTask ?? "-"}</div>
+      <div className="space-y-1 text-sm text-slate-600">
+        {settings?.show_remaining_tasks ? (
+          <div>残りタスク: {remainingCount}</div>
+        ) : null}
+        {settings?.show_elapsed_time &&
+        payload?.started_at &&
+        now &&
+        !Number.isNaN(new Date(payload.started_at).getTime()) ? (
+          <div>
+            経過時間:{" "}
+            {Math.max(
+              Math.floor(
+                (now.getTime() - new Date(payload.started_at).getTime()) / 60000
+              ),
+              0
+            )}
+            分
+          </div>
+        ) : null}
+        {settings?.enable_task_estimated_time && estimatedMinutes ? (
+          <div>目安時間: {estimatedMinutes}分</div>
+        ) : null}
+      </div>
       <button
         type="button"
         // 完了ボタンを最優先にするため、サイズと面積を大きく取る。

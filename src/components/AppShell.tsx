@@ -10,7 +10,7 @@ import { AuthProvider, useAuth } from "@/hooks/useAuth";
 
 // 認証状態に応じて主要導線を出し分け、画面責務の混在を避ける。
 const Header = () => {
-  const { status, logout, me, isLoggingOut, finishLogout } = useAuth();
+  const { status, logout, me, isLoggingOut, finishLogout, settings } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const publicPaths = useMemo(
@@ -55,6 +55,46 @@ const Header = () => {
     }
   }, [isLoggingOut, pathname, finishLogout]);
 
+  // テーマは data-theme に反映し、CSS 変数の切り替えに繋げる。
+  useEffect(() => {
+    if (!settings) {
+      return;
+    }
+    document.documentElement.dataset.theme = settings.theme;
+  }, [settings]);
+
+  // ダークモードは class を切り替え、Tailwind の dark 戦略と合わせる。
+  useEffect(() => {
+    if (!settings) {
+      return;
+    }
+
+    const root = document.documentElement;
+    const apply = (isDark: boolean) => {
+      if (isDark) {
+        root.classList.add("dark");
+      } else {
+        root.classList.remove("dark");
+      }
+    };
+
+    if (settings.dark_mode === "on") {
+      apply(true);
+      return;
+    }
+
+    if (settings.dark_mode === "off") {
+      apply(false);
+      return;
+    }
+
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    apply(media.matches);
+    const handler = (event: MediaQueryListEvent) => apply(event.matches);
+    media.addEventListener("change", handler);
+    return () => media.removeEventListener("change", handler);
+  }, [settings]);
+
   return (
     <header className="flex items-center justify-between border-b border-slate-200 px-6 py-3">
       <div className="text-sm font-semibold">RoutineMaker</div>
@@ -66,6 +106,9 @@ const Header = () => {
             </Link>
             <Link className="rounded border border-slate-200 px-3 py-1" href="/histories">
               Histories
+            </Link>
+            <Link className="rounded border border-slate-200 px-3 py-1" href="/settings">
+              Settings
             </Link>
             <button
               type="button"
