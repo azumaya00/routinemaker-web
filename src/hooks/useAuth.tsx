@@ -6,7 +6,6 @@
 import { createContext, useCallback, useContext, useMemo, useState } from "react";
 
 import { fetchMe, getCsrfCookie, login, logout } from "@/lib/api";
-import { appendDebugLog } from "@/lib/debug";
 
 type AuthStatus = "loading" | "authenticated" | "unauthenticated";
 
@@ -87,18 +86,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setIsLoggingOut(true);
     setStatus("loading");
     setUser(null);
-    appendDebugLog("[auth] logout:start");
     await getCsrfCookie();
     const result = await logout();
-    appendDebugLog(
-      `[auth] logout:response status=${String(result.status)} body=${result.body}`
-    );
     if (result.status !== 204) {
       setError(result.body);
     }
     // ルーティングはガードに寄せるため、ここでは状態だけを未ログインに揃える。
     setStatus("unauthenticated");
-    appendDebugLog("[auth] logout:end -> status unauthenticated");
   }, []);
 
   // ログアウト導線の完了後にだけフラグを戻す。

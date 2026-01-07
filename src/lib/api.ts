@@ -68,11 +68,6 @@ export const apiRequest = async (
   { includeXsrfHeader = false }: ApiRequestOptions = {}
 ): Promise<ApiResult> => {
   try {
-    if (path.includes("/api/logout")) {
-      const method = options.method ?? "GET";
-      const { appendDebugLog } = await import("@/lib/debug");
-      appendDebugLog(`[api] request ${method} ${path}`);
-    }
     const headers = new Headers(options.headers);
 
     if (!headers.has("Accept")) {
@@ -92,10 +87,6 @@ export const apiRequest = async (
       headers,
     });
     const text = await response.text();
-    if (path.includes("/api/logout")) {
-      const { appendDebugLog } = await import("@/lib/debug");
-      appendDebugLog(`[api] response ${path} status=${response.status}`);
-    }
 
     return {
       status: response.status,

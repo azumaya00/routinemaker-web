@@ -7,7 +7,6 @@ import { useEffect, useMemo } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
-import { appendDebugLog } from "@/lib/debug";
 
 // 認証状態に応じて主要導線を出し分け、画面責務の混在を避ける。
 const Header = () => {
@@ -75,10 +74,8 @@ const Header = () => {
                 // クリックで遷移が走ると fetch が中断されるため、完了まで待つ。
                 event.preventDefault();
                 event.stopPropagation();
-                appendDebugLog(`[header] logout:click path=${pathname}`);
                 await logout();
                 router.replace("/");
-                appendDebugLog("[header] logout:redirect -> /");
               }}
             >
               Logout

@@ -3,29 +3,14 @@
 // ログイン前のファーストビュー。要件のコピーとCTAだけを置く。
 // ログイン済みは /routines に寄せ、一覧や作成 UI はここに出さない。
 
-import { useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 import { useAuth } from "@/hooks/useAuth";
-import { clearDebugLogs, readDebugLogs } from "@/lib/debug";
 
 export default function Home() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { status, me } = useAuth();
-  const [debugLines, setDebugLines] = useState<string[]>([]);
-  const showDebug = useMemo(
-    () => searchParams.get("debug") === "1",
-    [searchParams]
-  );
-
-  useEffect(() => {
-    if (!showDebug) {
-      return;
-    }
-    const lines = readDebugLogs().map((entry) => `${entry.at} ${entry.message}`);
-    setDebugLines(lines);
-  }, [showDebug]);
 
   useEffect(() => {
     void me();
@@ -33,10 +18,10 @@ export default function Home() {
 
   // 認証済みはホームではなく /routines を入口にする。
   useEffect(() => {
-    if (status === "authenticated" && !showDebug) {
+    if (status === "authenticated") {
       router.push("/routines");
     }
-  }, [status, showDebug, router]);
+  }, [status, router]);
 
   // 認証状態の確定までは表示を出さず、ログイン直後のちらつきを防ぐ。
   if (status === "loading") {
@@ -44,7 +29,7 @@ export default function Home() {
   }
 
   // 認証済みは遷移のみ行い、この画面は表示しない。
-  if (status === "authenticated" && !showDebug) {
+  if (status === "authenticated") {
     return null;
   }
 
@@ -72,24 +57,6 @@ export default function Home() {
           Googleで続ける
         </button>
       </div>
-      {showDebug ? (
-        <div className="space-y-2 text-xs text-slate-600">
-          <div className="flex items-center gap-2">
-            <div className="font-semibold">Debug Logs</div>
-            <button
-              type="button"
-              className="rounded border border-slate-200 px-2 py-1"
-              onClick={() => {
-                clearDebugLogs();
-                setDebugLines([]);
-              }}
-            >
-              Clear
-            </button>
-          </div>
-          <pre className="whitespace-pre-wrap">{debugLines.join("\n")}</pre>
-        </div>
-      ) : null}
     </section>
   );
 }
