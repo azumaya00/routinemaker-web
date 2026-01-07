@@ -1,5 +1,8 @@
 "use client";
 
+// Phase 2.5 でのホームは認証状態と /api/me の内容を確認するための枠。
+// Phase 3 以降でルーティン一覧などに置き換える前提。
+
 import { useEffect } from "react";
 
 import { useAuth } from "@/hooks/useAuth";

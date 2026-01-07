@@ -1,5 +1,7 @@
 "use client";
 
+// Phase 2 の最小ログイン画面。見た目は暫定で機能優先のまま維持する。
+
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -11,6 +13,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("you@example.com");
   const [password, setPassword] = useState("password");
 
+  // 認証済みの場合はここに留まらず / へ戻す。
   useEffect(() => {
     if (status === "authenticated") {
       router.push("/");

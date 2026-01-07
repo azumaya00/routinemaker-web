@@ -1,5 +1,8 @@
 "use client";
 
+// Phase 1〜3 の認証判定を /api/me の成否に固定するための薄いラッパ。
+// ここ以外に認証状態の分岐を置かないことで後続フェーズの迷いを防ぐ。
+
 import {
   createContext,
   useCallback,
@@ -28,13 +31,16 @@ type AuthContextValue = {
   logout: () => Promise<void>;
 };
 
+// 画面側は AuthContext を経由して状態を読む前提。
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+// 認証状態と操作を単一の Provider に集約する。
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [status, setStatus] = useState<AuthStatus>("loading");
   const [user, setUser] = useState<AuthUser | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // /api/me の結果だけで認証状態を確定する。
   const me = useCallback(async () => {
     setError(null);
     const result = await fetchMe();
@@ -63,6 +69,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setError(result.body);
   }, []);
 
+  // CSRF Cookie → login → /api/me の順序を固定して状態ズレを防ぐ。
   const handleLogin = useCallback(
     async (email: string, password: string) => {
       setError(null);
@@ -76,6 +83,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     [me]
   );
 
+  // ログアウト後に /api/me で状態を更新する。
   const handleLogout = useCallback(async () => {
     setError(null);
     await getCsrfCookie();
@@ -101,6 +109,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
+// 認証状態は Context 経由のみで扱う前提。
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {

@@ -1,13 +1,17 @@
 "use client";
 
+// Phase 2.5 の最小レイアウト枠。今後の UI 構成はここを基準に拡張する。
+
 import Link from "next/link";
 import { useEffect } from "react";
 
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 
+// 認証状態に応じて Login/Logout だけを出し分ける。
 const Header = () => {
   const { status, logout, me } = useAuth();
 
+  // ヘッダー表示前に /api/me を必ず実行して状態を確定させる。
   useEffect(() => {
     void me();
   }, [me]);
@@ -34,6 +38,7 @@ const Header = () => {
   );
 };
 
+// ページ共通の枠として header/main を固定する。
 export const AppShell = ({ children }: { children: React.ReactNode }) => (
   <AuthProvider>
     <div className="min-h-screen">

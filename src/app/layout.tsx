@@ -1,3 +1,4 @@
+// 画面全体の枠を統一するための最小レイアウト定義。
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
