@@ -21,12 +21,12 @@ docker compose up
 pnpm dev
 ```
 
-3) Open `http://localhost:3000/dev` and run:
+3) Open `http://localhost:3000` and run:
 
-- `GET /sanctum/csrf-cookie` (sets `XSRF-TOKEN` cookie)
-- `POST /login` (requires `X-XSRF-TOKEN` header from cookie)
-- `GET /api/me` (should return 200 after login)
-- `POST /logout` (should return 204)
+- `CSRF Cookie` (sets `XSRF-TOKEN` cookie)
+- `Login` (requires `X-XSRF-TOKEN` header from cookie)
+- `Check /api/me` (should return 200 after login)
+- `Logout` (should return 204 and then 401 for /api/me)
 
 ## Create a test user (API)
 
