@@ -124,8 +124,8 @@ export const login = (email: string, password: string) =>
 // ログアウトはサーバ側のセッション破棄のみを担う。
 export const logout = () =>
   apiRequest(
-    "/api/logout",
-    { method: "POST" },
+    "/logout",
+    { method: "POST", keepalive: true },
     { includeXsrfHeader: true }
   );
 
