@@ -68,6 +68,11 @@ export const apiRequest = async (
   { includeXsrfHeader = false }: ApiRequestOptions = {}
 ): Promise<ApiResult> => {
   try {
+    if (path.includes("/api/logout")) {
+      const method = options.method ?? "GET";
+      const { appendDebugLog } = await import("@/lib/debug");
+      appendDebugLog(`[api] request ${method} ${path}`);
+    }
     const headers = new Headers(options.headers);
 
     if (!headers.has("Accept")) {
@@ -87,6 +92,10 @@ export const apiRequest = async (
       headers,
     });
     const text = await response.text();
+    if (path.includes("/api/logout")) {
+      const { appendDebugLog } = await import("@/lib/debug");
+      appendDebugLog(`[api] response ${path} status=${response.status}`);
+    }
 
     return {
       status: response.status,
@@ -124,8 +133,30 @@ export const login = (email: string, password: string) =>
 // ログアウトはサーバ側のセッション破棄のみを担う。
 export const logout = () =>
   apiRequest(
-    "/logout",
+    "/api/logout",
     { method: "POST" },
+    { includeXsrfHeader: true }
+  );
+
+// 登録は /register で行い、その後のセッション確立は API 側に寄せる。
+export const register = (
+  email: string,
+  password: string,
+  passwordConfirmation: string
+) =>
+  apiRequest(
+    "/register",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        password,
+        password_confirmation: passwordConfirmation,
+      }),
+    },
     { includeXsrfHeader: true }
   );
 
@@ -141,6 +172,10 @@ export type RoutinePayload = {
 
 // 以降の CRUD は api.ts からのみ呼ぶ前提で整理。
 export const listRoutines = () => apiRequest("/api/routines", { method: "GET" });
+
+// 実行画面で詳細を取得するための単体取得。
+export const getRoutine = (id: number) =>
+  apiRequest(`/api/routines/${id}`, { method: "GET" });
 
 export const createRoutine = (payload: RoutinePayload) =>
   apiRequest(
@@ -172,5 +207,36 @@ export const deleteRoutine = (id: number) =>
   apiRequest(
     `/api/routines/${id}`,
     { method: "DELETE" },
+    { includeXsrfHeader: true }
+  );
+
+// 履歴は一覧と詳細で用途が分かれるため、取得口を明示的に分ける。
+export const listHistories = (path = "/api/histories") =>
+  apiRequest(path, { method: "GET" });
+
+export const getHistory = (id: number) =>
+  apiRequest(`/api/histories/${id}`, { method: "GET" });
+
+// 実行体験は履歴 API に集約し、Web 側では流れの開始/完了/中断だけを担う。
+export const startHistory = (routineId: number) =>
+  apiRequest(
+    `/api/routines/${routineId}/start`,
+    { method: "POST" },
+    { includeXsrfHeader: true }
+  );
+
+// 完了時は履歴 ID を使って確定させる前提。
+export const completeHistory = (historyId: number) =>
+  apiRequest(
+    `/api/histories/${historyId}/complete`,
+    { method: "POST" },
+    { includeXsrfHeader: true }
+  );
+
+// 中断時も履歴 ID を使って状態を確定させる。
+export const abortHistory = (historyId: number) =>
+  apiRequest(
+    `/api/histories/${historyId}/abort`,
+    { method: "POST" },
     { includeXsrfHeader: true }
   );

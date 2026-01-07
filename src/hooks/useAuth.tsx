@@ -3,15 +3,10 @@
 // Phase 1〜3 の認証判定を /api/me の成否に固定するための薄いラッパ。
 // ここ以外に認証状態の分岐を置かないことで後続フェーズの迷いを防ぐ。
 
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
-} from "react";
+import { createContext, useCallback, useContext, useMemo, useState } from "react";
 
 import { fetchMe, getCsrfCookie, login, logout } from "@/lib/api";
+import { appendDebugLog } from "@/lib/debug";
 
 type AuthStatus = "loading" | "authenticated" | "unauthenticated";
 
@@ -26,6 +21,8 @@ type AuthContextValue = {
   status: AuthStatus;
   user: AuthUser | null;
   error: string | null;
+  isLoggingOut: boolean;
+  finishLogout: () => void;
   me: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -39,6 +36,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [status, setStatus] = useState<AuthStatus>("loading");
   const [user, setUser] = useState<AuthUser | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   // /api/me の結果だけで認証状態を確定する。
   const me = useCallback(async () => {
@@ -86,24 +84,40 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // ログアウト後に /api/me で状態を更新する。
   const handleLogout = useCallback(async () => {
     setError(null);
+    setIsLoggingOut(true);
+    setStatus("loading");
+    setUser(null);
+    appendDebugLog("[auth] logout:start");
     await getCsrfCookie();
     const result = await logout();
+    appendDebugLog(
+      `[auth] logout:response status=${String(result.status)} body=${result.body}`
+    );
     if (result.status !== 204) {
       setError(result.body);
     }
-    await me();
-  }, [me]);
+    // ルーティングはガードに寄せるため、ここでは状態だけを未ログインに揃える。
+    setStatus("unauthenticated");
+    appendDebugLog("[auth] logout:end -> status unauthenticated");
+  }, []);
+
+  // ログアウト導線の完了後にだけフラグを戻す。
+  const finishLogout = useCallback(() => {
+    setIsLoggingOut(false);
+  }, []);
 
   const value = useMemo(
     () => ({
       status,
       user,
       error,
+      isLoggingOut,
+      finishLogout,
       me,
       login: handleLogin,
       logout: handleLogout,
     }),
-    [status, user, error, me, handleLogin, handleLogout]
+    [status, user, error, isLoggingOut, finishLogout, me, handleLogin, handleLogout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

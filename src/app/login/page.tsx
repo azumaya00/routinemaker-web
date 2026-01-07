@@ -2,8 +2,9 @@
 
 // Phase 2 の最小ログイン画面。見た目は暫定で機能優先のまま維持する。
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 import { useAuth } from "@/hooks/useAuth";
 
@@ -12,11 +13,22 @@ export default function LoginPage() {
   const { status, login, error } = useAuth();
   const [email, setEmail] = useState("you@example.com");
   const [password, setPassword] = useState("password");
+  const errorMessage = useMemo(() => {
+    if (!error) {
+      return null;
+    }
+    // 失敗理由の詳細は出さず、認証情報の不一致として扱う。
+    if (error.includes("Failed to fetch")) {
+      return "ログインに失敗しました。APIに接続できません。";
+    }
+    return "メールもしくはパスワードが異なります。";
+  }, [error]);
 
   // 認証済みの場合はここに留まらず / へ戻す。
   useEffect(() => {
     if (status === "authenticated") {
-      router.push("/");
+      // ログイン後はトップを挟まず /routines へ直行させる。
+      router.push("/routines");
     }
   }, [status, router]);
 
@@ -49,7 +61,12 @@ export default function LoginPage() {
         >
           Login
         </button>
-        {error ? <div className="text-sm text-slate-600">{error}</div> : null}
+        <Link className="text-sm text-slate-600" href="/forgot-password">
+          パスワードを忘れた場合
+        </Link>
+        {errorMessage ? (
+          <div className="text-sm text-rose-700">{errorMessage}</div>
+        ) : null}
       </div>
     </section>
   );
