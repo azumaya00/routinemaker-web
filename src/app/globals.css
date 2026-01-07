@@ -258,6 +258,14 @@ h3 {
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
 }
 
+/* スマホ・iPad縦型: ヘッダーのpadding-topにsafe-area-inset-topを考慮（ノッチに食い込まないように） */
+@media (max-width: 768px) {
+  header {
+    padding-top: calc(0.75rem + env(safe-area-inset-top, 0px)) !important; /* py-3 + safe-area */
+    padding-bottom: 0.75rem !important; /* py-3 */
+  }
+}
+
 /* 
   ドロワーメニュー: オーバーレイ＋右からスライド
   z-index: 100（header/footerより前面に表示）
@@ -431,7 +439,7 @@ h3 {
   /* TOPページ専用の背景画像を設定（ブラウザ全体を覆う） */
   background-image: url("/images/bgimage.webp");
   background-size: cover;
-  background-position: center right;
+  background-position: center center; /* 真ん中部分を表示 */
   background-repeat: no-repeat;
   background-attachment: fixed; /* スクロールしても背景が固定される */
   background-color: transparent;
@@ -454,8 +462,8 @@ h3 {
   padding-bottom: 4rem; /* pb-16 */
 }
 
-/* スマホ: 上寄り配置、header高さ + safe-area-inset-topを考慮した上余白 */
-@media (max-width: 640px) {
+/* スマホ・iPad縦型: 上寄り配置、header高さ + safe-area-inset-topを考慮した上余白 */
+@media (max-width: 768px) {
   .top-page-content-wrapper {
     align-items: flex-start; /* 上寄り配置 */
     justify-content: flex-start; /* 上寄り配置 */
@@ -469,7 +477,8 @@ h3 {
   }
 }
 
-@media (min-width: 768px) {
+/* タブレット横型以上: 中央配置、適度な余白（768px以下はスマホレイアウトを適用） */
+@media (min-width: 769px) {
   .top-page-content-wrapper {
     padding-top: 4rem; /* pt-16 */
     padding-bottom: 4rem; /* pb-16 */
@@ -509,7 +518,8 @@ h3 {
   padding-right: clamp(16px, 6vw, 28px);
 }
 
-@media (min-width: 768px) {
+/* タブレット横型以上: 左右余白を調整（768px以下はスマホレイアウトを適用） */
+@media (min-width: 769px) {
   .top-page-container {
     padding-left: 2.5rem; /* md:px-10 */
     padding-right: 2.5rem; /* md:px-10 */
@@ -523,11 +533,11 @@ h3 {
   }
 }
 
-/* モバイル: 縦積みレイアウト、上寄り配置（下に落とさない） */
-@media (max-width: 640px) {
+/* モバイル・iPad縦型: 縦積みレイアウト、上寄り配置（下に落とさない） */
+@media (max-width: 768px) {
   .top-page-container {
     grid-template-columns: 1fr;
-    gap: 1rem; /* スマホではgapを詰める */
+    gap: 1rem; /* スマホ・iPad縦型ではgapを詰める */
   }
   
   .top-page-visual {
@@ -537,7 +547,7 @@ h3 {
   
   .top-page-content {
     max-width: 100%;
-    /* スマホ: 見出しとサブテキストとボタンの間隔を詰める */
+    /* スマホ・iPad縦型: 見出しとサブテキストとボタンの間隔を詰める */
     gap: 1rem; /* gapを1.5rem→1remに減らす */
   }
 }
@@ -550,7 +560,7 @@ h3 {
   /* コンテナの幅を調整: スマホサイズになるまで文字が改行されないように */
   /* PC/タブレット: 十分な幅を確保して改行を防ぐ */
   max-width: 1000px; /* 横幅を調整（900px→1000px）で改行を防ぐ */
-  min-width: 600px; /* 最小幅を設定して改行を防ぐ */
+  min-width: 700px; /* 最小幅を設定して改行を防ぐ（1024px幅でも十分な幅を確保） */
   width: 100%;
   /* containerには背景を一切指定しない */
   background: transparent !important;
@@ -561,26 +571,28 @@ h3 {
   border: none !important;
 }
 
-/* タブレットサイズ: コンテナ幅を調整 */
-@media (max-width: 1024px) {
+/* タブレットサイズ: コンテナ幅を調整（1024px以上ではデフォルトのmax-width: 1000pxが適用される） */
+@media (max-width: 1023px) {
   .top-page-content {
-    max-width: 800px; /* タブレットでは十分な幅を確保 */
-    min-width: 500px; /* 最小幅を設定 */
+    max-width: 900px; /* タブレットでは十分な幅を確保（800px→900pxに拡大） */
+    min-width: 600px; /* 最小幅を設定（500px→600pxに拡大） */
+  }
+  
+  /* 1023px幅でも見出しが改行されないようにする */
+  .top-page-heading {
+    white-space: pre-line; /* <br />のみで改行を制御 */
+    word-break: keep-all; /* 文字が切れないように */
+    overflow-wrap: normal; /* 通常の改行ルール（<br />のみ） */
   }
 }
 
-/* スマホサイズ: コンテナ幅を調整して改行を許可 */
-@media (max-width: 640px) {
+/* スマホ・iPad縦型サイズ: コンテナ幅を調整して改行を許可 */
+@media (max-width: 768px) {
   .top-page-content {
-    max-width: 100%; /* スマホでは全幅 */
+    max-width: 100%; /* スマホ・iPad縦型では全幅 */
     min-width: unset; /* 最小幅を解除 */
-  }
-}
-
-/* スマホ: 見出しとサブテキストとボタンの間隔を詰める */
-@media (max-width: 640px) {
-  .top-page-content {
-    gap: 0.875rem; /* スマホではgapを詰める（1.5rem→0.875rem） */
+    gap: 1rem; /* 見出し→説明文の間隔 */
+    /* 説明文→CTAの間隔は .top-page-cta の margin-top で調整 */
   }
 }
 
@@ -594,13 +606,53 @@ h3 {
   white-space: pre-line; /* <br />のみで改行を制御 */
   word-break: keep-all; /* 文字が切れないように */
   overflow-wrap: normal; /* 通常の改行ルール（<br />のみ） */
-  /* 改行位置を必ず守る: 「今やる「ひとつ」だけに」と「集中しよう」の2行 */
+  /* 改行位置を必ず守る: PC版は「今やる「ひとつ」だけに」と「集中しよう」の2行 */
+  min-width: 0; /* flexboxでの縮小を許可 */
+  width: 100%; /* 親要素の幅いっぱいに */
 }
 
+/* PC版: 改行位置の制御（「今やる「ひとつ」だけに」→改行→「集中しよう」） */
+.top-page-heading-br-mobile {
+  display: none; /* PC版ではモバイル用の改行を非表示 */
+}
+
+.top-page-heading-text-pc {
+  display: inline; /* PC版では「だけに」を表示 */
+}
+
+.top-page-heading-br-pc {
+  display: block; /* PC版では改行を表示 */
+}
+
+.top-page-heading-text-mobile {
+  display: none; /* PC版ではモバイル用の「だけに」を非表示 */
+}
+
+/* スマホ・iPad縦型: 見出しのスタイル調整（スクリーンショットに合わせる） */
 @media (max-width: 768px) {
   .top-page-heading {
-    font-size: 28px;
+    font-size: 44px;
     line-height: 1.4;
+    color: #1e3a5f; /* 濃紺（青寄り、黒寄りではない） */
+    letter-spacing: -0.03em; /* 詰め気味 */
+    font-weight: 400; /* 太すぎない */
+  }
+  
+  /* モバイル版: 改行位置の制御（「今やる「ひとつ」」→改行→「だけに集中しよう」） */
+  .top-page-heading-br-mobile {
+    display: block; /* モバイル版では改行を表示 */
+  }
+  
+  .top-page-heading-text-pc {
+    display: none; /* モバイル版ではPC用の「だけに」を非表示 */
+  }
+  
+  .top-page-heading-br-pc {
+    display: none; /* モバイル版ではPC用の改行を非表示 */
+  }
+  
+  .top-page-heading-text-mobile {
+    display: inline; /* モバイル版では「だけに」を表示 */
   }
 }
 
@@ -613,10 +665,55 @@ h3 {
   overflow-wrap: break-word;
 }
 
+/* PC版: 説明文の改行位置の制御（「やることが多いと止まってしまう人のための」→改行→「タスク管理アプリ」） */
+.top-page-subheading-br-mobile {
+  display: none; /* PC版ではモバイル用の改行を非表示 */
+}
+
+.top-page-subheading-text-pc {
+  display: inline; /* PC版では「止まってしまう人のための」を表示 */
+}
+
+.top-page-subheading-br-pc {
+  display: block; /* PC版では改行を表示 */
+}
+
+.top-page-subheading-text-mobile {
+  display: none; /* PC版ではモバイル用の「止まってしまう人のための」を非表示 */
+}
+
+.top-page-subheading-br-mobile-2 {
+  display: none; /* PC版ではモバイル用の2つ目の改行を非表示 */
+}
+
+/* スマホ・iPad縦型: 説明文のスタイル調整（スクリーンショットに合わせる） */
 @media (max-width: 768px) {
   .top-page-subheading {
-    font-size: 16px;
-    line-height: 1.5;
+    font-size: 20px; /* 見出しより明確に小さく */
+    line-height: 1.3; /* 行間は詰めすぎない */
+    color: #4a6fa5; /* 青系の色 */
+    font-weight: 400;
+  }
+  
+  /* モバイル版: 説明文の改行位置の制御（「やることが多いと」→改行→「止まってしまう人のための」→改行→「タスク管理アプリ」） */
+  .top-page-subheading-br-mobile {
+    display: block; /* モバイル版では1つ目の改行を表示 */
+  }
+  
+  .top-page-subheading-text-pc {
+    display: none; /* モバイル版ではPC用の「止まってしまう人のための」を非表示 */
+  }
+  
+  .top-page-subheading-br-pc {
+    display: none; /* モバイル版ではPC用の改行を非表示 */
+  }
+  
+  .top-page-subheading-text-mobile {
+    display: inline; /* モバイル版では「止まってしまう人のための」を表示 */
+  }
+  
+  .top-page-subheading-br-mobile-2 {
+    display: block; /* モバイル版では2つ目の改行を表示 */
   }
 }
 
@@ -625,6 +722,16 @@ h3 {
   gap: 1.25rem; /* ボタン間隔を十分に確保 */
   flex-wrap: wrap;
   margin-top: 1rem; /* CTAボタンの位置を調整 */
+}
+
+/* スマホ・iPad縦型: CTAボタンを縦積み、横幅はほぼいっぱい（左右に一定の余白） */
+@media (max-width: 768px) {
+  .top-page-cta {
+    flex-direction: column; /* 縦積み2段 */
+    gap: 0.875rem; /* ボタン間の余白は小さすぎない（スクショ程度） */
+    margin-top: 1.5rem; /* 説明文→CTAの間隔を広めに */
+    width: 100%; /* 横幅はほぼいっぱい */
+  }
 }
 
 /* 無料で使うボタン: 元画像と同じ形状（角丸の矩形、中サイズの青い背景、白いテキスト） */
@@ -638,8 +745,17 @@ h3 {
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s ease, transform 0.1s ease;
-  box-shadow: none; /* 元画像では影がない */
+  box-shadow: none; /* 元画像では影がない（あればごく薄く） */
   white-space: nowrap; /* テキストが折り返さないように */
+}
+
+/* スマホ・iPad縦型: 主CTAボタンの幅を調整（横幅はほぼいっぱい、左右に一定の余白） */
+@media (max-width: 768px) {
+  .top-page-btn-primary {
+    width: 100%; /* 横幅はほぼいっぱい */
+    padding: 1.2rem 1.5rem; /* タップしやすい高さ */
+    font-size: 22px; /* iPad・スマホでのフォントサイズを22pxに */
+  }
 }
 
 .top-page-btn-primary:hover {
@@ -667,7 +783,16 @@ h3 {
   gap: 0.5rem; /* アイコンとテキストの間隔を調整 */
   justify-content: center;
   white-space: nowrap; /* テキストが折り返さないように */
-  box-shadow: none; /* 元画像では影がない */
+  box-shadow: none; /* 元画像では影がない（あればごく薄く） */
+}
+
+/* スマホ・iPad縦型: 副CTAボタンの幅を調整（横幅はほぼいっぱい、左右に一定の余白） */
+@media (max-width: 768px) {
+  .top-page-btn-secondary {
+    width: 100%; /* 横幅はほぼいっぱい */
+    padding: 1.2rem 1.5rem; /* タップしやすい高さ */
+    font-size: 22px; /* iPad・スマホでのフォントサイズを22pxに */
+  }
 }
 
 .top-page-btn-secondary:hover:not(:disabled) {
@@ -717,7 +842,7 @@ h3 {
 
 @media (max-width: 768px) {
   .top-page-visual {
-    height: 150px;
+    height: 80px;
   }
 }
 

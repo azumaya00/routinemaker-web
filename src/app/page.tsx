@@ -234,13 +234,16 @@ export default function Home() {
           {/* 左側: コピーとCTA */}
           <div className="top-page-content">
             <h1 className="top-page-heading">
-              今やる「ひとつ」だけに
-              <br />
-              集中しよう
+              今やる「ひとつ」<br className="top-page-heading-br-mobile" />
+              <span className="top-page-heading-text-pc">だけに</span>
+              <br className="top-page-heading-br-pc" />
+              <span className="top-page-heading-text-mobile">だけに</span>集中しよう
             </h1>
             <p className="top-page-subheading">
-              やることが多いと止まってしまう人のための
-              <br />
+              やることが多いと<br className="top-page-subheading-br-mobile" />
+              <span className="top-page-subheading-text-pc">止まってしまう人のための</span>
+              <span className="top-page-subheading-text-mobile">止まってしまう人のための<br className="top-page-subheading-br-mobile-2" /></span>
+              <br className="top-page-subheading-br-pc" />
               タスク管理アプリ
             </p>
             <div className="top-page-cta">
