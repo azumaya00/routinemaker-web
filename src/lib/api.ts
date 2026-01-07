@@ -95,3 +95,28 @@ export const apiRequest = async (
     };
   }
 };
+
+export const getCsrfCookie = () =>
+  apiRequest("/sanctum/csrf-cookie", { method: "GET" });
+
+export const login = (email: string, password: string) =>
+  apiRequest(
+    "/login",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    },
+    { includeXsrfHeader: true }
+  );
+
+export const logout = () =>
+  apiRequest(
+    "/logout",
+    { method: "POST" },
+    { includeXsrfHeader: true }
+  );
+
+export const fetchMe = () => apiRequest("/api/me", { method: "GET" });

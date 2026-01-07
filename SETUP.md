@@ -21,12 +21,10 @@ docker compose up
 pnpm dev
 ```
 
-3) Open `http://localhost:3000` and run:
+3) Open `http://localhost:3000/login` and login, then open `http://localhost:3000`.
 
-- `CSRF Cookie` (sets `XSRF-TOKEN` cookie)
-- `Login` (requires `X-XSRF-TOKEN` header from cookie)
-- `Check /api/me` (should return 200 after login)
-- `Logout` (should return 204 and then 401 for /api/me)
+- `/login` → login succeeds
+- `/` → /api/me が表示され、401 or 200 で認証状態が分かる
 
 ## Create a test user (API)
 
