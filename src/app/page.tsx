@@ -224,10 +224,11 @@ export default function Home() {
 
   return (
     <>
-      {/* 背景レイヤー: 画面最背面に固定、ブラウザ全体を覆う（複数レイヤーで元画像に近い表現） */}
-      <div className="landing-bg" aria-hidden="true" />
+      {/* TOPページの背景画像: ブラウザ全体を覆う */}
+      <div className="top-page" aria-hidden="true" />
       
-      <div className="top-page">
+      {/* TOPページのコンテンツ: 背景画像の上に表示 */}
+      <div className="top-page-content-wrapper">
         {/* メインコンテンツ: 左側にコピーとCTA、右側にビジュアル */}
         <div className="top-page-container">
           {/* 左側: コピーとCTA */}

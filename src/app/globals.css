@@ -408,85 +408,55 @@ h3 {
 }
 
 /* 
-  ランディングページ背景: 画面最背面に固定、ブラウザ全体を覆う
-  CSSのみで元画像に近い雰囲気を再現
-  - 淡いブルー基調（左上がほぼ白、右下が少し濃い青）
-  - 丸いブラーの塊が右側に寄る（大きな白い球体が右側に）
-  - 中央に少し暖色のニュアンス（ピンクやオレンジ系の淡い色）
-  - 全画面cover相当（スクロールしても破綻しない）
+  .landing-bg は削除（背景画像は .top-page に直接設定）
+  このクラスは使用されていないため、削除またはコメントアウト
 */
-.landing-bg {
-  position: fixed;
-  inset: 0; /* top: 0; right: 0; bottom: 0; left: 0; でブラウザ全体を覆う */
-  z-index: -1; /* 最背面に配置 */
-  height: 100dvh; /* 全画面cover相当、スクロールしても破綻しない */
-  min-height: 100svh; /* iOS Safari含む想定で100svhを使用 */
-  pointer-events: none; /* クリックイベントを無効化 */
-  
-  /* ベース: 淡いブルー基調のグラデーション（左上がほぼ白、右下が少し濃い青） */
-  /* 中央に暖色のニュアンス（ピンクやオレンジ系の淡い色）を追加 */
-  /* 白い半透明の矩形を完全に削除: rgba(255,255,255,*)を削除し、青系のみを使用 */
-  background: 
-    /* 右側の中サイズの青い球体（右側に寄る、白系の色を削除） */
-    radial-gradient(circle at 80% 45%, rgba(147, 197, 253, 0.5) 0%, rgba(147, 197, 253, 0.3) 25%, rgba(147, 197, 253, 0.15) 40%, transparent 60%),
-    /* 右上の淡い青い塊（右側に寄る） */
-    radial-gradient(circle at 90% 30%, rgba(191, 219, 254, 0.4) 0%, rgba(191, 219, 254, 0.25) 30%, transparent 55%),
-    /* 右下の青い塊（右側に寄る） */
-    radial-gradient(circle at 82% 70%, rgba(219, 234, 254, 0.35) 0%, rgba(219, 234, 254, 0.2) 35%, transparent 60%),
-    /* 中央の暖色のニュアンス（ピンクやオレンジ系の淡い色） */
-    radial-gradient(ellipse at 50% 55%, rgba(255, 182, 193, 0.12) 0%, rgba(255, 192, 203, 0.08) 30%, rgba(255, 218, 185, 0.06) 50%, transparent 70%),
-    /* 中央左寄りの淡い青い塊 */
-    radial-gradient(ellipse at 40% 50%, rgba(191, 219, 254, 0.15) 0%, rgba(191, 219, 254, 0.08) 35%, transparent 65%),
-    /* ベースグラデーション: 淡いブルー基調（左上がほぼ白、右下が少し濃い青） */
-    linear-gradient(135deg, #ffffff 0%, #f8fbff 15%, #f0f7ff 30%, #e8f4ff 50%, #e0f0ff 70%, #d9ecff 85%, #d1e5ff 100%);
-  
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed; /* スクロールしても背景が固定される */
-}
-
-/* 疑似要素は使用しない（白い半透明の矩形を完全に削除） */
-.landing-bg::before,
-.landing-bg::after {
-  display: none !important; /* 疑似要素を完全に削除 */
-  content: none !important;
-  background: none !important;
-  background-color: transparent !important;
-  background-image: none !important;
-  opacity: 0 !important;
-  filter: none !important;
-  backdrop-filter: none !important;
-}
 
 /* 
-  トップページコンテンツ: 背景は別レイヤーに分離、コンテンツのみ
-  height: 100svh で縦方向の基準を安定させ、スクロールを防止
-  白い半透明の矩形を完全に削除: すべての背景関連プロパティを完全に透明に
+  トップページのheroラッパー: 背景画像を設定
+  ブラウザ全体を覆うようにfixed positioningを使用
+  TOPページ専用の背景画像を設定
 */
 .top-page {
-  height: 100svh; /* モバイルのアドレスバーを考慮、高さを100svhに固定（min-heightではなくheight） */
-  max-height: 100svh; /* 最大高さも100svhに制限 */
-  position: relative;
+  position: fixed; /* ブラウザ全体を覆うように固定 */
+  inset: 0; /* top: 0; right: 0; bottom: 0; left: 0; でブラウザ全体を覆う */
+  z-index: -1; /* ヘッダーの後ろに配置 */
+  height: 100svh; /* モバイルのアドレスバーを考慮、高さを100svhに固定 */
+  min-height: 100svh; /* iOS Safari含む想定で100svhを使用 */
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden; /* スクロールを防止 */
-  /* 白い半透明の矩形を完全に削除: すべての背景関連プロパティを完全に透明に */
-  background: transparent !important;
-  background-color: transparent !important;
-  background-image: none !important;
-  backdrop-filter: none !important;
-  box-shadow: none !important;
-  border: none !important;
-  /* PC/タブレット: 中央配置、適度な余白 */
-  padding-top: 4rem; /* pt-16 */
+  pointer-events: none; /* クリックイベントを無効化 */
+  /* TOPページ専用の背景画像を設定（ブラウザ全体を覆う） */
+  background-image: url("/images/bgimage.webp");
+  background-size: cover;
+  background-position: center right;
+  background-repeat: no-repeat;
+  background-attachment: fixed; /* スクロールしても背景が固定される */
+  background-color: transparent;
+  backdrop-filter: none;
+  box-shadow: none;
+  border: none;
+  /* .top-pageは背景画像のみを担当（paddingは不要） */
+}
+
+/* TOPページのコンテンツラッパー: 背景画像の上に表示 */
+.top-page-content-wrapper {
+  position: relative;
+  z-index: 1; /* 背景画像より前面に */
+  min-height: 100svh; /* モバイルのアドレスバーを考慮 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* PC/タブレット: 中央配置、適度な余白（40px上に上げる） */
+  padding-top: calc(4rem - 40px); /* pt-16から40px減 */
   padding-bottom: 4rem; /* pb-16 */
 }
 
 /* スマホ: 上寄り配置、header高さ + safe-area-inset-topを考慮した上余白 */
 @media (max-width: 640px) {
-  .top-page {
+  .top-page-content-wrapper {
     align-items: flex-start; /* 上寄り配置 */
     justify-content: flex-start; /* 上寄り配置 */
     /* header高さ（約48px = 3rem）+ safe-area-inset-top + 適度な余白をclamp()で可変 */
@@ -500,22 +470,22 @@ h3 {
 }
 
 @media (min-width: 768px) {
-  .top-page {
+  .top-page-content-wrapper {
     padding-top: 4rem; /* pt-16 */
     padding-bottom: 4rem; /* pb-16 */
   }
 }
 
 @media (min-width: 1024px) {
-  .top-page {
-    padding-top: 5rem; /* pt-20 */
+  .top-page-content-wrapper {
+    padding-top: calc(5rem - 40px); /* pt-20から40px減 */
     padding-bottom: 5rem; /* pb-20 */
   }
 }
 
 
 /* コンテナ: max-w-6xl、px-6 md:px-10 lg:px-12 で統一 */
-/* 白い半透明の矩形を完全に削除: すべての背景関連プロパティを完全に透明に */
+/* containerには背景を一切指定しない */
 .top-page-container {
   max-width: 72rem; /* max-w-6xl = 1152px */
   width: 100%;
@@ -526,8 +496,8 @@ h3 {
   gap: 4rem;
   align-items: center;
   position: relative;
-  z-index: 1; /* 背景の疑似要素より前面に */
-  /* 白い半透明の矩形を完全に削除: すべての背景関連プロパティを完全に透明に */
+  z-index: 1; /* 背景画像より前面に */
+  /* containerには背景を一切指定しない */
   background: transparent !important;
   background-color: transparent !important;
   background-image: none !important;
@@ -577,14 +547,34 @@ h3 {
   display: flex;
   flex-direction: column;
   gap: 1.5rem; /* PC/タブレット: 適度な間隔 */
-  max-width: 600px; /* 横幅を制限して長くなりすぎないように */
-  /* 白い半透明の矩形を完全に削除: すべての背景関連プロパティを完全に透明に */
+  /* コンテナの幅を調整: スマホサイズになるまで文字が改行されないように */
+  /* PC/タブレット: 十分な幅を確保して改行を防ぐ */
+  max-width: 1000px; /* 横幅を調整（900px→1000px）で改行を防ぐ */
+  min-width: 600px; /* 最小幅を設定して改行を防ぐ */
+  width: 100%;
+  /* containerには背景を一切指定しない */
   background: transparent !important;
   background-color: transparent !important;
   background-image: none !important;
   backdrop-filter: none !important;
   box-shadow: none !important;
   border: none !important;
+}
+
+/* タブレットサイズ: コンテナ幅を調整 */
+@media (max-width: 1024px) {
+  .top-page-content {
+    max-width: 800px; /* タブレットでは十分な幅を確保 */
+    min-width: 500px; /* 最小幅を設定 */
+  }
+}
+
+/* スマホサイズ: コンテナ幅を調整して改行を許可 */
+@media (max-width: 640px) {
+  .top-page-content {
+    max-width: 100%; /* スマホでは全幅 */
+    min-width: unset; /* 最小幅を解除 */
+  }
 }
 
 /* スマホ: 見出しとサブテキストとボタンの間隔を詰める */
@@ -595,13 +585,15 @@ h3 {
 }
 
 .top-page-heading {
-  font-size: 36px;
-  font-weight: 700;
-  line-height: 1.5; /* ゆったりとした行間（leading-relaxed相当） */
+  font-size: 52px; /* PCでは52px */
+  font-weight: 400;
+  line-height: 1.4;
   color: #1e3a5f;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
+  /* <br />以外で改行されないようにする */
+  white-space: pre-line; /* <br />のみで改行を制御 */
   word-break: keep-all; /* 文字が切れないように */
-  overflow-wrap: break-word;
+  overflow-wrap: normal; /* 通常の改行ルール（<br />のみ） */
   /* 改行位置を必ず守る: 「今やる「ひとつ」だけに」と「集中しよう」の2行 */
 }
 
@@ -632,7 +624,7 @@ h3 {
   display: flex;
   gap: 1.25rem; /* ボタン間隔を十分に確保 */
   flex-wrap: wrap;
-  margin-top: 0.5rem; /* CTAボタンの位置を調整 */
+  margin-top: 1rem; /* CTAボタンの位置を調整 */
 }
 
 /* 無料で使うボタン: 元画像と同じ形状（角丸の矩形、中サイズの青い背景、白いテキスト） */
@@ -705,7 +697,7 @@ h3 {
 }
 
 /* 右側ビジュアル: 白い半透明の矩形を完全に削除 */
-/* 背景は.landing-bgで既に表現されているため、右側の装飾要素は完全に透明にする */
+/* 背景は.top-pageで既に表現されているため、右側の装飾要素は完全に透明にする */
 .top-page-visual {
   position: relative;
   width: 100%;
@@ -725,12 +717,12 @@ h3 {
 
 @media (max-width: 768px) {
   .top-page-visual {
-    height: 250px;
+    height: 150px;
   }
 }
 
 /* 右側の装飾形状: 白い半透明の矩形を完全に削除 */
-/* 背景は.landing-bgで既に表現されているため、これらの要素は完全に透明にする */
+/* 背景は.top-pageで既に表現されているため、これらの要素は完全に透明にする */
 .top-page-shape,
 .top-page-shape-1,
 .top-page-shape-2,
