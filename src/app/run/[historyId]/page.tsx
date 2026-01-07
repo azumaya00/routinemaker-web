@@ -13,6 +13,7 @@ type RunPayload = {
   title: string;
   tasks: string[];
   started_at?: string | null;
+  task_estimates?: number[] | null;
 };
 
 export default function RunPage() {
@@ -40,16 +41,13 @@ export default function RunPage() {
     return Math.max(payload.tasks.length - currentIndex - 1, 0);
   }, [payload, currentIndex]);
 
+  // 目安時間は API から配列で渡される前提。未対応の場合は表示しない。
   const estimatedMinutes = useMemo(() => {
-    if (!currentTask) {
+    if (!payload?.task_estimates) {
       return null;
     }
-    const match = currentTask.match(/(\d+)\s?m/i);
-    if (!match) {
-      return null;
-    }
-    return Number(match[1]);
-  }, [currentTask]);
+    return payload.task_estimates[currentIndex] ?? null;
+  }, [payload, currentIndex]);
 
   // 認証判定は /api/me の成否のみで統一する。
   useEffect(() => {
@@ -138,22 +136,22 @@ export default function RunPage() {
   };
 
   if (status === "loading") {
-    return <div className="text-sm text-slate-600">Loading...</div>;
+    return <div className="rm-muted text-sm">Loading...</div>;
   }
 
   if (error) {
-    return <div className="text-sm text-slate-600">{error}</div>;
+    return <div className="rm-muted text-sm">{error}</div>;
   }
 
   if (!payload) {
-    return <div className="text-sm text-slate-600">Loading...</div>;
+    return <div className="rm-muted text-sm">Loading...</div>;
   }
 
   return (
     <section className="space-y-6">
       {/* 実行中は「今やる1つ」を最優先に視認させる。 */}
       <div className="text-4xl font-semibold">{currentTask ?? "-"}</div>
-      <div className="space-y-1 text-sm text-slate-600">
+      <div className="rm-muted space-y-1 text-sm">
         {settings?.show_remaining_tasks ? (
           <div>残りタスク: {remainingCount}</div>
         ) : null}
@@ -179,7 +177,7 @@ export default function RunPage() {
       <button
         type="button"
         // 完了ボタンを最優先にするため、サイズと面積を大きく取る。
-        className="bg-slate-900 px-6 py-4 text-base text-white"
+        className="rm-btn rm-btn-primary rm-btn-lg"
         onClick={handleComplete}
       >
         完了
@@ -188,7 +186,7 @@ export default function RunPage() {
         <button
           type="button"
           // 中断は控えめに配置し、誤操作の優先度を下げる。
-          className="border border-slate-200 px-3 py-2 text-xs text-slate-600"
+          className="rm-btn rm-btn-sm"
           onClick={handleAbort}
         >
           中断

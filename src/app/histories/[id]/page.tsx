@@ -92,21 +92,21 @@ export default function HistoryDetailPage() {
   }, [historyId, status, router]);
 
   if (error) {
-    return <div className="text-sm text-slate-600">{error}</div>;
+    return <div className="rm-muted text-sm">{error}</div>;
   }
 
   if (!history) {
-    return <div className="text-sm text-slate-600">Loading...</div>;
+    return <div className="rm-muted text-sm">Loading...</div>;
   }
 
   return (
-    <section className="space-y-4">
+    <section className="space-y-6">
       <h1 className="text-xl font-semibold">{history.title}</h1>
-      <div className="text-sm text-slate-600">
+      <div className="rm-muted text-sm">
         {formatTimestamp(history.started_at)} →{" "}
         {formatTimestamp(history.finished_at)}
       </div>
-      <div className="text-sm text-slate-600">
+      <div className="rm-muted text-sm">
         {history.completed ? "完了" : "中断"}
       </div>
 
@@ -115,7 +115,7 @@ export default function HistoryDetailPage() {
         {history.tasks.map((task, index) => (
           <div
             key={`task-${index}`}
-            className="border border-slate-200 p-2 text-sm"
+            className="rm-card text-sm"
           >
             {task}
           </div>
@@ -124,7 +124,7 @@ export default function HistoryDetailPage() {
 
       <button
         type="button"
-        className="border border-slate-200 px-3 py-2 text-sm"
+        className="rm-btn"
         onClick={() => router.push("/histories")}
       >
         戻る

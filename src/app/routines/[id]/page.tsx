@@ -139,15 +139,15 @@ export default function RoutineEditPage() {
   };
 
   if (error) {
-    return <div className="text-sm text-slate-600">{error}</div>;
+    return <div className="rm-muted text-sm">{error}</div>;
   }
 
   if (!routine) {
-    return <div className="text-sm text-slate-600">Loading...</div>;
+    return <div className="rm-muted text-sm">Loading...</div>;
   }
 
   return (
-    <section className="space-y-4">
+    <section className="space-y-6">
       <h1 className="text-xl font-semibold">編集</h1>
 
       <label className="text-sm">
@@ -155,7 +155,7 @@ export default function RoutineEditPage() {
         <input
           value={title}
           onChange={(event) => setTitle(event.target.value)}
-          className="mt-1 w-full border border-slate-200 px-3 py-2 text-sm"
+          className="rm-input mt-1"
         />
       </label>
 
@@ -172,11 +172,11 @@ export default function RoutineEditPage() {
                   )
                 )
               }
-              className="w-full border border-slate-200 px-3 py-2 text-sm"
+              className="rm-input w-full"
             />
             <button
               type="button"
-              className="border border-slate-200 px-2 text-sm"
+              className="rm-btn rm-btn-sm"
               onClick={() =>
                 setTasks((prev) =>
                   prev.filter((_, itemIndex) => itemIndex !== index)
@@ -190,27 +190,27 @@ export default function RoutineEditPage() {
         ))}
         <button
           type="button"
-          className="border border-slate-200 px-3 py-2 text-sm"
+          className="rm-btn"
           onClick={handleAddTask}
         >
           Add task
         </button>
         {limitMessage ? (
-          <div className="text-xs text-slate-600">{limitMessage}</div>
+          <div className="rm-muted text-xs">{limitMessage}</div>
         ) : null}
       </div>
 
       <div className="flex gap-2">
         <button
           type="button"
-          className="border border-slate-200 px-3 py-2 text-sm"
+          className="rm-btn"
           onClick={() => router.push("/routines")}
         >
           Back
         </button>
         <button
           type="button"
-          className="border border-slate-200 px-3 py-2 text-sm"
+          className="rm-btn rm-btn-primary"
           onClick={handleSave}
         >
           Save

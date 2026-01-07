@@ -13,13 +13,13 @@ export default function ResetPasswordPage() {
   const [submitted, setSubmitted] = useState(false);
 
   return (
-    <section className="space-y-4">
+    <section className="space-y-6">
       <h1 className="text-xl font-semibold">Reset password</h1>
-      <div className="text-xs text-slate-500">現在はUIのみ</div>
+      <div className="rm-muted text-xs">現在はUIのみ</div>
       {submitted ? (
-        <div className="space-y-2 text-sm text-slate-600">
+        <div className="rm-muted space-y-2 text-sm">
           <div>送信しました（仮）</div>
-          <a className="underline" href="/login">
+          <a className="rm-link" href="/login">
             ログインに戻る
           </a>
         </div>
@@ -30,7 +30,7 @@ export default function ResetPasswordPage() {
             <input
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2"
+              className="rm-input mt-1"
               type="email"
             />
           </label>
@@ -39,7 +39,7 @@ export default function ResetPasswordPage() {
             <input
               value={token}
               onChange={(event) => setToken(event.target.value)}
-              className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2"
+              className="rm-input mt-1"
               type="text"
             />
           </label>
@@ -48,7 +48,7 @@ export default function ResetPasswordPage() {
             <input
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2"
+              className="rm-input mt-1"
               type="password"
             />
           </label>
@@ -57,13 +57,13 @@ export default function ResetPasswordPage() {
             <input
               value={passwordConfirmation}
               onChange={(event) => setPasswordConfirmation(event.target.value)}
-              className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2"
+              className="rm-input mt-1"
               type="password"
             />
           </label>
           <button
             type="button"
-            className="rounded border border-slate-200 px-3 py-2 text-sm"
+            className="rm-btn rm-btn-primary"
             onClick={() => setSubmitted(true)}
           >
             Reset password

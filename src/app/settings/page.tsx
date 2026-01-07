@@ -1,7 +1,7 @@
 "use client";
 
 // 設定は「保存され、挙動に反映されるか」だけを確認する最小画面。
-// UIの見た目は Phase 5.5 以降で調整する前提。
+// 導線の指定が要件にないため、現状は /settings 直アクセス前提で固定する。
 
 import { useEffect, useMemo, useState } from "react";
 
@@ -53,10 +53,13 @@ export default function SettingsPage() {
   };
 
   return (
-    <section className="space-y-4">
+    <section className="space-y-6">
       <h1 className="text-xl font-semibold">Settings</h1>
-      {message ? <div className="text-sm text-slate-600">{message}</div> : null}
-      {error ? <div className="text-sm text-rose-700">{error}</div> : null}
+      <div className="rm-muted text-xs">
+        実行中に影響する項目は、次回の実行から反映されます。
+      </div>
+      {message ? <div className="rm-muted text-sm">{message}</div> : null}
+      {error ? <div className="rm-danger text-sm">{error}</div> : null}
 
       <div className="space-y-3 text-sm">
         <label className="flex items-center gap-2">
@@ -71,6 +74,7 @@ export default function SettingsPage() {
             }
           />
           残りタスク数を表示する
+          <span title="実行中の補助情報として残り数を表示する">?</span>
         </label>
 
         <label className="flex items-center gap-2">
@@ -85,6 +89,7 @@ export default function SettingsPage() {
             }
           />
           経過時間を表示する
+          <span title="実行開始からの経過時間を分単位で表示する">?</span>
         </label>
 
         <label className="flex items-center gap-2">
@@ -99,6 +104,7 @@ export default function SettingsPage() {
             }
           />
           目安時間を表示する
+          <span title="タスクに目安時間がある場合のみ表示する">?</span>
         </label>
 
         <label className="flex items-center gap-2">
@@ -113,12 +119,13 @@ export default function SettingsPage() {
             }
           />
           完了演出を表示する
+          <span title="完了後画面の演出を表示する">?</span>
         </label>
 
         <label className="flex items-center gap-2">
           <span className="w-32">Theme</span>
           <select
-            className="border border-slate-200 px-2 py-1"
+            className="rm-select"
             value={local.theme}
             onChange={(event) =>
               setLocal((prev) => ({
@@ -131,12 +138,13 @@ export default function SettingsPage() {
             <option value="soft">soft</option>
             <option value="dark">dark</option>
           </select>
+          <span title="雰囲気の切り替え（light/soft/dark）">?</span>
         </label>
 
         <label className="flex items-center gap-2">
           <span className="w-32">Dark mode</span>
           <select
-            className="border border-slate-200 px-2 py-1"
+            className="rm-select"
             value={local.dark_mode}
             onChange={(event) =>
               setLocal((prev) => ({
@@ -149,12 +157,13 @@ export default function SettingsPage() {
             <option value="on">on</option>
             <option value="off">off</option>
           </select>
+          <span title="表示モードの切り替え（system/on/off）">?</span>
         </label>
       </div>
 
       <button
         type="button"
-        className="border border-slate-200 px-3 py-2 text-sm"
+        className="rm-btn rm-btn-primary"
         onClick={handleSave}
         disabled={!canSave || saving}
       >

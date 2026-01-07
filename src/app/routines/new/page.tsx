@@ -88,16 +88,16 @@ export default function RoutineNewPage() {
   };
 
   return (
-    <section className="space-y-4">
+    <section className="space-y-6">
       <h1 className="text-xl font-semibold">新しく作る</h1>
-      {error ? <div className="text-sm text-slate-600">{error}</div> : null}
+      {error ? <div className="rm-muted text-sm">{error}</div> : null}
 
       <label className="text-sm">
         Title
         <input
           value={title}
           onChange={(event) => setTitle(event.target.value)}
-          className="mt-1 w-full border border-slate-200 px-3 py-2 text-sm"
+          className="rm-input mt-1"
         />
       </label>
 
@@ -114,11 +114,11 @@ export default function RoutineNewPage() {
                   )
                 )
               }
-              className="w-full border border-slate-200 px-3 py-2 text-sm"
+              className="rm-input w-full"
             />
             <button
               type="button"
-              className="border border-slate-200 px-2 text-sm"
+              className="rm-btn rm-btn-sm"
               onClick={() =>
                 setTasks((prev) =>
                   prev.filter((_, itemIndex) => itemIndex !== index)
@@ -132,27 +132,27 @@ export default function RoutineNewPage() {
         ))}
         <button
           type="button"
-          className="border border-slate-200 px-3 py-2 text-sm"
+          className="rm-btn"
           onClick={handleAddTask}
         >
           Add task
         </button>
         {limitMessage ? (
-          <div className="text-xs text-slate-600">{limitMessage}</div>
+          <div className="rm-muted text-xs">{limitMessage}</div>
         ) : null}
       </div>
 
       <div className="flex gap-2">
         <button
           type="button"
-          className="border border-slate-200 px-3 py-2 text-sm"
+          className="rm-btn"
           onClick={() => router.push("/routines")}
         >
           Back
         </button>
         <button
           type="button"
-          className="border border-slate-200 px-3 py-2 text-sm"
+          className="rm-btn rm-btn-primary"
           onClick={handleSave}
         >
           Save

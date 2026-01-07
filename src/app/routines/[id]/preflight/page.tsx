@@ -138,36 +138,36 @@ export default function PreflightPage() {
   };
 
   if (error) {
-    return <div className="text-sm text-slate-600">{error}</div>;
+    return <div className="rm-muted text-sm">{error}</div>;
   }
 
   if (!routine) {
-    return <div className="text-sm text-slate-600">Loading...</div>;
+    return <div className="rm-muted text-sm">Loading...</div>;
   }
 
   return (
-    <section className="space-y-4">
+    <section className="space-y-6">
       <h1 className="text-xl font-semibold">実行前</h1>
-      <div className="text-sm text-slate-600">{routine.title}</div>
+      <div className="rm-muted text-sm">{routine.title}</div>
 
       <div className="space-y-2">
         <div className="text-sm">Tasks</div>
         {tasks.map((task, index) => (
           <div
             key={`${routine.id}-${index}`}
-            className="flex items-center gap-2 border border-slate-200 p-2 text-sm"
+            className="rm-card flex items-center gap-2 text-sm"
           >
             <div className="flex-1">{task}</div>
             <button
               type="button"
-              className="border border-slate-200 px-2 text-xs"
+              className="rm-btn rm-btn-sm"
               onClick={() => moveTask(index, index - 1)}
             >
               ↑
             </button>
             <button
               type="button"
-              className="border border-slate-200 px-2 text-xs"
+              className="rm-btn rm-btn-sm"
               onClick={() => moveTask(index, index + 1)}
             >
               ↓
@@ -179,14 +179,14 @@ export default function PreflightPage() {
       <div className="flex gap-2">
         <button
           type="button"
-          className="border border-slate-200 px-3 py-2 text-sm"
+          className="rm-btn"
           onClick={() => router.push("/routines")}
         >
           Back
         </button>
         <button
           type="button"
-          className="border border-slate-200 px-3 py-2 text-sm"
+          className="rm-btn rm-btn-primary"
           onClick={handleStart}
         >
           Start

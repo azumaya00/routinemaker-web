@@ -37,33 +37,33 @@ export default function SignupPage() {
   };
 
   return (
-    <section className="space-y-4">
+    <section className="space-y-6">
       <h1 className="text-xl font-semibold">Signup</h1>
       <div className="space-y-2 text-sm">
         <label className="block">
-          <div className="mb-1 text-slate-600">Email</div>
+          <div className="rm-muted mb-1">Email</div>
           <input
-            className="w-full rounded border border-slate-200 px-3 py-2"
+            className="rm-input"
             type="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
           />
         </label>
         <label className="block">
-          <div className="mb-1 text-slate-600">Password</div>
-          <div className="mb-1 text-xs text-slate-500">{passwordHint}</div>
+          <div className="rm-muted mb-1">Password</div>
+          <div className="rm-muted mb-1 text-xs">{passwordHint}</div>
           <input
-            className="w-full rounded border border-slate-200 px-3 py-2"
+            className="rm-input"
             type="password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
           />
         </label>
         <label className="block">
-          <div className="mb-1 text-slate-600">Confirm Password</div>
-          <div className="mb-1 text-xs text-slate-500">{passwordHint}</div>
+          <div className="rm-muted mb-1">Confirm Password</div>
+          <div className="rm-muted mb-1 text-xs">{passwordHint}</div>
           <input
-            className="w-full rounded border border-slate-200 px-3 py-2"
+            className="rm-input"
             type="password"
             value={passwordConfirmation}
             onChange={(event) => setPasswordConfirmation(event.target.value)}
@@ -71,13 +71,13 @@ export default function SignupPage() {
         </label>
       </div>
       {error && (
-        <div className="rounded border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+        <div className="rm-danger rm-card text-sm">
           {error}
         </div>
       )}
       <button
         type="button"
-        className="rounded border border-slate-200 px-3 py-2 text-sm"
+        className="rm-btn rm-btn-primary"
         onClick={async () => {
           // 登録とセッション確立を API 側に任せ、完了後に /api/me で状態を同期する。
           setError(null);

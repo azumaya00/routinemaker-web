@@ -1,7 +1,18 @@
 "use client";
 
-// ログイン後ホーム。ルーティン一覧と導線のみを置き、編集系は別画面に分離する。
-// Phase 4 までの責務は「一覧」「新規作成導線」「実行導線」に限定する。
+/**
+ * ルーティン一覧ページ（ログイン後ホーム）
+ * 
+ * 責務：
+ * - ルーティン一覧の表示
+ * - 新規作成・実行・編集・削除の導線提供
+ * - Phase 4 までの責務は「一覧」「新規作成導線」「実行導線」に限定
+ * 
+ * レイアウト責務：
+ * - AppShellのMain領域に表示するコンテンツのみを返す
+ * - Header/FooterのレイアウトはAppShell側で制御されるため考慮不要
+ * - このページはログイン後なので、Footerは表示されない
+ */
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -29,13 +40,21 @@ export default function RoutinesPage() {
   const [routines, setRoutines] = useState<Routine[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showTutorial, setShowTutorial] = useState(false);
 
   // 認証判定は /api/me の成否だけを使う方針。
   useEffect(() => {
     void me();
   }, [me]);
 
-  // 未認証の遷移はガード側で統一する。
+  // チュートリアルは初回ログインのみ表示する前提のため、ローカルに記録する。
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const seen = window.localStorage.getItem("rm_tutorial_seen");
+    setShowTutorial(!seen);
+  }, []);
 
   // 一覧は /routines でのみ取得する前提。
   useEffect(() => {
@@ -81,54 +100,89 @@ export default function RoutinesPage() {
   };
 
   if (loading) {
-    return <div className="text-sm text-slate-600">Loading...</div>;
+    return <div className="rm-muted text-sm">Loading...</div>;
   }
 
   return (
-    <section className="space-y-4">
-      <h1 className="text-xl font-semibold">今日は、何から始めますか？</h1>
-      {error ? <div className="text-sm text-slate-600">{error}</div> : null}
+    <section className="space-y-10">
+      {/* タイトル: 余白を増やし、フォントサイズを少し大きくして存在感を出す */}
+      <h1 className="text-2xl font-semibold">今日は、何から始めますか？</h1>
+      
+      {/* チュートリアル: 情報量を減らすため、視認性を下げる（opacity を下げ、フォントサイズを小さく） */}
+      {showTutorial ? (
+        <div className="rm-muted text-xs opacity-60">
+          <div>チュートリアル（初回のみ表示）</div>
+          <button
+            type="button"
+            className="rm-btn rm-btn-sm mt-2"
+            onClick={() => {
+              // 初回表示の扱いは要件に明示がないため、ローカル記録で代替する。
+              window.localStorage.setItem("rm_tutorial_seen", "1");
+              setShowTutorial(false);
+            }}
+          >
+            閉じる
+          </button>
+        </div>
+      ) : null}
+      
+      {/* エラーメッセージ: 情報量を減らすため、視認性を下げる */}
+      {error ? <div className="rm-muted text-xs opacity-60">{error}</div> : null}
 
-      <div className="flex gap-2">
+      {/* 主役の操作ボタン: 「+ 新しく作る」を大きく目立たせる */}
+      <div className="flex gap-3">
         <button
           type="button"
-          className="border border-slate-200 px-3 py-2 text-sm"
+          className="rm-btn rm-btn-primary rm-btn-lg"
           onClick={() => router.push("/routines/new")}
         >
           + 新しく作る
         </button>
+        {/* 履歴ボタン: 情報量を減らすため、視認性を下げる */}
+        <button
+          type="button"
+          className="rm-btn rm-btn-sm opacity-70"
+          onClick={() => router.push("/histories")}
+        >
+          履歴
+        </button>
       </div>
 
-      <section className="space-y-2">
+      {/* ルーティン一覧: カード間の余白を増やし、カード内の余白も増やす */}
+      <section className="space-y-4">
+        {/* 空状態メッセージ: 情報量を減らすため、視認性を下げる */}
         {routines.length === 0 ? (
-          <div className="text-sm text-slate-600">No routines yet.</div>
+          <div className="rm-muted text-xs opacity-60">No routines yet.</div>
         ) : null}
         {routines.map((routine) => (
           <div
             key={routine.id}
-            className="flex items-center justify-between border border-slate-200 p-3"
+            className="rm-card flex items-center justify-between py-4 px-5"
           >
-            <div className="text-sm">{routine.title}</div>
+            {/* ルーティンタイトル: フォントサイズを少し大きくして読みやすく */}
+            <div className="text-base font-medium">{routine.title}</div>
             <div className="flex gap-2">
+              {/* 主役の操作: 「実行へ」を目立たせる（primary スタイル + サイズを大きく） */}
               <button
                 type="button"
-                className="border border-slate-200 px-3 py-1 text-sm"
+                className="rm-btn rm-btn-primary"
                 onClick={() =>
                   router.push(`/routines/${routine.id}/preflight`)
                 }
               >
                 実行へ
               </button>
+              {/* 編集・削除ボタン: 情報量を減らすため、視認性を下げる */}
               <button
                 type="button"
-                className="border border-slate-200 px-3 py-1 text-sm"
+                className="rm-btn rm-btn-sm opacity-60"
                 onClick={() => router.push(`/routines/${routine.id}`)}
               >
                 編集
               </button>
               <button
                 type="button"
-                className="border border-slate-200 px-3 py-1 text-sm"
+                className="rm-btn rm-btn-sm opacity-60"
                 onClick={() => void handleDelete(routine.id)}
               >
                 削除

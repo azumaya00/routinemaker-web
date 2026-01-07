@@ -1,6 +1,17 @@
 "use client";
 
-// Phase 2 の最小ログイン画面。見た目は暫定で機能優先のまま維持する。
+/**
+ * ログインページ
+ * 
+ * 責務：
+ * - ログイン機能の提供
+ * - 認証済みの場合は /routines にリダイレクト
+ * 
+ * レイアウト責務：
+ * - AppShellのMain領域に表示するコンテンツのみを返す
+ * - Header/FooterのレイアウトはAppShell側で制御されるため考慮不要
+ * - このページは非ログイン時なので、Footerが表示される
+ */
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -33,7 +44,7 @@ export default function LoginPage() {
   }, [status, router]);
 
   return (
-    <section className="space-y-4">
+    <section className="space-y-6">
       <h1 className="text-xl font-semibold">Login</h1>
       <div className="grid gap-3">
         <label className="text-sm">
@@ -41,7 +52,7 @@ export default function LoginPage() {
           <input
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2"
+            className="rm-input mt-1"
             type="email"
           />
         </label>
@@ -50,22 +61,22 @@ export default function LoginPage() {
           <input
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2"
+            className="rm-input mt-1"
             type="password"
           />
         </label>
         <button
           type="button"
-          className="rounded border border-slate-200 px-3 py-2 text-sm"
+          className="rm-btn rm-btn-primary"
           onClick={() => void login(email, password)}
         >
           Login
         </button>
-        <Link className="text-sm text-slate-600" href="/forgot-password">
+        <Link className="rm-link text-sm" href="/forgot-password">
           パスワードを忘れた場合
         </Link>
         {errorMessage ? (
-          <div className="text-sm text-rose-700">{errorMessage}</div>
+          <div className="rm-danger text-sm">{errorMessage}</div>
         ) : null}
       </div>
     </section>

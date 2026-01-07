@@ -19,11 +19,11 @@ export default function RunDonePage() {
   // 未認証の遷移はガードに統一する。
 
   return (
-    <section className="space-y-4">
-      <div className="text-sm text-slate-600">完了しました。</div>
+    <section className="space-y-6">
+      <div className="rm-muted text-sm">完了しました。</div>
       <button
         type="button"
-        className="border border-slate-200 px-3 py-2 text-sm"
+        className="rm-btn rm-btn-primary"
         onClick={() => router.push("/routines")}
       >
         ホームに戻る
