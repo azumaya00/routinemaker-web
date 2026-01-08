@@ -22,6 +22,7 @@ type AuthUser = {
   name: string;
   email: string;
   plan: string;
+  is_admin: boolean; // 管理者フラグ（APIから取得）
 };
 
 type AuthContextValue = {
@@ -171,3 +172,4 @@ export const useAuth = () => {
   }
   return context;
 };
+
