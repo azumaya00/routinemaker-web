@@ -33,7 +33,11 @@ body {
   --muted: #e8edf5;     /* 背景ブロック用 */
   --border: #d2dbea;    /* 薄い青グレー */
   --accent: #3b82f6;    /* 青 */
+  --accent-hover: #2563eb;    /* 青（hover時：少し濃く） */
+  --accent-active: #1d4ed8;    /* 青（active時：さらに濃く） */
   --danger: #dc2626;    /* 赤（仮共通） */
+  --gray-500: #6b7280;  /* グレー（中断ステータス等に使用） */
+  --gray-400: #9ca3af;  /* グレー（disabled等に使用） */
   
   /* ログイン後画面用のDesign Token（カード統一） */
   --app-bg: #f6f8fb;              /* ログイン後の背景色（--bgと同じ） */
@@ -50,7 +54,11 @@ body {
   --muted: #ece7f5;
   --border: #d8cfee;
   --accent: #8b5cf6;    /* 紫 */
+  --accent-hover: #7c3aed;    /* 紫（hover時：少し濃く） */
+  --accent-active: #6d28d9;    /* 紫（active時：さらに濃く） */
   --danger: #dc2626;
+  --gray-500: #6b7280;  /* グレー（中断ステータス等に使用） */
+  --gray-400: #9ca3af;  /* グレー（disabled等に使用） */
   
   /* ログイン後画面用のDesign Token（softテーマ） */
   --app-bg: #f7f5fa;
@@ -62,18 +70,93 @@ body {
 
 [data-theme="dark"] {
   /* dark：茶系（黒にしない） */
-  --bg: #161311;        /* ダークブラウン */
-  --fg: #e9e4de;        /* 黄味寄りオフホワイト */
-  --muted: #211c19;
-  --border: #3a302a;
-  --accent: #c08457;    /* 茶〜オレンジ */
+  /* ダークモードオフ時は、明度を上げたダーク配色（明るめのダーク） */
+  --bg: #2a2520;        /* ダークブラウン（明度を上げた：#161311 → #2a2520） */
+  --fg: #e9e4de;        /* 黄味寄りオフホワイト（そのまま） */
+  --muted: #3a342f;     /* 背景ブロック用（明度を上げた：#211c19 → #3a342f） */
+  --border: #4a4238;     /* 境界線（明度を上げた：#3a302a → #4a4238） */
+  --accent: #c08457;    /* 茶〜オレンジ（テーマカラーは維持） */
+  --accent-hover: #d4a574;    /* 茶〜オレンジ（hover時：少し明るく） */
+  --accent-active: #b8733f;    /* 茶〜オレンジ（active時：少し濃く） */
   --danger: #f87171;    /* 暗色上で見える赤 */
+  --gray-500: #a78bfa;  /* グレー（茶系テーマでは紫系に） */
+  --gray-400: #8b5cf6;  /* グレー（disabled等） */
   
-  /* ログイン後画面用のDesign Token（darkテーマ） */
+  /* ログイン後画面用のDesign Token（darkテーマ、ダークモードオフ時） */
+  --app-bg: #2a2520;
+  --surface: #3a342f;    /* カード背景（明度を上げた：#211c19 → #3a342f） */
+  --surface-border: rgba(255, 255, 255, 0.12);  /* 枠線（少し明るく） */
+  --shadow-surface: 0 2px 6px rgba(0, 0, 0, 0.25);  /* 影（少し弱く） */
+  --shadow-surface-hover: 0 4px 12px rgba(0, 0, 0, 0.35);  /* hover時の影 */
+}
+
+/* 
+  ダークモード対応: .darkクラスが付与された時の配色
+  各テーマ（light/soft）のダーク版を定義
+  テーマカラー（accent）は維持しつつ、背景・テキスト・カードをダーク向けに置き換える
+*/
+
+/* lightテーマのダークモード版 */
+[data-theme="light"].dark {
+  --bg: #0f172a;        /* ダークブルーグレー（lightテーマの青系を活かす） */
+  --fg: #e2e8f0;        /* 明るいグレー（読みやすさ確保） */
+  --muted: #1e293b;     /* カード背景用の少し明るいダーク */
+  --border: #334155;     /* 境界線（薄いグレー） */
+  --accent: #3b82f6;    /* テーマカラー（青）は維持 */
+  --accent-hover: #2563eb;
+  --accent-active: #1d4ed8;
+  --danger: #f87171;    /* 暗色上で見える赤 */
+  --gray-500: #94a3b8;  /* グレー（ダークモードでは少し明るく） */
+  --gray-400: #64748b;  /* グレー（disabled等、ダークモードでは少し明るく） */
+  
+  /* ログイン後画面用のDesign Token（lightテーマのダークモード） */
+  --app-bg: #0f172a;
+  --surface: #1e293b;    /* カード背景（少し明るいダーク） */
+  --surface-border: rgba(255, 255, 255, 0.1);  /* 薄い白の半透明枠線 */
+  --shadow-surface: 0 2px 6px rgba(0, 0, 0, 0.4);  /* ダークモードでは影を強く */
+  --shadow-surface-hover: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+/* softテーマのダークモード版 */
+[data-theme="soft"].dark {
+  --bg: #1a1625;        /* ダークパープルグレー（softテーマの紫系を活かす） */
+  --fg: #e9d5ff;        /* 薄い紫系の白（softテーマに合わせる） */
+  --muted: #2d1b3d;     /* カード背景用の少し明るいダークパープル */
+  --border: #4c1d95;     /* 境界線（薄い紫） */
+  --accent: #8b5cf6;    /* テーマカラー（紫）は維持 */
+  --accent-hover: #7c3aed;
+  --accent-active: #6d28d9;
+  --danger: #f87171;    /* 暗色上で見える赤 */
+  --gray-500: #a78bfa;  /* グレー（ダークモードでは紫系に） */
+  --gray-400: #8b5cf6;  /* グレー（disabled等、ダークモードでは紫系に） */
+  
+  /* ログイン後画面用のDesign Token（softテーマのダークモード） */
+  --app-bg: #1a1625;
+  --surface: #2d1b3d;    /* カード背景（少し明るいダークパープル） */
+  --surface-border: rgba(139, 92, 246, 0.2);  /* 薄い紫の半透明枠線 */
+  --shadow-surface: 0 2px 6px rgba(0, 0, 0, 0.4);
+  --shadow-surface-hover: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+/* darkテーマのダークモード版（ダークモードオン時は、より暗いダーク配色） */
+[data-theme="dark"].dark {
+  /* ダークモードオン時は、より暗いダーク配色を適用 */
+  --bg: #161311;        /* ダークブラウン（元の暗い配色） */
+  --fg: #e9e4de;        /* 黄味寄りオフホワイト（そのまま） */
+  --muted: #211c19;     /* 背景ブロック用（元の暗い配色） */
+  --border: #3a302a;     /* 境界線（元の暗い配色） */
+  --accent: #c08457;    /* 茶〜オレンジ（テーマカラーは維持） */
+  --accent-hover: #d4a574;    /* 茶〜オレンジ（hover時：少し明るく） */
+  --accent-active: #b8733f;    /* 茶〜オレンジ（active時：少し濃く） */
+  --danger: #f87171;    /* 暗色上で見える赤 */
+  --gray-500: #a78bfa;  /* グレー（茶系テーマでは紫系に） */
+  --gray-400: #8b5cf6;  /* グレー（disabled等） */
+  
+  /* ログイン後画面用のDesign Token（darkテーマ、ダークモードオン時） */
   --app-bg: #161311;
-  --surface: #211c19;    /* darkテーマではカードも少し暗めに */
+  --surface: #211c19;    /* カード背景（元の暗い配色） */
   --surface-border: rgba(255, 255, 255, 0.1);  /* 暗色上で見える枠線 */
-  --shadow-surface: 0 2px 6px rgba(0, 0, 0, 0.3);
+  --shadow-surface: 0 2px 6px rgba(0, 0, 0, 0.3);  /* ダークモードでは影を強く */
   --shadow-surface-hover: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
@@ -217,25 +300,27 @@ h3 {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-/* Primaryボタン: 主要ボタン（テーマ青、白文字、薄い影） */
+/* Primaryボタン: 主要ボタン（テーマカラー、白文字、薄い影） */
+/* テーマ変数を使用して、テーマ切替時に自動的に色が変わるようにする */
 .rm-btn-primary {
-  border-color: #3b82f6; /* 既存のテーマ青を維持 */
-  background: #3b82f6;
+  border-color: var(--accent);
+  background: var(--accent);
   color: white;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2); /* 薄い影 */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); /* テーマに依存しない薄い影 */
 }
 
 .rm-btn-primary:hover:not(:disabled) {
-  background: #2563eb; /* hover時：色を少し濃く */
-  border-color: #2563eb;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); /* hover時：影を少し強く */
+  background: var(--accent-hover); /* hover時：テーマ変数を使用 */
+  border-color: var(--accent-hover);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* hover時：影を少し強く */
   transform: translateY(-1px);
 }
 
 .rm-btn-primary:active:not(:disabled) {
-  background: #1d4ed8;
+  background: var(--accent-active); /* active時：テーマ変数を使用 */
+  border-color: var(--accent-active);
   transform: translateY(0);
-  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 /* Dangerボタン: 危険な操作用 */
@@ -263,16 +348,16 @@ h3 {
 .rm-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  background: #9ca3af;
-  border-color: #9ca3af;
+  background: var(--gray-400); /* テーマ変数を使用 */
+  border-color: var(--gray-400); /* テーマ変数を使用 */
   color: white;
   box-shadow: none;
   transform: none;
 }
 
 .rm-btn-primary:disabled {
-  background: #9ca3af;
-  border-color: #9ca3af;
+  background: var(--gray-400); /* テーマ変数を使用 */
+  border-color: var(--gray-400); /* テーマ変数を使用 */
 }
 
 /* Smallボタン: 補助ボタン用（高さは維持、paddingを調整） */
@@ -1280,7 +1365,7 @@ h3 {
   width: 36px; /* タップ領域36×36px（サイズは維持） */
   height: 36px;
   padding: 8px; /* アイコン周囲の余白8px */
-  background: #3b82f6;
+  background: var(--accent); /* テーマ変数を使用 */
   color: white;
   border: none;
   border-radius: 50%; /* 円形 */
@@ -1291,7 +1376,7 @@ h3 {
 }
 
 .routines-home-item-run:hover {
-  background: #2563eb;
+  background: var(--accent-hover); /* テーマ変数を使用 */
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25); /* hover時のみわずかに強調 */
 }
@@ -1480,7 +1565,7 @@ h3 {
 }
 
 .settings-toggle-slider.on {
-  background: #3b82f6; /* テーマ青 */
+  background: var(--accent); /* テーマ変数を使用 */
 }
 
 .settings-toggle-slider.off {
@@ -1496,7 +1581,7 @@ h3 {
 }
 
 .settings-toggle-slider.off .settings-toggle-label {
-  color: #6b7280; /* グレーのテキスト */
+  color: var(--gray-500); /* テーマ変数を使用（ダークモード対応） */
 }
 
 /* PC: タブレット以上で設定項目のレイアウトを調整 */
@@ -1535,8 +1620,8 @@ h3 {
 }
 
 .routine-form-input:focus {
-  border-color: #3b82f6; /* フォーカス時はテーマカラー寄り（Homeと統一感） */
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: var(--accent); /* フォーカス時はテーマカラー（テーマ変数を使用） */
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 10%, transparent); /* テーマ変数を使用 */
 }
 
 .routine-form-input::placeholder {
@@ -1616,19 +1701,19 @@ h3 {
   /* 高さ・角丸は.rm-btnで統一されている */
   /* Primaryより弱くするため、.rm-btn-primaryを外して.rm-btnのデフォルトスタイルを使用 */
   background: var(--bg);
-  border: 1px solid rgba(59, 130, 246, 0.3); /* 薄い青いボーダー */
-  color: #3b82f6; /* テーマ青の文字 */
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent); /* テーマ変数を使用（透明度30%） */
+  color: var(--accent); /* テーマ変数を使用 */
   box-shadow: none; /* 影は不要 */
 }
 
 .routine-form-add-btn:hover:not(:disabled) {
-  background: rgba(59, 130, 246, 0.05); /* hover時：薄い青背景 */
-  border-color: #3b82f6;
+  background: var(--muted); /* hover時：テーマ変数を使用 */
+  border-color: var(--accent); /* テーマ変数を使用 */
   transform: translateY(-1px);
 }
 
 .routine-form-add-btn:active:not(:disabled) {
-  background: rgba(59, 130, 246, 0.1);
+  background: var(--muted); /* active時もテーマ変数を使用 */
   transform: translateY(0);
 }
 
@@ -1849,15 +1934,15 @@ h3 {
 }
 
 .history-card-status-completed {
-  color: #3b82f6; /* テーマ青 */
+  color: var(--accent); /* テーマ変数を使用 */
 }
 
 .history-card-status-interrupted {
-  color: #6b7280; /* グレー */
+  color: var(--gray-500); /* テーマ変数を使用（ダークモード対応） */
 }
 
 .history-card-status-incomplete {
-  color: #ef4444; /* 赤 */
+  color: var(--gray-500); /* テーマ変数を使用（ダークモード対応） */
 }
 
 /* ページネーション */
@@ -1925,9 +2010,9 @@ h3 {
 
 .histories-pagination-page.active {
   font-weight: 600;
-  color: #3b82f6; /* テーマ青 */
-  background: rgba(59, 130, 246, 0.1);
-  border-color: #3b82f6; /* アクティブ時は青い枠線 */
+  color: var(--accent); /* テーマ変数を使用 */
+  background: color-mix(in srgb, var(--accent) 10%, transparent); /* テーマ変数を使用 */
+  border-color: var(--accent); /* アクティブ時はテーマカラーの枠線 */
 }
 
 .histories-pagination-ellipsis {
@@ -2035,15 +2120,23 @@ h3 {
 }
 
 .history-detail-status-completed {
-  color: #3b82f6; /* テーマ青 */
+  color: var(--accent); /* テーマ変数を使用 */
 }
 
 .history-detail-status-interrupted {
-  color: #6b7280; /* グレー */
+  color: var(--gray-500); /* テーマ変数を使用（ダークモード対応） */
+}
+
+.history-detail-status-interrupted span {
+  color: var(--gray-500); /* テーマ変数を使用（ダークモード対応） */
 }
 
 .history-detail-status-incomplete {
-  color: #ef4444; /* 赤 */
+  color: var(--gray-500); /* テーマ変数を使用（ダークモード対応） */
+}
+
+.history-detail-status-incomplete span {
+  color: var(--gray-500); /* テーマ変数を使用（ダークモード対応） */
 }
 
 .history-detail-status span {
@@ -2475,7 +2568,7 @@ h3 {
   justify-content: center;
   width: 32px;
   height: 32px;
-  color: #9ca3af; /* グレー系（目立ちすぎない） */
+  color: var(--gray-400); /* テーマ変数を使用（ダークモード対応） */
   cursor: grab;
   flex-shrink: 0;
   transition: color 0.15s ease;
@@ -2484,7 +2577,7 @@ h3 {
 
 .preflight-task-drag-handle:active {
   cursor: grabbing;
-  color: #6b7280; /* アクティブ時は少し濃く */
+  color: var(--gray-500); /* テーマ変数を使用（ダークモード対応） */
 }
 
 /* タスク名: 左側に配置（ドラッグハンドルが右側のため） */
@@ -2737,7 +2830,7 @@ h3 {
   width: 120px; /* 丸型ボタンの直径 */
   height: 120px;
   border-radius: 50%; /* 完全な円形 */
-  background: #3b82f6; /* テーマ青 */
+  background: var(--accent); /* テーマ変数を使用 */
   color: white;
   font-size: 18px;
   font-weight: 600;
@@ -2746,21 +2839,21 @@ h3 {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); /* 浮いている感じの影 */
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--accent) 30%, transparent); /* テーマ変数を使用 */
   transition: background-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
   margin-top: 16px; /* 補助情報との間隔 */
 }
 
 .run-page-complete-btn:hover:not(:disabled) {
-  background: #2563eb; /* hover時：色を少し濃く */
-  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+  background: var(--accent-hover); /* hover時：テーマ変数を使用 */
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--accent) 40%, transparent); /* テーマ変数を使用 */
   transform: translateY(-2px); /* わずかに浮く */
 }
 
 .run-page-complete-btn:active:not(:disabled) {
-  background: #1d4ed8;
+  background: var(--accent-active); /* active時：テーマ変数を使用 */
   transform: translateY(0);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--accent) 30%, transparent); /* テーマ変数を使用 */
 }
 
 .run-page-complete-btn:disabled {

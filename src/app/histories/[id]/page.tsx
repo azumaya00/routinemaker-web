@@ -109,14 +109,15 @@ export default function HistoryDetailPage() {
   }, [historyId, authStatus, router, me]);
 
   // ステータス判定（履歴の完了状態）
+  // 完了していない場合は、終了時刻の有無に関わらず「中断」として表示
   const getHistoryStatus = () => {
     if (history?.completed) {
       return "completed";
     }
     if (history?.finished_at) {
-      return "interrupted";
+      return "interrupted"; // 中断（完了していないが終了時刻がある）
     }
-    return "incomplete";
+    return "incomplete"; // 中断（終了時刻がない、UIでは「中断」として表示）
   };
 
   if (error) {
@@ -159,14 +160,16 @@ export default function HistoryDetailPage() {
         <div className={`history-detail-status history-detail-status-${historyStatus}`}>
           {historyStatus === "completed" && (
             <>
+              {/* 完了アイコン: テーマカラーを使用 */}
               <svg
                 width="32"
                 height="32"
                 viewBox="0 0 32 32"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
+                style={{ color: "var(--accent)" }} /* テーマカラーを適用 */
               >
-                <circle cx="16" cy="16" r="16" fill="#3b82f6" />
+                <circle cx="16" cy="16" r="16" fill="currentColor" />
                 <path
                   d="M10 16 L14 20 L22 12"
                   stroke="white"
@@ -180,14 +183,16 @@ export default function HistoryDetailPage() {
           )}
           {historyStatus === "interrupted" && (
             <>
+              {/* 中断アイコン: テーマ変数を使用（ダークモード対応） */}
               <svg
                 width="32"
                 height="32"
                 viewBox="0 0 32 32"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
+                style={{ color: "var(--gray-500)" }} /* テーマ変数を使用（ダークモード対応） */
               >
-                <circle cx="16" cy="16" r="16" fill="#6b7280" />
+                <circle cx="16" cy="16" r="16" fill="currentColor" />
                 <rect x="12" y="8" width="3" height="16" fill="white" />
                 <rect x="17" y="8" width="3" height="16" fill="white" />
               </svg>
@@ -196,22 +201,21 @@ export default function HistoryDetailPage() {
           )}
           {historyStatus === "incomplete" && (
             <>
+              {/* 一時停止風アイコン（pause）: グレー系で表示（一覧と同じスタイル、テーマ変数を使用） */}
               <svg
                 width="32"
                 height="32"
                 viewBox="0 0 32 32"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
+                aria-label="中断"
+                style={{ color: "var(--gray-500)" }} /* テーマ変数を使用（ダークモード対応） */
               >
-                <circle cx="16" cy="16" r="16" fill="#ef4444" />
-                <path
-                  d="M10 10 L22 22 M22 10 L10 22"
-                  stroke="white"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                />
+                <circle cx="16" cy="16" r="16" fill="currentColor" />
+                <rect x="12" y="8" width="3" height="16" fill="white" />
+                <rect x="17" y="8" width="3" height="16" fill="white" />
               </svg>
-              <span>未完了</span>
+              <span>中断</span>
             </>
           )}
         </div>
@@ -223,7 +227,7 @@ export default function HistoryDetailPage() {
         <div className="history-detail-tasks-list">
           {history.tasks.map((task, index) => (
             <div key={`task-${index}`} className="history-detail-task-card">
-              {/* 完了したタスクはチェックアイコンを表示 */}
+              {/* 完了したタスクはチェックアイコンを表示（テーマカラーを使用） */}
               <svg
                 width="20"
                 height="20"
@@ -231,8 +235,9 @@ export default function HistoryDetailPage() {
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
                 className="history-detail-task-icon"
+                style={{ color: "var(--accent)" }} /* テーマカラーを適用 */
               >
-                <circle cx="10" cy="10" r="10" fill="#3b82f6" />
+                <circle cx="10" cy="10" r="10" fill="currentColor" />
                 <path
                   d="M6 10 L9 13 L14 7"
                   stroke="white"

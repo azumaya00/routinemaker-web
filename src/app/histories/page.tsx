@@ -16,7 +16,7 @@ type HistorySummary = {
   title: string;
   started_at: string | null;
   finished_at: string | null;
-  completed: boolean; // true: 完了, false: 中断または未完了
+  completed: boolean; // true: 完了, false: 中断（UIでは「中断」として統一表示）
 };
 
 type HistoryListMeta = {
@@ -152,7 +152,8 @@ export default function HistoriesPage() {
   // 次のページがあるか
   const hasNextPage = currentPage < totalPages;
 
-  // ステータス判定: 完了/中断/未完了
+  // ステータス判定: 完了/中断
+  // 完了していない場合は、終了時刻の有無に関わらず「中断」として表示
   const getStatus = (history: HistorySummary) => {
     if (history.completed) {
       return "completed";
@@ -160,7 +161,7 @@ export default function HistoriesPage() {
     if (history.finished_at) {
       return "interrupted"; // 中断（完了していないが終了時刻がある）
     }
-    return "incomplete"; // 未完了（終了時刻がない）
+    return "incomplete"; // 中断（終了時刻がない、UIでは「中断」として表示）
   };
 
   if (loading) {
@@ -210,14 +211,16 @@ export default function HistoriesPage() {
                   <div className={`history-card-status history-card-status-${status}`}>
                     {status === "completed" && (
                       <>
+                        {/* 完了アイコン: テーマカラーを使用 */}
                         <svg
                           width="20"
                           height="20"
                           viewBox="0 0 20 20"
                           fill="none"
                           xmlns="http://www.w3.org/2000/svg"
+                          style={{ color: "var(--accent)" }} /* テーマカラーを適用 */
                         >
-                          <circle cx="10" cy="10" r="10" fill="#3b82f6" />
+                          <circle cx="10" cy="10" r="10" fill="currentColor" />
                           <path
                             d="M6 10 L9 13 L14 7"
                             stroke="white"
@@ -231,49 +234,40 @@ export default function HistoriesPage() {
                     )}
                     {status === "interrupted" && (
                       <>
+                        {/* 中断アイコン: グレーの丸に白い停止ボタン（履歴詳細と同じスタイル、テーマ変数を使用） */}
                         <svg
                           width="20"
                           height="20"
                           viewBox="0 0 20 20"
                           fill="none"
                           xmlns="http://www.w3.org/2000/svg"
+                          aria-label="中断"
+                          style={{ color: "var(--gray-500)" }} /* テーマ変数を使用（ダークモード対応） */
                         >
-                          <rect
-                            x="6"
-                            y="4"
-                            width="2"
-                            height="12"
-                            fill="#6b7280"
-                          />
-                          <rect
-                            x="12"
-                            y="4"
-                            width="2"
-                            height="12"
-                            fill="#6b7280"
-                          />
+                          <circle cx="10" cy="10" r="10" fill="currentColor" />
+                          <rect x="6" y="4" width="2" height="12" fill="white" />
+                          <rect x="12" y="4" width="2" height="12" fill="white" />
                         </svg>
                         <span>中断</span>
                       </>
                     )}
                     {status === "incomplete" && (
                       <>
+                        {/* 一時停止風アイコン（pause）: グレー系で表示（テーマ変数を使用） */}
                         <svg
                           width="20"
                           height="20"
                           viewBox="0 0 20 20"
                           fill="none"
                           xmlns="http://www.w3.org/2000/svg"
+                          aria-label="中断"
+                          style={{ color: "var(--gray-500)" }} /* テーマ変数を使用（ダークモード対応） */
                         >
-                          <circle cx="10" cy="10" r="10" fill="#ef4444" />
-                          <path
-                            d="M6 6 L14 14 M14 6 L6 14"
-                            stroke="white"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                          />
+                          <circle cx="10" cy="10" r="10" fill="currentColor" />
+                          <rect x="6" y="4" width="2" height="12" fill="white" />
+                          <rect x="12" y="4" width="2" height="12" fill="white" />
                         </svg>
-                        <span>未完了</span>
+                        <span>中断</span>
                       </>
                     )}
                   </div>

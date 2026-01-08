@@ -142,9 +142,10 @@ export default function RunDonePage() {
             viewBox="0 0 120 120"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
+            style={{ color: "var(--accent)" }} /* テーマカラーを適用 */
           >
-            {/* 円の背景（テーマ青） */}
-            <circle cx="60" cy="60" r="60" fill="#3b82f6" />
+            {/* 円の背景（テーマカラー） */}
+            <circle cx="60" cy="60" r="60" fill="currentColor" />
             {/* チェックマーク（白、太め） */}
             <path
               d="M35 60 L50 75 L85 40"

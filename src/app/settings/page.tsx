@@ -27,6 +27,10 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const actionsRef = useRef<HTMLDivElement>(null);
+  // 元の設定テーマを保持（保存せずに遷移した場合に元に戻すため）
+  const originalThemeRef = useRef<string | null>(null);
+  const originalDarkModeRef = useRef<string | null>(null);
+  const isSavingRef = useRef(false); // 保存中かどうかを追跡
 
   // 認証判定は /api/me の成否に統一する。
   useEffect(() => {
@@ -37,8 +41,81 @@ export default function SettingsPage() {
   useEffect(() => {
     if (settings) {
       setLocal(settings);
+      // 元の設定テーマを保存（保存せずに遷移した場合に元に戻すため）
+      originalThemeRef.current = settings.theme;
+      originalDarkModeRef.current = settings.dark_mode;
     }
   }, [settings]);
+
+  // テーマ変更を即座にプレビューとして適用
+  useEffect(() => {
+    const root = document.documentElement;
+    
+    // 設定画面内でテーマを変更したら、即座に適用（プレビュー）
+    if (local.theme) {
+      root.dataset.theme = local.theme;
+    }
+    
+    // ダークモードも即座に適用（プレビュー）
+    // AppShellと同じロジックを使用
+    const applyDarkMode = (isDark: boolean) => {
+      if (isDark) {
+        root.classList.add("dark");
+      } else {
+        root.classList.remove("dark");
+      }
+    };
+
+    if (local.dark_mode === "on") {
+      applyDarkMode(true);
+    } else if (local.dark_mode === "off") {
+      applyDarkMode(false);
+    } else if (local.dark_mode === "system") {
+      // システム設定に合わせる
+      const media = window.matchMedia("(prefers-color-scheme: dark)");
+      applyDarkMode(media.matches);
+      
+      // システム設定の変更を監視（設定画面にいる間のみ）
+      const handler = (event: MediaQueryListEvent) => applyDarkMode(event.matches);
+      media.addEventListener("change", handler);
+      return () => media.removeEventListener("change", handler);
+    }
+  }, [local.theme, local.dark_mode]);
+
+  // 設定画面を離れるときに、保存されていない変更があれば元のテーマに戻す
+  useEffect(() => {
+    return () => {
+      // 保存中でない場合のみ、元のテーマに戻す
+      if (!isSavingRef.current && originalThemeRef.current !== null) {
+        const root = document.documentElement;
+        // 元のテーマに戻す
+        if (originalThemeRef.current) {
+          root.dataset.theme = originalThemeRef.current;
+        } else {
+          delete root.dataset.theme;
+        }
+        
+        // 元のダークモード設定に戻す
+        // AppShellと同じロジックを使用
+        const applyDarkMode = (isDark: boolean) => {
+          if (isDark) {
+            root.classList.add("dark");
+          } else {
+            root.classList.remove("dark");
+          }
+        };
+        
+        if (originalDarkModeRef.current === "on") {
+          applyDarkMode(true);
+        } else if (originalDarkModeRef.current === "off") {
+          applyDarkMode(false);
+        } else if (originalDarkModeRef.current === "system") {
+          const media = window.matchMedia("(prefers-color-scheme: dark)");
+          applyDarkMode(media.matches);
+        }
+      }
+    };
+  }, []); // マウント時のみ実行
 
   // スクロール状態を監視して、下部固定エリアのシャドウを制御
   useEffect(() => {
@@ -62,15 +139,20 @@ export default function SettingsPage() {
       return;
     }
     setSaving(true);
+    isSavingRef.current = true; // 保存中フラグを立てる（クリーンアップで元に戻さないようにする）
     const result = await saveSettings(local);
     if (result.status === 200) {
-      // 保存成功後、ホームに遷移してフラッシュメッセージを表示
+      // 保存成功後、元の設定テーマも更新（次回のプレビュー用）
+      originalThemeRef.current = local.theme;
+      originalDarkModeRef.current = local.dark_mode;
+      // ホームに遷移してフラッシュメッセージを表示
       showFlash("success", "設定を保存しました");
       router.push("/routines");
     } else {
       // 保存失敗時はエラーフラッシュメッセージを表示
       showFlash("error", `保存に失敗しました (${result.status})`);
       setSaving(false);
+      isSavingRef.current = false; // 保存失敗時はフラグを戻す
     }
   };
 

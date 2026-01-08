@@ -88,12 +88,20 @@ const Header = () => {
   }, [isLoggingOut, pathname, finishLogout]);
 
   // テーマは data-theme に反映し、CSS 変数の切り替えに繋げる。
+  // 未認証時は常にデフォルトテーマ（light）を強制し、ログアウト後もテーマが残らないようにする。
   useEffect(() => {
-    if (!settings) {
+    const root = document.documentElement;
+    
+    // 未認証時は常にデフォルトテーマ（light）を強制
+    if (status !== "authenticated" || !settings) {
+      // ログアウト時や未認証時は data-theme を削除（デフォルトの :root が適用される）
+      delete root.dataset.theme;
       return;
     }
-    document.documentElement.dataset.theme = settings.theme;
-  }, [settings]);
+    
+    // 認証済み時のみ、設定されたテーマを適用
+    root.dataset.theme = settings.theme;
+  }, [status, settings]);
 
   // ダークモードは class を切り替え、Tailwind の dark 戦略と合わせる。
   useEffect(() => {

@@ -31,7 +31,45 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* SSR/CSRのちらつき対策: テーマとダークモードの初期値を注入 */}
+        {/* このscriptはHTMLのhead内で実行され、Reactのhydration前にテーマを適用する */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  // localStorageから設定を取得（認証済みユーザーの場合）
+                  // 注意: 未認証時はデフォルト（light、system）を使用
+                  var theme = 'light';
+                  var darkMode = 'system';
+                  
+                  // サーバーサイドではlocalStorageにアクセスできないため、
+                  // クライアントサイドでのみ実行される
+                  if (typeof window !== 'undefined') {
+                    // 実際の設定はAppShellのuseEffectで適用されるが、
+                    // 初期レンダリング時のちらつきを防ぐため、ここではデフォルトを設定
+                    // 認証済みユーザーの設定はAppShellで上書きされる
+                  }
+                  
+                  // システム設定に基づいて初期ダークモードを適用
+                  var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                  if (prefersDark && darkMode === 'system') {
+                    document.documentElement.classList.add('dark');
+                  } else if (darkMode === 'on') {
+                    document.documentElement.classList.add('dark');
+                  } else {
+                    document.documentElement.classList.remove('dark');
+                  }
+                } catch (e) {
+                  // エラーは無視（デフォルト設定を使用）
+                }
+              })();
+            `,
+          }}
+        />
+      </head>
       <body
         className={`${josefinSans.variable} ${notoSansJP.variable} antialiased`}
       >
