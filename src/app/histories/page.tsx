@@ -16,7 +16,7 @@ type HistorySummary = {
   title: string;
   started_at: string | null;
   finished_at: string | null;
-  completed: boolean;
+  completed: boolean; // true: 完了, false: 中断または未完了
 };
 
 type HistoryListMeta = {
@@ -44,8 +44,8 @@ const toPath = (url: string | null) => {
   }
 };
 
-// 履歴の時刻は秒までの表示で十分なので、余分な精度を落とす。
-const formatTimestamp = (value: string | null) => {
+// 履歴の日時表示: 「YYYY/MM/DD HH:mm」形式
+const formatDateTime = (value: string | null) => {
   if (!value) {
     return "-";
   }
@@ -53,27 +53,24 @@ const formatTimestamp = (value: string | null) => {
   if (Number.isNaN(date.getTime())) {
     return value;
   }
-  return date.toLocaleString("ja-JP", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false,
-  });
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  return `${year}/${month}/${day} ${hours}:${minutes}`;
 };
 
 export default function HistoriesPage() {
   const router = useRouter();
   const { status, me } = useAuth();
-  const [items, setItems] = useState<HistorySummary[]>([]);
-  const [meta, setMeta] = useState<HistoryListMeta | null>(null);
+  const [allItems, setAllItems] = useState<HistorySummary[]>([]); // 全件を保持
+  const [currentPage, setCurrentPage] = useState(1); // 現在のページ番号（1始まり）
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const nextPath = useMemo(() => toPath(meta?.next_page_url ?? null), [meta]);
-  const prevPath = useMemo(() => toPath(meta?.prev_page_url ?? null), [meta]);
+  // ページネーション: 1ページ10件固定
+  const ITEMS_PER_PAGE = 10;
 
   // 認証判定は /api/me の成否のみを使う。
   useEffect(() => {
@@ -82,91 +79,263 @@ export default function HistoriesPage() {
 
   // 未認証の遷移はガード側で統一する。
 
-  const loadHistories = async (path = "/api/histories") => {
+  // 履歴を全件取得（API側のページネーションは使わない）
+  // APIがページネーション対応している場合、複数回リクエストして全件取得する
+  const loadHistories = async () => {
     setError(null);
     setLoading(true);
-    const result = await listHistories(path);
-    if (result.status === 200) {
-      const parsed = parseJson<{ data: HistorySummary[]; meta: HistoryListMeta }>(
-        result.body
-      );
-      setItems(parsed?.data ?? []);
-      setMeta(parsed?.meta ?? null);
+    
+    try {
+      const allHistories: HistorySummary[] = [];
+      let currentPage = 1;
+      let hasMore = true;
+
+      // 全件取得するまで複数回リクエスト
+      while (hasMore) {
+        const result = await listHistories(`/api/histories?page=${currentPage}&per_page=100`);
+        if (result.status === 200) {
+          const parsed = parseJson<{ data: HistorySummary[]; meta: HistoryListMeta }>(
+            result.body
+          );
+          const items = parsed?.data ?? [];
+          allHistories.push(...items);
+
+          // 次のページがあるかチェック
+          const meta = parsed?.meta ?? null;
+          if (meta?.next_page_url) {
+            currentPage++;
+          } else {
+            hasMore = false;
+          }
+        } else if (result.status === 401) {
+          void me();
+          setLoading(false);
+          return;
+        } else {
+          setError(`履歴取得に失敗しました (${result.status})`);
+          setLoading(false);
+          return;
+        }
+      }
+
+      // 全件をstateに保存
+      setAllItems(allHistories);
       setLoading(false);
-      return;
+    } catch (err) {
+      setError("履歴取得に失敗しました");
+      setLoading(false);
     }
-
-    if (result.status === 401) {
-      void me();
-      return;
-    }
-
-    setError(`履歴取得に失敗しました (${result.status})`);
-    setLoading(false);
   };
 
   // 履歴は一覧専用画面でのみ取得する前提。
+  // 全件取得して、フロントエンド側でページネーション
   useEffect(() => {
     if (status === "authenticated") {
       void loadHistories();
     }
   }, [status]);
 
+  // 現在のページに表示する10件を計算
+  const displayedItems = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    return allItems.slice(startIndex, endIndex);
+  }, [allItems, currentPage]);
+
+  // 総ページ数を計算
+  const totalPages = useMemo(() => {
+    return Math.ceil(allItems.length / ITEMS_PER_PAGE);
+  }, [allItems.length]);
+
+  // 前のページがあるか
+  const hasPrevPage = currentPage > 1;
+  // 次のページがあるか
+  const hasNextPage = currentPage < totalPages;
+
+  // ステータス判定: 完了/中断/未完了
+  const getStatus = (history: HistorySummary) => {
+    if (history.completed) {
+      return "completed";
+    }
+    if (history.finished_at) {
+      return "interrupted"; // 中断（完了していないが終了時刻がある）
+    }
+    return "incomplete"; // 未完了（終了時刻がない）
+  };
+
   if (loading) {
     return <LoadingSpinner />;
   }
 
   return (
-    <section className="space-y-6">
-      <h1 className="text-xl font-semibold">履歴</h1>
-      {error ? <div className="rm-muted text-sm">{error}</div> : null}
+    <section className="histories-container">
+      {/* 戻るボタン: 上部に配置（誤タップを防ぐ、他の画面と統一） */}
+      <button
+        type="button"
+        className="routine-form-back-btn"
+        onClick={() => router.push("/routines")}
+      >
+        ← 戻る
+      </button>
 
-      {items.length === 0 ? (
-        <div className="rm-muted text-sm">
+      <h1 className="histories-title">実行履歴</h1>
+      {error ? <div className="histories-error">{error}</div> : null}
+
+      {allItems.length === 0 ? (
+        <div className="histories-empty">
           まだ履歴がありません。
         </div>
-      ) : null}
+      ) : (
+        <>
+          {/* 履歴カード一覧: 現在のページの10件のみ表示 */}
+          <div className="histories-list">
+            {displayedItems.map((history) => {
+              const status = getStatus(history);
+              return (
+                <button
+                  key={history.id}
+                  type="button"
+                  className="history-card"
+                  onClick={() => router.push(`/histories/${history.id}`)}
+                >
+                  {/* 左側: リスト名と実行日時 */}
+                  <div className="history-card-left">
+                    <div className="history-card-title">{history.title}</div>
+                    <div className="history-card-date">
+                      {formatDateTime(history.started_at)}
+                    </div>
+                  </div>
 
-      <section className="space-y-2">
-        {items.map((history) => (
-          <button
-            key={history.id}
-            type="button"
-            className="rm-card flex w-full items-center justify-between text-left text-sm"
-            onClick={() => router.push(`/histories/${history.id}`)}
-          >
-            <div className="flex flex-col gap-1">
-              <div>{history.title}</div>
-              <div className="rm-muted text-xs">
-                {formatTimestamp(history.started_at)} →{" "}
-                {formatTimestamp(history.finished_at)}
-              </div>
-            </div>
-            <div className="rm-muted text-xs">
-              {history.completed ? "完了" : "中断"}
-            </div>
-          </button>
-        ))}
-      </section>
+                  {/* 右側: ステータス（アイコン＋文言） */}
+                  <div className={`history-card-status history-card-status-${status}`}>
+                    {status === "completed" && (
+                      <>
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 20 20"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <circle cx="10" cy="10" r="10" fill="#3b82f6" />
+                          <path
+                            d="M6 10 L9 13 L14 7"
+                            stroke="white"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                        <span>完了</span>
+                      </>
+                    )}
+                    {status === "interrupted" && (
+                      <>
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 20 20"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <rect
+                            x="6"
+                            y="4"
+                            width="2"
+                            height="12"
+                            fill="#6b7280"
+                          />
+                          <rect
+                            x="12"
+                            y="4"
+                            width="2"
+                            height="12"
+                            fill="#6b7280"
+                          />
+                        </svg>
+                        <span>中断</span>
+                      </>
+                    )}
+                    {status === "incomplete" && (
+                      <>
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 20 20"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <circle cx="10" cy="10" r="10" fill="#ef4444" />
+                          <path
+                            d="M6 6 L14 14 M14 6 L6 14"
+                            stroke="white"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                          />
+                        </svg>
+                        <span>未完了</span>
+                      </>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
 
-      <div className="flex gap-2">
-        <button
-          type="button"
-          className="rm-btn"
-          onClick={() => prevPath && void loadHistories(prevPath)}
-          disabled={!prevPath}
-        >
-          前へ
-        </button>
-        <button
-          type="button"
-          className="rm-btn"
-          onClick={() => nextPath && void loadHistories(nextPath)}
-          disabled={!nextPath}
-        >
-          次へ
-        </button>
-      </div>
+          {/* ページネーション: 「< 1 2 3 … >」形式（フロントエンド側で制御） */}
+          <div className="histories-pagination">
+            <button
+              type="button"
+              className="histories-pagination-btn"
+              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+              disabled={!hasPrevPage}
+              aria-label="前のページ"
+            >
+              &lt;
+            </button>
+            <div className="histories-pagination-pages">
+              {/* 現在のページと前後のページを表示 */}
+              {currentPage > 1 && (
+                <button
+                  type="button"
+                  className="histories-pagination-page"
+                  onClick={() => setCurrentPage(currentPage - 1)}
+                >
+                  {currentPage - 1}
+                </button>
+              )}
+              <span className="histories-pagination-page active">
+                {currentPage}
+              </span>
+              {hasNextPage && (
+                <>
+                  {currentPage + 1 <= totalPages && (
+                    <button
+                      type="button"
+                      className="histories-pagination-page"
+                      onClick={() => setCurrentPage(currentPage + 1)}
+                    >
+                      {currentPage + 1}
+                    </button>
+                  )}
+                  {currentPage + 1 < totalPages && (
+                    <span className="histories-pagination-ellipsis">…</span>
+                  )}
+                </>
+              )}
+            </div>
+            <button
+              type="button"
+              className="histories-pagination-btn"
+              onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+              disabled={!hasNextPage}
+              aria-label="次のページ"
+            >
+              &gt;
+            </button>
+          </div>
+        </>
+      )}
     </section>
   );
 }

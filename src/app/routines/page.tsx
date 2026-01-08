@@ -54,14 +54,26 @@ export default function RoutinesPage() {
     void me();
   }, [me]);
 
-  // チュートリアルは初回ログインのみ表示する前提のため、ローカルに記録する。
+  // チュートリアルは初回ログイン時のみ表示する
+  // 判定条件：
+  // 1. 認証状態が"authenticated"であること
+  // 2. localStorageに"rm_tutorial_seen"が存在しないこと（初回ログイン）
+  // ×ボタンで閉じた場合は、localStorageに保存して以後表示しない
   useEffect(() => {
     if (typeof window === "undefined") {
       return;
     }
-    const seen = window.localStorage.getItem("rm_tutorial_seen");
-    setShowTutorial(!seen);
-  }, []);
+    
+    // 認証済みの場合のみチュートリアル表示を判定
+    if (status === "authenticated") {
+      const seen = window.localStorage.getItem("rm_tutorial_seen");
+      // localStorageに値がなければ初回ログインとして表示
+      setShowTutorial(!seen);
+    } else {
+      // 未認証時は非表示
+      setShowTutorial(false);
+    }
+  }, [status]);
 
   // 一覧は /routines でのみ取得する前提。
   useEffect(() => {
@@ -149,10 +161,10 @@ export default function RoutinesPage() {
       {showTutorial ? (
         <div className="routines-home-tutorial-card">
           <div className="routines-home-tutorial-content">
-            <div className="routines-home-tutorial-title">チュートリアル（初回のみ表示）</div>
+            <div className="routines-home-tutorial-title">RoutineMakerへようこそ</div>
             <div className="routines-home-tutorial-description">
-              RoutineMakerは、やることが多いと止まってしまう人のためのタスク管理アプリです。
-              今やる「ひとつ」だけに集中して、タスクを完了していきましょう。
+              RoutineMakerは、やることが多いと止まってしまう人のためのタスク管理アプリです。<br />
+              まずはタスクリストを作って、再生ボタンから「今やるひとつ」を始めてみましょう。  
             </div>
           </div>
           <button

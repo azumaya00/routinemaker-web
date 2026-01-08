@@ -3,8 +3,27 @@
 // 実行前確認画面。並び替えはここでのみ行い、他画面に混ぜない。
 // 実行開始時に履歴を作成し /run/[historyId] へ遷移する。
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 import {
   getCsrfCookie,
@@ -33,6 +52,66 @@ const parseJson = <T,>(input: string): T | null => {
   }
 };
 
+// ソート可能なタスクアイテムコンポーネント
+function SortableTaskItem({
+  id,
+  task,
+}: {
+  id: string;
+  task: string;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`preflight-task-card ${isDragging ? "preflight-task-card-dragging" : ""}`}
+    >
+      {/* タスク名 */}
+      <div className="preflight-task-name">{task}</div>
+      {/* ドラッグハンドル（ドットアイコン）: 右側に配置（右利き配慮） */}
+      <div
+        className="preflight-task-drag-handle"
+        {...attributes}
+        {...listeners}
+        aria-label="ドラッグして順番を変更"
+      >
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 20 20"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <circle cx="6" cy="6" r="1.5" fill="currentColor" />
+          <circle cx="10" cy="6" r="1.5" fill="currentColor" />
+          <circle cx="14" cy="6" r="1.5" fill="currentColor" />
+          <circle cx="6" cy="10" r="1.5" fill="currentColor" />
+          <circle cx="10" cy="10" r="1.5" fill="currentColor" />
+          <circle cx="14" cy="10" r="1.5" fill="currentColor" />
+          <circle cx="6" cy="14" r="1.5" fill="currentColor" />
+          <circle cx="10" cy="14" r="1.5" fill="currentColor" />
+          <circle cx="14" cy="14" r="1.5" fill="currentColor" />
+        </svg>
+      </div>
+    </div>
+  );
+}
+
 export default function PreflightPage() {
   const router = useRouter();
   const params = useParams<{ id: string }>();
@@ -40,6 +119,9 @@ export default function PreflightPage() {
   const [routine, setRoutine] = useState<Routine | null>(null);
   const [tasks, setTasks] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const actionsRef = useRef<HTMLDivElement>(null);
 
   const routineId = useMemo(() => Number(params?.id), [params?.id]);
 
@@ -49,6 +131,23 @@ export default function PreflightPage() {
   }, [me]);
 
   // 未認証の遷移はガードに一本化する。
+
+  // スクロール状態を監視して、下部固定エリアのシャドウを制御
+  useEffect(() => {
+    const handleScroll = () => {
+      // windowのスクロール位置を確認
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      setIsScrolled(scrollTop > 0);
+    };
+
+    // スクロールイベントを監視
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll(); // 初期状態を確認
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   // 実行対象のルーティンを取得し、並び替え用の state を別に持つ。
   useEffect(() => {
@@ -79,18 +178,33 @@ export default function PreflightPage() {
     });
   }, [routineId, status, router, me]);
 
-  const moveTask = (from: number, to: number) => {
-    if (to < 0 || to >= tasks.length) {
-      return;
-    }
+  // ドラッグ&ドロップ用のセンサー設定（マウス・タッチ両対応）
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
-    // 並び替えはこの画面でのみ許可する方針。
-    setTasks((prev) => {
-      const next = [...prev];
-      const [item] = next.splice(from, 1);
-      next.splice(to, 0, item);
-      return next;
-    });
+  // ドラッグ開始時のハンドラ
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as string);
+  };
+
+  // ドラッグ終了時のハンドラ
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    setActiveId(null);
+
+    if (over && active.id !== over.id) {
+      setTasks((items) => {
+        const oldIndex = items.findIndex((_, i) => `task-${i}` === active.id);
+        const newIndex = items.findIndex((_, i) => `task-${i}` === over.id);
+
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
   };
 
   const handleStart = async () => {
@@ -146,52 +260,98 @@ export default function PreflightPage() {
     return <LoadingSpinner />;
   }
 
+  // ソート可能なアイテムのID配列
+  const taskIds = tasks.map((_, index) => `task-${index}`);
+
+  // 動的な見出し文言を生成（リスト名が取得できている場合は「（リスト名）を始める」、それ以外はフォールバック）
+  const pageTitle = routine?.title
+    ? `「${routine.title}」を始めます`
+    : "このリストを始めます";
+
   return (
-    <section className="space-y-6">
-      <h1 className="text-xl font-semibold">このタスクを実行します</h1>
-      <div className="rm-muted text-sm">{routine.title}</div>
+    <section className="preflight-container">
+      {/* 戻るボタン: 上部に配置（誤タップを防ぐ、作成/編集画面と統一） */}
+      <button
+        type="button"
+        className="preflight-back-btn-top"
+        onClick={() => router.push("/routines")}
+      >
+        ← 戻る
+      </button>
 
-      <div className="space-y-2">
-        <div className="text-sm">タスク</div>
-        {tasks.map((task, index) => (
-          <div
-            key={`${routine.id}-${index}`}
-            className="rm-card flex items-center gap-2 text-sm"
-          >
-            <div className="flex-1">{task}</div>
-            <button
-              type="button"
-              className="rm-btn rm-btn-sm"
-              onClick={() => moveTask(index, index - 1)}
-            >
-              ↑
-            </button>
-            <button
-              type="button"
-              className="rm-btn rm-btn-sm"
-              onClick={() => moveTask(index, index + 1)}
-            >
-              ↓
-            </button>
+      <h1 className="preflight-title">{pageTitle}</h1>
+
+      {/* 並べ替え説明文 */}
+      <p className="preflight-description">
+        タスクはドラッグして順番を並べ替えできます
+      </p>
+
+      {/* ドラッグ&ドロップコンテキスト */}
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
+        <SortableContext items={taskIds} strategy={verticalListSortingStrategy}>
+          <div className="preflight-task-list">
+            {tasks.map((task, index) => (
+              <SortableTaskItem
+                key={`task-${index}`}
+                id={`task-${index}`}
+                task={task}
+              />
+            ))}
           </div>
-        ))}
-      </div>
+        </SortableContext>
+        {/* ドラッグ中のオーバーレイ（視覚的フィードバック） */}
+        <DragOverlay>
+          {activeId ? (() => {
+            // activeIdからindexを抽出（"task-0" -> 0）
+            const index = parseInt(activeId.replace("task-", ""), 10);
+            const task = tasks[index];
+            return task ? (
+              <div className="preflight-task-card preflight-task-card-overlay">
+                <div className="preflight-task-name">{task}</div>
+                <div className="preflight-task-drag-handle">
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle cx="6" cy="6" r="1.5" fill="currentColor" />
+                    <circle cx="10" cy="6" r="1.5" fill="currentColor" />
+                    <circle cx="14" cy="6" r="1.5" fill="currentColor" />
+                    <circle cx="6" cy="10" r="1.5" fill="currentColor" />
+                    <circle cx="10" cy="10" r="1.5" fill="currentColor" />
+                    <circle cx="14" cy="10" r="1.5" fill="currentColor" />
+                    <circle cx="6" cy="14" r="1.5" fill="currentColor" />
+                    <circle cx="10" cy="14" r="1.5" fill="currentColor" />
+                    <circle cx="14" cy="14" r="1.5" fill="currentColor" />
+                  </svg>
+                </div>
+              </div>
+            ) : null;
+          })() : null}
+        </DragOverlay>
+      </DndContext>
 
-      <div className="flex gap-2">
-        <button
-          type="button"
-          className="rm-btn"
-          onClick={() => router.push("/routines")}
-        >
-          戻る
-        </button>
-        <button
-          type="button"
-          className="rm-btn rm-btn-primary"
-          onClick={handleStart}
-        >
-          開始
-        </button>
+      {/* アクションボタン: 下部固定（開始するを最優先Primary、作成/編集画面と統一） */}
+      <div
+        ref={actionsRef}
+        className={`preflight-actions ${isScrolled ? "scrolled" : ""}`}
+      >
+        <div className="preflight-actions-inner">
+          <button
+            type="button"
+            className="rm-btn rm-btn-primary preflight-start-btn"
+            onClick={handleStart}
+          >
+            開始する
+          </button>
+        </div>
       </div>
     </section>
   );

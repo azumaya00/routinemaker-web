@@ -7,12 +7,12 @@ export type ApiResult = {
 };
 
 // 設定は API の user_settings に合わせた最小形で扱う。
+// 目安時間（enable_task_estimated_time）は仕様から削除
 export type UserSettings = {
   theme: "light" | "soft" | "dark";
   dark_mode: "system" | "on" | "off";
   show_remaining_tasks: boolean;
   show_elapsed_time: boolean;
-  enable_task_estimated_time: boolean;
   show_celebration: boolean;
 };
 

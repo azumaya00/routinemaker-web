@@ -3,7 +3,7 @@
 // ルーティン編集画面。作成画面と責務を分けて、編集だけを担う。
 // Phase 4 までは「タイトル/タスク編集」と保存のみを提供する。
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 
 import { getCsrfCookie, getRoutine, updateRoutine } from "@/lib/api";
@@ -47,6 +47,8 @@ export default function RoutineEditPage() {
   const [tasks, setTasks] = useState<string[]>([""]);
   const [error, setError] = useState<string | null>(null);
   const [limitMessage, setLimitMessage] = useState<string | null>(null);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const actionsRef = useRef<HTMLDivElement>(null);
 
   const routineId = useMemo(() => Number(params?.id), [params?.id]);
 
@@ -56,6 +58,23 @@ export default function RoutineEditPage() {
   }, [me]);
 
   // 未認証の遷移はガード側で統一する。
+
+  // スクロール状態を監視して、下部固定エリアのシャドウを制御
+  useEffect(() => {
+    const handleScroll = () => {
+      // windowのスクロール位置を確認
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      setIsScrolled(scrollTop > 0);
+    };
+
+    // スクロールイベントを監視
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll(); // 初期状態を確認
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   // 編集対象は /routines/[id] でのみ取得する。
   useEffect(() => {
@@ -235,14 +254,19 @@ export default function RoutineEditPage() {
       </div>
 
       {/* アクションボタン: 下部固定バー（保存するを最優先Primary） */}
-      <div className="routine-form-actions">
-        <button
-          type="button"
-          className="rm-btn rm-btn-primary routine-form-save-btn"
-          onClick={handleSave}
-        >
-          保存する
-        </button>
+      <div
+        ref={actionsRef}
+        className={`routine-form-actions ${isScrolled ? "scrolled" : ""}`}
+      >
+        <div className="routine-form-actions-inner">
+          <button
+            type="button"
+            className="rm-btn rm-btn-primary routine-form-save-btn"
+            onClick={handleSave}
+          >
+            保存する
+          </button>
+        </div>
       </div>
     </section>
   );

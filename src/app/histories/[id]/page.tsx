@@ -28,8 +28,8 @@ const parseJson = <T,>(input: string): T | null => {
   }
 };
 
-// 履歴の時刻は秒までの表示に揃える。
-const formatTimestamp = (value: string | null) => {
+// 履歴の日時表示: 「YYYY/MM/DD HH:mm」形式
+const formatDateTime = (value: string | null) => {
   if (!value) {
     return "-";
   }
@@ -37,21 +37,37 @@ const formatTimestamp = (value: string | null) => {
   if (Number.isNaN(date.getTime())) {
     return value;
   }
-  return date.toLocaleString("ja-JP", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false,
-  });
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  return `${year}/${month}/${day} ${hours}:${minutes}`;
+};
+
+// 実行日時の範囲表示: 「YYYY/MM/DD HH:mm - HH:mm」形式
+const formatDateTimeRange = (
+  startedAt: string | null,
+  finishedAt: string | null
+) => {
+  const start = formatDateTime(startedAt);
+  const finish = formatDateTime(finishedAt);
+  if (start === "-" && finish === "-") {
+    return "-";
+  }
+  if (start === "-") {
+    return finish;
+  }
+  if (finish === "-") {
+    return `${start} -`;
+  }
+  return `${start} - ${finish}`;
 };
 
 export default function HistoryDetailPage() {
   const router = useRouter();
   const params = useParams<{ id: string }>();
-  const { status, me } = useAuth();
+  const { status: authStatus, me } = useAuth();
   const [history, setHistory] = useState<HistoryDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -71,7 +87,7 @@ export default function HistoryDetailPage() {
       return;
     }
 
-    if (status !== "authenticated") {
+    if (authStatus !== "authenticated") {
       return;
     }
 
@@ -90,46 +106,146 @@ export default function HistoryDetailPage() {
 
       setError(`履歴取得に失敗しました (${result.status})`);
     });
-  }, [historyId, status, router]);
+  }, [historyId, authStatus, router, me]);
+
+  // ステータス判定（履歴の完了状態）
+  const getHistoryStatus = () => {
+    if (history?.completed) {
+      return "completed";
+    }
+    if (history?.finished_at) {
+      return "interrupted";
+    }
+    return "incomplete";
+  };
 
   if (error) {
-    return <div className="rm-muted text-sm">{error}</div>;
+    return <div className="history-detail-error">{error}</div>;
   }
 
   if (!history) {
     return <LoadingSpinner />;
   }
 
+  const historyStatus = getHistoryStatus();
+
   return (
-    <section className="space-y-6">
-      <h1 className="text-xl font-semibold">{history.title}</h1>
-      <div className="rm-muted text-sm">
-        {formatTimestamp(history.started_at)} →{" "}
-        {formatTimestamp(history.finished_at)}
-      </div>
-      <div className="rm-muted text-sm">
-        {history.completed ? "完了" : "中断"}
-      </div>
-
-      <section className="space-y-2">
-        <div className="text-sm">タスク</div>
-        {history.tasks.map((task, index) => (
-          <div
-            key={`task-${index}`}
-            className="rm-card text-sm"
-          >
-            {task}
-          </div>
-        ))}
-      </section>
-
+    <section className="history-detail-container">
+      {/* 戻るボタン: 上部に配置（誤タップを防ぐ、他の画面と統一） */}
       <button
         type="button"
-        className="rm-btn"
+        className="routine-form-back-btn"
         onClick={() => router.push("/histories")}
       >
-        戻る
+        ← 戻る
       </button>
+
+      <h1 className="history-detail-title">履歴詳細</h1>
+
+      {/* サマリーセクション */}
+      <div className="history-detail-summary">
+        <div className="history-detail-summary-left">
+          <div className="history-detail-summary-item">
+            <span className="history-detail-summary-label">リスト名:</span>
+            <span className="history-detail-summary-value">{history.title}</span>
+          </div>
+          <div className="history-detail-summary-item">
+            <span className="history-detail-summary-label">実行日時:</span>
+            <span className="history-detail-summary-value">
+              {formatDateTimeRange(history.started_at, history.finished_at)}
+            </span>
+          </div>
+        </div>
+        <div className={`history-detail-status history-detail-status-${historyStatus}`}>
+          {historyStatus === "completed" && (
+            <>
+              <svg
+                width="32"
+                height="32"
+                viewBox="0 0 32 32"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <circle cx="16" cy="16" r="16" fill="#3b82f6" />
+                <path
+                  d="M10 16 L14 20 L22 12"
+                  stroke="white"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              <span>完了</span>
+            </>
+          )}
+          {historyStatus === "interrupted" && (
+            <>
+              <svg
+                width="32"
+                height="32"
+                viewBox="0 0 32 32"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <circle cx="16" cy="16" r="16" fill="#6b7280" />
+                <rect x="12" y="8" width="3" height="16" fill="white" />
+                <rect x="17" y="8" width="3" height="16" fill="white" />
+              </svg>
+              <span>中断</span>
+            </>
+          )}
+          {historyStatus === "incomplete" && (
+            <>
+              <svg
+                width="32"
+                height="32"
+                viewBox="0 0 32 32"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <circle cx="16" cy="16" r="16" fill="#ef4444" />
+                <path
+                  d="M10 10 L22 22 M22 10 L10 22"
+                  stroke="white"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                />
+              </svg>
+              <span>未完了</span>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* タスク実行結果セクション */}
+      <div className="history-detail-tasks">
+        <h2 className="history-detail-tasks-title">タスク実行結果</h2>
+        <div className="history-detail-tasks-list">
+          {history.tasks.map((task, index) => (
+            <div key={`task-${index}`} className="history-detail-task-card">
+              {/* 完了したタスクはチェックアイコンを表示 */}
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 20 20"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="history-detail-task-icon"
+              >
+                <circle cx="10" cy="10" r="10" fill="#3b82f6" />
+                <path
+                  d="M6 10 L9 13 L14 7"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              <span className="history-detail-task-text">{task}</span>
+            </div>
+          ))}
+        </div>
+      </div>
     </section>
   );
 }

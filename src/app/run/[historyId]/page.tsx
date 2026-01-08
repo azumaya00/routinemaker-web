@@ -42,13 +42,39 @@ export default function RunPage() {
     return Math.max(payload.tasks.length - currentIndex - 1, 0);
   }, [payload, currentIndex]);
 
-  // 目安時間は API から配列で渡される前提。未対応の場合は表示しない。
-  const estimatedMinutes = useMemo(() => {
-    if (!payload?.task_estimates) {
+  // 目安時間機能は仕様から削除（コードは残すが使用しない）
+
+  // 経過時間を計算（設定されている場合のみ）
+  // 注意: Hooksの順序を固定するため、早期リターンの前に配置
+  const elapsedMinutes = useMemo(() => {
+    if (
+      !settings?.show_elapsed_time ||
+      !payload?.started_at ||
+      !now ||
+      Number.isNaN(new Date(payload.started_at).getTime())
+    ) {
       return null;
     }
-    return payload.task_estimates[currentIndex] ?? null;
-  }, [payload, currentIndex]);
+    return Math.max(
+      Math.floor(
+        (now.getTime() - new Date(payload.started_at).getTime()) / 60000
+      ),
+      0
+    );
+  }, [settings?.show_elapsed_time, payload?.started_at, now]);
+
+  // 補助情報を1行で表示（「残り◯ / 経過◯分」形式）
+  // 注意: Hooksの順序を固定するため、早期リターンの前に配置
+  const statusInfo = useMemo(() => {
+    const parts: string[] = [];
+    if (settings?.show_remaining_tasks) {
+      parts.push(`残り ${remainingCount}`);
+    }
+    if (elapsedMinutes !== null) {
+      parts.push(`経過 ${elapsedMinutes}分`);
+    }
+    return parts.length > 0 ? parts.join(" / ") : null;
+  }, [settings?.show_remaining_tasks, remainingCount, elapsedMinutes]);
 
   // 認証判定は /api/me の成否のみで統一する。
   useEffect(() => {
@@ -107,10 +133,55 @@ export default function RunPage() {
       return;
     }
 
+    // 最後のタスク完了時: ユーザー操作コンテキスト内で効果音を開始
+    // 方針1を採用: 完了ボタン押下時のユーザー操作コンテキストで音再生を開始し、画面遷移後も継続
+    // 理由: ブラウザの自動再生ポリシーにより、ユーザー操作のコンテキスト内で開始する必要がある
+    let celebrationAudio: HTMLAudioElement | null = null;
+    if (settings?.show_celebration) {
+      try {
+        celebrationAudio = new Audio("/sounds/confetti.mp3");
+        celebrationAudio.volume = 0.5; // 音量を控えめに
+        celebrationAudio.preload = "auto"; // 事前読み込みを有効化
+        
+        // 音声ファイルの読み込み完了を待つ（最初の破裂音が聞こえるように）
+        await new Promise<void>((resolve, reject) => {
+          if (celebrationAudio) {
+            celebrationAudio.addEventListener("canplaythrough", () => {
+              // 読み込み完了後、再生位置を先頭にリセット
+              celebrationAudio!.currentTime = 0;
+              resolve();
+            }, { once: true });
+            
+            celebrationAudio.addEventListener("error", (err) => {
+              reject(err);
+            }, { once: true });
+            
+            // 読み込みを開始
+            celebrationAudio.load();
+          } else {
+            reject(new Error("Audio element not created"));
+          }
+        });
+        
+        // ユーザー操作コンテキスト内で再生を開始（画面遷移後も継続する）
+        await celebrationAudio.play();
+        // sessionStorageに再生中の音声を保存（完了画面で継続させるため）
+        sessionStorage.setItem(`celebration_audio_${historyId}`, "playing");
+      } catch (err) {
+        // 再生失敗は無視（UIは壊さない）
+        console.warn("Sound playback failed:", err);
+      }
+    }
+
     setError(null);
     await getCsrfCookie();
     const result = await completeHistory(historyId);
     if (result.status === 200) {
+      // 音声が再生中の場合は、完了画面でも継続させるためsessionStorageに保存
+      if (celebrationAudio) {
+        // 音声オブジェクトをグローバルに保存（完了画面で参照できるように）
+        (window as unknown as Record<string, unknown>)[`celebration_audio_${historyId}`] = celebrationAudio;
+      }
       router.push(`/run/${historyId}/done`);
       return;
     }
@@ -149,48 +220,33 @@ export default function RunPage() {
   }
 
   return (
-    <section className="space-y-6">
-      {/* 実行中は「今やる1つ」を最優先に視認させる。 */}
-      <div className="text-4xl font-semibold">{currentTask ?? "-"}</div>
-      <div className="rm-muted space-y-1 text-sm">
-        {settings?.show_remaining_tasks ? (
-          <div>残りタスク: {remainingCount}</div>
+    <section className="run-page-container">
+      {/* 実行中は「今やる1つ」を最優先に視認させる。中央寄せ、余白多め */}
+      <div className="run-page-content">
+        {/* タスク名: 大きく、中央寄せ */}
+        <h1 className="run-page-task-name">{currentTask ?? "-"}</h1>
+
+        {/* 補助情報: 「残り◯ / 経過◯分」形式で1行表示（設定されている場合のみ） */}
+        {statusInfo ? (
+          <div className="run-page-status">{statusInfo}</div>
         ) : null}
-        {settings?.show_elapsed_time &&
-        payload?.started_at &&
-        now &&
-        !Number.isNaN(new Date(payload.started_at).getTime()) ? (
-          <div>
-            経過時間:{" "}
-            {Math.max(
-              Math.floor(
-                (now.getTime() - new Date(payload.started_at).getTime()) / 60000
-              ),
-              0
-            )}
-            分
-          </div>
-        ) : null}
-        {settings?.enable_task_estimated_time && estimatedMinutes ? (
-          <div>目安時間: {estimatedMinutes}分</div>
-        ) : null}
-      </div>
-      <button
-        type="button"
-        // 完了ボタンを最優先にするため、サイズと面積を大きく取る。
-        className="rm-btn rm-btn-primary rm-btn-lg"
-        onClick={handleComplete}
-      >
-        完了
-      </button>
-      <div className="pt-6">
+
+        {/* 完了ボタン: 丸型の主ボタン（この画面専用スタイル） */}
         <button
           type="button"
-          // 中断は控えめに配置し、誤操作の優先度を下げる。
-          className="rm-btn rm-btn-sm"
+          className="run-page-complete-btn"
+          onClick={handleComplete}
+        >
+          できた！
+        </button>
+
+        {/* 中断: リンク風、距離で弱める（A案） */}
+        <button
+          type="button"
+          className="run-page-abort-btn"
           onClick={handleAbort}
         >
-          中断
+          中断する
         </button>
       </div>
     </section>

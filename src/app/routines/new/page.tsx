@@ -3,7 +3,7 @@
 // ルーティン作成専用画面。入力と追加のみを担い、一覧や並び替えは持たせない。
 // Phase 4 以降の機能追加を想定し、最小の保存フローだけ先に固める。
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 
 import { createRoutine, getCsrfCookie, type RoutinePayload } from "@/lib/api";
@@ -30,6 +30,8 @@ export default function RoutineNewPage() {
   const [tasks, setTasks] = useState<string[]>([""]);
   const [error, setError] = useState<string | null>(null);
   const [limitMessage, setLimitMessage] = useState<string | null>(null);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const actionsRef = useRef<HTMLDivElement>(null);
 
   // 作成画面も /api/me で認証判定を揃える。
   useEffect(() => {
@@ -37,6 +39,23 @@ export default function RoutineNewPage() {
   }, [me]);
 
   // 未認証の遷移はガード側で統一する。
+
+  // スクロール状態を監視して、下部固定エリアのシャドウを制御
+  useEffect(() => {
+    const handleScroll = () => {
+      // windowのスクロール位置を確認
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      setIsScrolled(scrollTop > 0);
+    };
+
+    // スクロールイベントを監視
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll(); // 初期状態を確認
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   // 上限に到達していない場合は警告を出し続けない。
   useEffect(() => {
@@ -175,14 +194,19 @@ export default function RoutineNewPage() {
       </div>
 
       {/* アクションボタン: 下部固定バー（保存するを最優先Primary） */}
-      <div className="routine-form-actions">
-        <button
-          type="button"
-          className="rm-btn rm-btn-primary routine-form-save-btn"
-          onClick={handleSave}
-        >
-          保存する
-        </button>
+      <div
+        ref={actionsRef}
+        className={`routine-form-actions ${isScrolled ? "scrolled" : ""}`}
+      >
+        <div className="routine-form-actions-inner">
+          <button
+            type="button"
+            className="rm-btn rm-btn-primary routine-form-save-btn"
+            onClick={handleSave}
+          >
+            保存する
+          </button>
+        </div>
       </div>
     </section>
   );

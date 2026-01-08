@@ -28,12 +28,19 @@ body {
 
 :root {
   /* light：青系（明るいが目に刺さらない） */
-  --bg: #f6f8fb;        /* 少し青みのあるオフホワイト */
+  --bg: #f6f8fb;        /* 少し青みのあるオフホワイト（ログイン後画面の背景） */
   --fg: #1f2937;        /* 濃すぎないダークグレー */
   --muted: #e8edf5;     /* 背景ブロック用 */
   --border: #d2dbea;    /* 薄い青グレー */
   --accent: #3b82f6;    /* 青 */
   --danger: #dc2626;    /* 赤（仮共通） */
+  
+  /* ログイン後画面用のDesign Token（カード統一） */
+  --app-bg: #f6f8fb;              /* ログイン後の背景色（--bgと同じ） */
+  --surface: #ffffff;              /* カード背景色（純白） */
+  --surface-border: rgba(0, 0, 0, 0.05);  /* カード枠線（薄い黒の半透明） */
+  --shadow-surface: 0 2px 6px rgba(0, 0, 0, 0.04);  /* カード影（薄い影） */
+  --shadow-surface-hover: 0 4px 12px rgba(0, 0, 0, 0.06);  /* カードhover時の影 */
 }
 
 [data-theme="soft"] {
@@ -44,6 +51,13 @@ body {
   --border: #d8cfee;
   --accent: #8b5cf6;    /* 紫 */
   --danger: #dc2626;
+  
+  /* ログイン後画面用のDesign Token（softテーマ） */
+  --app-bg: #f7f5fa;
+  --surface: #ffffff;
+  --surface-border: rgba(0, 0, 0, 0.05);
+  --shadow-surface: 0 2px 6px rgba(0, 0, 0, 0.04);
+  --shadow-surface-hover: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
 [data-theme="dark"] {
@@ -54,6 +68,13 @@ body {
   --border: #3a302a;
   --accent: #c08457;    /* 茶〜オレンジ */
   --danger: #f87171;    /* 暗色上で見える赤 */
+  
+  /* ログイン後画面用のDesign Token（darkテーマ） */
+  --app-bg: #161311;
+  --surface: #211c19;    /* darkテーマではカードも少し暗めに */
+  --surface-border: rgba(255, 255, 255, 0.1);  /* 暗色上で見える枠線 */
+  --shadow-surface: 0 2px 6px rgba(0, 0, 0, 0.3);
+  --shadow-surface-hover: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 @theme inline {
@@ -1210,23 +1231,23 @@ h3 {
   text-align: center;
 }
 
-/* リスト項目カード: カード全体の軽量化（わずかにグレー寄り、影を弱める） */
+/* リスト項目カード: 共通Design Tokenで統一（ログイン後画面のカード統一） */
 .routines-home-item {
   min-height: 64px;
-  padding: 16px 20px; /* カードpadding 16-20px（18px） */
+  padding: 16px 20px; /* カードpadding 16-20px */
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  background: #f9fafb; /* カード軽量化：純白ではなくわずかにグレー寄り */
-  border: 1px solid rgba(0, 0, 0, 0.05); /* 薄い枠線 */
-  border-radius: 18px; /* 角丸18px（維持） */
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04); /* カード軽量化：影を弱める */
+  background: var(--surface); /* 共通トークン: カード背景色（純白） */
+  border: 1px solid var(--surface-border); /* 共通トークン: カード枠線 */
+  border-radius: 18px; /* 角丸18px */
+  box-shadow: var(--shadow-surface); /* 共通トークン: カード影 */
   transition: box-shadow 0.15s ease, transform 0.1s ease;
 }
 
 .routines-home-item:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06); /* hover時も控えめに */
+  box-shadow: var(--shadow-surface-hover); /* 共通トークン: hover時の影 */
   transform: translateY(-1px);
 }
 
@@ -1338,6 +1359,155 @@ h3 {
   font-size: 14px;
   margin-bottom: 1rem;
   opacity: 0.8;
+}
+
+/* メッセージ（成功など） */
+.routine-form-message {
+  color: var(--fg);
+  font-size: 14px;
+  margin-bottom: 1rem;
+  opacity: 0.8;
+}
+
+/* 設定画面: 説明文 */
+.settings-description {
+  font-size: 14px;
+  color: var(--fg);
+  opacity: 0.7;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+/* 設定項目リスト */
+.settings-items {
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* 項目間の余白 */
+  margin-bottom: 100px; /* 下部固定ボタンのスペース確保 */
+}
+
+/* 設定項目: 横並び（左にラベル、右にコントロール） */
+.settings-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--surface-border); /* 項目間の区切り線 */
+}
+
+.settings-item:last-child {
+  border-bottom: none;
+}
+
+/* 設定項目のラベル部分 */
+.settings-item-label {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0; /* テキストの縮小を許可 */
+}
+
+.settings-item-label label {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--fg);
+  cursor: pointer;
+  flex: 1;
+  min-width: 0;
+  word-break: break-word;
+}
+
+/* ラベルテキストとヘルプアイコンを横並びに */
+.settings-item-label-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px; /* 項目文言とヘルプアイコンの間隔 */
+}
+
+/* ヘルプアイコン（？） */
+.settings-help-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--muted);
+  color: var(--fg);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.settings-help-icon:hover {
+  background: var(--accent);
+  color: white;
+}
+
+/* 設定項目のコントロール部分 */
+.settings-item-control {
+  flex-shrink: 0;
+}
+
+/* トグルスイッチ */
+.settings-toggle {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+}
+
+.settings-toggle input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.settings-toggle-slider {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 32px;
+  border-radius: 16px;
+  background: var(--muted);
+  transition: background-color 0.2s ease;
+  position: relative;
+}
+
+.settings-toggle-slider.on {
+  background: #3b82f6; /* テーマ青 */
+}
+
+.settings-toggle-slider.off {
+  background: #d1d5db; /* グレー */
+}
+
+.settings-toggle-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: white;
+  user-select: none;
+  pointer-events: none;
+}
+
+.settings-toggle-slider.off .settings-toggle-label {
+  color: #6b7280; /* グレーのテキスト */
+}
+
+/* PC: タブレット以上で設定項目のレイアウトを調整 */
+@media (min-width: 769px) {
+  .settings-item {
+    padding: 20px 0;
+  }
+
+  .settings-item-label label {
+    font-size: 16px;
+  }
 }
 
 /* ラベル: 読みやすさを確保 */
@@ -1504,6 +1674,7 @@ h3 {
 }
 
 /* 下部固定アクションバー: 「保存する」を最優先Primaryとして配置 */
+/* border-topは常時表示しない（スクロール時のみシャドウで境界を表現） */
 .routine-form-actions {
   position: fixed;
   bottom: 0;
@@ -1512,18 +1683,34 @@ h3 {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 16px;
+  padding: 0; /* paddingはinnerコンテナに移動 */
   padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)); /* iOSの安全領域を考慮 */
-  background: var(--bg);
-  border-top: 1px solid var(--border);
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05); /* 上部に薄い影 */
+  background: var(--app-bg); /* ログイン後の背景色と統一 */
+  border-top: none; /* 常時表示しない */
+  box-shadow: none; /* 初期状態ではシャドウなし */
   z-index: 10;
 }
 
-/* 保存ボタン: Primaryボタン（固定バー内フル幅、最優先） */
+/* スクロール時のみシャドウを表示（コンテンツが背後に来た場合のみ境界を表現） */
+.routine-form-actions.scrolled {
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04); /* ごく薄いシャドウ */
+}
+
+/* 下部固定エリア内のコンテナ: フォームと同じ幅とpaddingに統一 */
+.routine-form-actions-inner {
+  width: 100%;
+  max-width: 600px; /* routine-form-containerと同じ最大幅 */
+  margin-left: auto;
+  margin-right: auto;
+  padding: 16px; /* SP: 左右padding 16px（routine-form-containerと同じ） */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 保存ボタン: Primaryボタン（コンテナ幅いっぱい） */
 .routine-form-save-btn {
   width: 100%;
-  max-width: 600px; /* コンテナと同じ最大幅 */
   /* 高さ・角丸・影・色は.rm-btn-primaryで統一されている */
 }
 
@@ -1549,6 +1736,409 @@ h3 {
   .routine-form-save-btn {
     max-width: 600px;
   }
+
+  /* PC: 下部固定エリアのpaddingも24pxに統一 */
+  .routine-form-actions-inner {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+
+/* 
+  実行履歴一覧画面（histories）
+  参考画像に合わせた実装
+*/
+.histories-container {
+  width: 100%;
+  max-width: 720px; /* ログイン後画面のコンテナ幅と統一 */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 16px; /* SP: 左右padding 16px */
+  padding-right: 16px;
+  padding-top: 24px;
+  padding-bottom: 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.histories-title {
+  font-size: 24px; /* SP: 大きめのサイズ */
+  font-weight: 600;
+  margin-bottom: 24px;
+  color: var(--fg);
+}
+
+.histories-error {
+  color: var(--danger);
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.histories-empty {
+  color: var(--fg);
+  opacity: 0.7;
+  font-size: 14px;
+  text-align: center;
+  padding: 48px 0;
+}
+
+/* 履歴カード一覧 */
+.histories-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* カード間の間隔 */
+  margin-bottom: 32px;
+}
+
+/* 履歴カード */
+.history-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background: var(--surface); /* カード背景色 */
+  border: 1px solid var(--surface-border); /* カード枠線 */
+  border-radius: 18px; /* 角丸 */
+  box-shadow: var(--shadow-surface); /* カードの影 */
+  cursor: pointer;
+  transition: box-shadow 0.15s ease, transform 0.1s ease;
+  text-align: left;
+  width: 100%;
+}
+
+.history-card:hover {
+  box-shadow: var(--shadow-surface-hover);
+  transform: translateY(-2px);
+}
+
+.history-card:active {
+  transform: translateY(0);
+}
+
+/* カード左側: リスト名と実行日時 */
+.history-card-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.history-card-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--fg);
+  word-break: break-word;
+}
+
+.history-card-date {
+  font-size: 14px;
+  color: var(--fg);
+  opacity: 0.7;
+}
+
+/* カード右側: ステータス */
+.history-card-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.history-card-status-completed {
+  color: #3b82f6; /* テーマ青 */
+}
+
+.history-card-status-interrupted {
+  color: #6b7280; /* グレー */
+}
+
+.history-card-status-incomplete {
+  color: #ef4444; /* 赤 */
+}
+
+/* ページネーション */
+.histories-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 32px;
+}
+
+.histories-pagination-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--fg);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.histories-pagination-btn:hover:not(:disabled) {
+  background: var(--muted);
+  border-color: var(--border);
+}
+
+.histories-pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.histories-pagination-pages {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.histories-pagination-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--fg); /* テキスト色を濃く */
+  background: var(--surface); /* 白背景でコントラスト向上 */
+  border: 1px solid var(--surface-border); /* 枠線を追加 */
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.histories-pagination-page:hover {
+  background: var(--muted);
+  border-color: var(--border);
+  color: var(--fg);
+}
+
+.histories-pagination-page.active {
+  font-weight: 600;
+  color: #3b82f6; /* テーマ青 */
+  background: rgba(59, 130, 246, 0.1);
+  border-color: #3b82f6; /* アクティブ時は青い枠線 */
+}
+
+.histories-pagination-ellipsis {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  color: var(--fg);
+  opacity: 0.5;
+}
+
+/* PC: タブレット以上で左右padding 24px */
+@media (min-width: 769px) {
+  .histories-container {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .histories-title {
+    font-size: 32px; /* PC: さらに大きく */
+  }
+}
+
+/* 
+  履歴詳細画面（history-detail）
+  参考画像に合わせた実装
+*/
+.history-detail-container {
+  width: 100%;
+  max-width: 720px; /* ログイン後画面のコンテナ幅と統一 */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 16px; /* SP: 左右padding 16px */
+  padding-right: 16px;
+  padding-top: 24px;
+  padding-bottom: 100px; /* 戻るボタンのスペース確保 */
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.history-detail-title {
+  font-size: 24px; /* SP: 大きめのサイズ */
+  font-weight: 600;
+  margin-bottom: 24px;
+  text-align: center; /* 中央寄せ */
+  color: var(--fg);
+}
+
+.history-detail-error {
+  color: var(--danger);
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+/* サマリーセクション */
+.history-detail-summary {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 32px;
+  padding: 20px;
+  background: var(--surface); /* カード背景色 */
+  border: 1px solid var(--surface-border); /* カード枠線 */
+  border-radius: 18px; /* 角丸 */
+  box-shadow: var(--shadow-surface); /* カードの影 */
+}
+
+.history-detail-summary-left {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.history-detail-summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.history-detail-summary-label {
+  font-size: 14px;
+  color: var(--fg);
+  opacity: 0.7;
+}
+
+.history-detail-summary-value {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--fg);
+  word-break: break-word;
+}
+
+/* ステータス表示（右側） */
+.history-detail-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.history-detail-status-completed {
+  color: #3b82f6; /* テーマ青 */
+}
+
+.history-detail-status-interrupted {
+  color: #6b7280; /* グレー */
+}
+
+.history-detail-status-incomplete {
+  color: #ef4444; /* 赤 */
+}
+
+.history-detail-status span {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* タスク実行結果セクション */
+.history-detail-tasks {
+  margin-bottom: 32px;
+}
+
+.history-detail-tasks-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: var(--fg);
+}
+
+.history-detail-tasks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* カード間の間隔 */
+}
+
+/* タスクカード */
+.history-detail-task-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: var(--surface); /* カード背景色 */
+  border: 1px solid var(--surface-border); /* カード枠線 */
+  border-radius: 18px; /* 角丸 */
+  box-shadow: var(--shadow-surface); /* カードの影 */
+}
+
+.history-detail-task-icon {
+  flex-shrink: 0;
+}
+
+.history-detail-task-text {
+  font-size: 16px;
+  color: var(--fg);
+  word-break: break-word;
+  flex: 1;
+}
+
+/* 戻るボタンは上部に配置（routine-form-back-btnを使用） */
+
+/* PC: タブレット以上で左右padding 24px */
+@media (min-width: 769px) {
+  .history-detail-container {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .history-detail-title {
+    font-size: 32px; /* PC: さらに大きく */
+  }
+
+  .history-detail-summary {
+    padding: 24px;
+  }
+}
+
+/* ツールチップ: ヘルプアイコンとツールチップ表示 */
+.tooltip-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  outline: none;
+}
+
+.tooltip-trigger:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.tooltip-content {
+  background: var(--surface); /* カード背景色と統一 */
+  color: var(--fg);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+  box-shadow: var(--shadow-surface); /* カードの影と統一 */
+  border: 1px solid var(--surface-border); /* カードの枠線と統一 */
+  max-width: 280px;
+  word-break: break-word;
+  pointer-events: none; /* ツールチップ自体はクリックできない */
+  white-space: pre-wrap; /* 改行を保持 */
 }
 
 /* 
@@ -1801,5 +2391,428 @@ h3 {
 
 .flash-message-close:hover {
   opacity: 1;
+}
+
+/* 
+  実行前確認画面（preflight）: ドラッグ&ドロップ対応のタスク並び替え画面
+  添付画像デザインに合わせた実装
+*/
+.preflight-container {
+  width: 100%;
+  max-width: 720px; /* PC: カラム最大幅720px */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 16px; /* SP: 左右padding 16px */
+  padding-right: 16px;
+  padding-top: 24px;
+  padding-bottom: 100px; /* 下部固定バーのスペース確保 */
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ページタイトル: 大きめ、左寄せ */
+.preflight-title {
+  font-size: 24px; /* SP: 24-28px（24px） */
+  font-weight: 600;
+  text-align: left;
+  color: var(--fg);
+  margin-bottom: 12px; /* 説明文との間隔 */
+}
+
+/* 並べ替え説明文: 見出しの下、控えめなスタイル */
+.preflight-description {
+  font-size: 14px;
+  color: var(--fg);
+  opacity: 0.7;
+  margin-bottom: 24px; /* タスクリストとの間隔 */
+  line-height: 1.5;
+}
+
+/* タスクリスト: 縦に並ぶ */
+.preflight-task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* カード間の間隔 */
+}
+
+/* タスクカード: 共通Design Tokenで統一（ログイン後画面のカード統一） */
+.preflight-task-card {
+  min-height: 56px; /* 最小高さ56px */
+  padding: 16px 20px; /* カードpadding */
+  display: flex;
+  align-items: center;
+  gap: 16px; /* タスク名とドラッグハンドルの間隔 */
+  background: var(--surface); /* 共通トークン: カード背景色（純白） */
+  border: 1px solid var(--surface-border); /* 共通トークン: カード枠線 */
+  border-radius: 18px; /* 角丸18px */
+  box-shadow: var(--shadow-surface); /* 共通トークン: カード影 */
+  transition: box-shadow 0.15s ease, transform 0.1s ease;
+  cursor: grab; /* ドラッグ可能であることを示す */
+}
+
+.preflight-task-card:active {
+  cursor: grabbing; /* ドラッグ中 */
+}
+
+/* ドラッグ中のカード: 少し浮いたように見える */
+.preflight-task-card-dragging {
+  opacity: 0.4; /* ドラッグ中は元の位置を薄く表示 */
+}
+
+/* ドラッグ中のオーバーレイカード: マウスに追従するカード */
+.preflight-task-card-overlay {
+  opacity: 0.95;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); /* より強い影で浮いている感じ */
+  transform: rotate(2deg); /* わずかに回転させて動いている感じを出す */
+  cursor: grabbing;
+}
+
+/* ドラッグハンドル（ドットアイコン）: 目立ちすぎないグレー系 */
+.preflight-task-drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  color: #9ca3af; /* グレー系（目立ちすぎない） */
+  cursor: grab;
+  flex-shrink: 0;
+  transition: color 0.15s ease;
+  touch-action: none; /* タッチ操作時のスクロールを防ぐ */
+}
+
+.preflight-task-drag-handle:active {
+  cursor: grabbing;
+  color: #6b7280; /* アクティブ時は少し濃く */
+}
+
+/* タスク名: 左側に配置（ドラッグハンドルが右側のため） */
+.preflight-task-name {
+  flex: 1;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--fg);
+  line-height: 1.4;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  min-width: 0; /* flexアイテムの縮小を許可 */
+}
+
+/* 戻るボタン: 上部に配置（誤タップを防ぐ、作成/編集画面と統一） */
+.preflight-back-btn-top {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px; /* 控えめな高さ */
+  padding: 0 16px;
+  background: transparent;
+  border: none;
+  color: var(--fg);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s ease, color 0.15s ease;
+  opacity: 0.7;
+  margin-bottom: 16px; /* 見出しとの間隔 */
+  text-decoration: none;
+}
+
+.preflight-back-btn-top:hover {
+  opacity: 1;
+  color: var(--accent);
+}
+
+/* 下部固定アクションバー: 「開始する」を最優先Primaryとして配置（作成/編集画面と統一） */
+.preflight-actions {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0; /* paddingはinnerコンテナに移動 */
+  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)); /* iOSの安全領域を考慮 */
+  background: var(--app-bg); /* ログイン後の背景色と統一 */
+  /* border-topは常時表示しない（スクロール時のみシャドウで境界を表現） */
+  border-top: none;
+  box-shadow: none; /* 初期状態ではシャドウなし */
+  z-index: 10;
+}
+
+/* スクロール時のみシャドウを表示（コンテンツが背後に来た場合のみ境界を表現） */
+.preflight-actions.scrolled {
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04); /* ごく薄いシャドウ */
+}
+
+/* 下部固定エリア内のコンテナ: フォーム/リストと同じ幅とpaddingに統一 */
+.preflight-actions-inner {
+  width: 100%;
+  max-width: 720px; /* preflight-containerと同じ最大幅 */
+  margin-left: auto;
+  margin-right: auto;
+  padding: 16px; /* SP: 左右padding 16px（preflight-containerと同じ） */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 開始するボタン: Primaryボタン（コンテナ幅いっぱい） */
+.preflight-start-btn {
+  width: 100%;
+  /* 高さ・角丸・影・色は.rm-btn-primaryで統一されている */
+}
+
+/* PC: タブレット以上で左右padding 24px */
+@media (min-width: 769px) {
+  .preflight-container {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .preflight-title {
+    font-size: 32px; /* PC: 32px前後 */
+  }
+
+  /* PC: 下部固定エリアのpaddingも24pxに統一 */
+  .preflight-actions-inner {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+
+/* 
+  完了画面（done-page）: 参考画像に合わせた実装
+  中央寄せ、余白多め、静かな画面
+*/
+.done-page-container {
+  width: 100%;
+  max-width: 720px; /* ログイン後画面のコンテナ幅と統一 */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 16px; /* SP: 左右padding 16px */
+  padding-right: 16px;
+  padding-top: 64px; /* 上部余白多め */
+  padding-bottom: 64px; /* 下部余白多め */
+  min-height: calc(100vh - 200px); /* 画面高さを確保 */
+  display: flex;
+  align-items: center; /* 縦方向中央配置 */
+  justify-content: center; /* 横方向中央配置 */
+}
+
+/* 完了画面のコンテンツ: 縦方向に整列、中央寄せ */
+.done-page-content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* 横方向中央配置 */
+  justify-content: center; /* 縦方向中央配置 */
+  gap: 24px; /* 要素間の余白 */
+}
+
+/* チェックアイコン: 円の中にチェック（大きめ） */
+.done-page-icon {
+  width: 120px;
+  height: 120px;
+  margin-bottom: 8px; /* タイトルとの間隔 */
+}
+
+/* メイン文言: 「すべてのタスクが完了しました！」 */
+.done-page-title {
+  font-size: 24px; /* SP: 大きめのサイズ */
+  font-weight: 600;
+  text-align: center;
+  color: var(--fg);
+  line-height: 1.5;
+  margin: 0; /* h1のデフォルトマージンをリセット */
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* サブ文言: 「お疲れ様でした。」 */
+.done-page-subtitle {
+  font-size: 18px;
+  font-weight: 500;
+  text-align: center;
+  color: var(--fg);
+  line-height: 1.5;
+  margin: 0;
+  opacity: 0.9;
+}
+
+/* 追加情報: 「完了したリスト: {リスト名}」（小さめ、控えめな色） */
+.done-page-list-name {
+  font-size: 14px;
+  text-align: center;
+  color: var(--fg);
+  opacity: 0.7; /* 控えめな色 */
+  line-height: 1.5;
+  margin: 0;
+  margin-top: 8px; /* サブタイトルとの間隔 */
+}
+
+/* CTAボタン: 「ホームへ戻る」（幅は広めのピル形状、ただし画面いっぱいにはしない） */
+.done-page-home-btn {
+  width: auto;
+  min-width: 200px; /* 読みやすい最小幅 */
+  max-width: 400px; /* 画面いっぱいにはしない */
+  margin-top: 16px; /* リスト名との間隔 */
+  /* 高さ・角丸・影・色は.rm-btn-primaryで統一されている */
+}
+
+/* PC: タブレット以上で左右padding 24px */
+@media (min-width: 769px) {
+  .done-page-container {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .done-page-title {
+    font-size: 32px; /* PC: さらに大きく */
+  }
+
+  .done-page-subtitle {
+    font-size: 20px;
+  }
+
+  .done-page-icon {
+    width: 140px; /* PC: 少し大きく */
+    height: 140px;
+  }
+}
+
+/* 
+  実行中画面（run-page）: 参考画像Aに合わせた実装
+  中央寄せ、余白多め、静かな画面
+*/
+.run-page-container {
+  width: 100%;
+  max-width: 720px; /* ログイン後画面のコンテナ幅と統一 */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 16px; /* SP: 左右padding 16px */
+  padding-right: 16px;
+  padding-top: 48px; /* 上部余白多め */
+  padding-bottom: 48px; /* 下部余白多め */
+  min-height: calc(100vh - 200px); /* 画面高さを確保 */
+  display: flex;
+  align-items: center; /* 縦方向中央配置 */
+  justify-content: center; /* 横方向中央配置 */
+}
+
+/* 実行中画面のコンテンツ: 縦方向に整列、中央寄せ */
+.run-page-content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* 横方向中央配置 */
+  justify-content: center; /* 縦方向中央配置 */
+  gap: 32px; /* 要素間の余白多め */
+}
+
+/* タスク名: 大きく、中央寄せ */
+.run-page-task-name {
+  font-size: 32px; /* SP: 大きめのサイズ */
+  font-weight: 600;
+  text-align: center;
+  color: var(--fg);
+  line-height: 1.4;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  margin: 0; /* h1のデフォルトマージンをリセット */
+}
+
+/* 補助情報: 「残り◯ / 経過◯分」形式、小さめ、控えめな色 */
+.run-page-status {
+  font-size: 14px;
+  color: var(--fg);
+  opacity: 0.7; /* 控えめな色 */
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* 完了ボタン: 丸型の主ボタン（この画面専用スタイル） */
+.run-page-complete-btn {
+  width: 120px; /* 丸型ボタンの直径 */
+  height: 120px;
+  border-radius: 50%; /* 完全な円形 */
+  background: #3b82f6; /* テーマ青 */
+  color: white;
+  font-size: 18px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); /* 浮いている感じの影 */
+  transition: background-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+  margin-top: 16px; /* 補助情報との間隔 */
+}
+
+.run-page-complete-btn:hover:not(:disabled) {
+  background: #2563eb; /* hover時：色を少し濃く */
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+  transform: translateY(-2px); /* わずかに浮く */
+}
+
+.run-page-complete-btn:active:not(:disabled) {
+  background: #1d4ed8;
+  transform: translateY(0);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.run-page-complete-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* 中断: リンク風、距離で弱める（A案） */
+.run-page-abort-btn {
+  background: transparent;
+  border: none;
+  color: var(--fg);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 8px 16px;
+  margin-top: 48px; /* 完了ボタンとの距離を広げる（A案：距離で弱める） */
+  opacity: 0.6; /* 控えめな色 */
+  transition: opacity 0.15s ease, color 0.15s ease;
+  text-decoration: none;
+}
+
+.run-page-abort-btn:hover:not(:disabled) {
+  opacity: 1;
+  color: var(--accent); /* hover時はアクセントカラー */
+}
+
+.run-page-abort-btn:active:not(:disabled) {
+  opacity: 0.8;
+}
+
+.run-page-abort-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* PC: タブレット以上で左右padding 24px */
+@media (min-width: 769px) {
+  .run-page-container {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .run-page-task-name {
+    font-size: 48px; /* PC: さらに大きく */
+  }
+
+  .run-page-complete-btn {
+    width: 140px; /* PC: 少し大きく */
+    height: 140px;
+    font-size: 20px;
+  }
 }
 

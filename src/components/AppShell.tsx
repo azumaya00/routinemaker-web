@@ -474,19 +474,28 @@ const PublicFooter = () => {
  * 表示パターン：
  * - 非ログインエリア: Header + Main + Footer
  * - ログインエリア: Header + Main（Footerなし）
+ * 
+ * 背景色の統一：
+ * - ログイン後の画面は全て同じ背景色（--app-bg）を適用
+ * - Main領域に認証状態に応じた背景色を設定
  */
-export const AppShell = ({ children }: { children: React.ReactNode }) => (
-  <AuthProvider>
-    {/* 
-      レイアウト構造: flex-colで縦レイアウトを保証
-      - min-h-screen: 画面高さを最低限確保
-      - flex flex-col: 縦方向のflexレイアウト
-      - m-0: マージンを0にリセット（reset.cssと統一）
-      
-      重なり防止の仕組み:
-      - Header/Footer: shrink-0で縮小を防ぎ、固定サイズを維持
-      - Main: flex-1で残りスペースを占有し、可変サイズ
-    */}
+const AppShellContent = ({ children }: { children: React.ReactNode }) => {
+  const { status } = useAuth();
+  const pathname = usePathname();
+  const publicPaths = useMemo(
+    () => ["/", "/login", "/signup", "/forgot-password", "/reset-password"],
+    []
+  );
+  const protectedPrefixes = useMemo(
+    () => ["/routines", "/run", "/histories", "/settings"],
+    []
+  );
+
+  // ログイン後の画面かどうかを判定
+  const isAuthenticatedPage = status === "authenticated" && 
+    protectedPrefixes.some((prefix) => pathname.startsWith(prefix));
+
+  return (
     <div className="flex min-h-screen flex-col m-0">
       {/* Header: 常に表示、画面上部に固定、shrink-0で縮小を防ぐ */}
       <div className="shrink-0">
@@ -494,8 +503,13 @@ export const AppShell = ({ children }: { children: React.ReactNode }) => (
       </div>
       
       {/* Main: 各ページのコンテンツを表示する領域、flex-1で残りスペースを占有 */}
-      {/* コンテナ: max-w-6xl、px-6 md:px-10 lg:px-12 で統一 */}
-      <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-8 md:px-10 lg:px-12">
+      {/* ログイン後の画面には統一背景色（--app-bg）を適用 */}
+      <main 
+        className="mx-auto w-full max-w-6xl flex-1 px-6 py-8 md:px-10 lg:px-12"
+        style={{
+          backgroundColor: isAuthenticatedPage ? "var(--app-bg)" : undefined,
+        }}
+      >
         {/* 
           非ログイン時はフッター分の余白を追加（pb-20）
           ログイン時はフッターが表示されないため、通常の余白のみ
@@ -511,5 +525,11 @@ export const AppShell = ({ children }: { children: React.ReactNode }) => (
         <PublicFooter />
       </div>
     </div>
+  );
+};
+
+export const AppShell = ({ children }: { children: React.ReactNode }) => (
+  <AuthProvider>
+    <AppShellContent>{children}</AppShellContent>
   </AuthProvider>
 );
