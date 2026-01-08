@@ -23,6 +23,8 @@ type AuthUser = {
   email: string;
   plan: string;
   is_admin: boolean; // 管理者フラグ（APIから取得）
+  tutorial_dismissed_at: string | null; // チュートリアル非表示日時（ISO8601形式）
+  tutorial_should_show: boolean; // チュートリアル表示判定（tutorial_dismissed_at が null なら true）
 };
 
 type AuthContextValue = {
@@ -49,6 +51,12 @@ let meCache: {
 } | null = null;
 let meInFlight: Promise<void> | null = null;
 const ME_CACHE_TTL = 30000; // 30秒（TTL）
+
+// キャッシュを無効化する関数（新規登録後など、強制的に再取得したい場合に使用）
+export const invalidateMeCache = () => {
+  meCache = null;
+  meInFlight = null;
+};
 
 // 認証状態と操作を単一の Provider に集約する。
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {

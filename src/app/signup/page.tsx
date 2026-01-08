@@ -3,15 +3,17 @@
 // サインアップ画面の存在と最小登録フローだけを用意する。
 // 本格的なプロフィール入力や確認フローは Phase 5 以降で検討する。
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 import { getCsrfCookie, register } from "@/lib/api";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth, invalidateMeCache } from "@/hooks/useAuth";
+import { useFlash } from "@/components/FlashMessageProvider";
 
 export default function SignupPage() {
   const router = useRouter();
-  const { me } = useAuth();
+  const { me, status } = useAuth();
+  const { showFlash } = useFlash();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
@@ -98,7 +100,14 @@ export default function SignupPage() {
               setError(formatError(result.body));
               return;
             }
+            // 新規登録直後はキャッシュを無効化して、確実に最新の認証状態を取得する
+            invalidateMeCache();
             await me();
+            // me() の完了を待った後、少し待ってから遷移（React state の更新を確実にする）
+            // 通常は即座に authenticated になっているはずだが、念のため少し待つ
+            await new Promise((resolve) => setTimeout(resolve, 50));
+            // 登録成功のフラッシュメッセージを表示
+            showFlash("success", "登録が完了しました。");
             router.push("/routines");
           }}
         >

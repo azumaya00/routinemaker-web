@@ -57,9 +57,11 @@ const parseJson = <T,>(input: string): T | null => {
 function SortableTaskItem({
   id,
   task,
+  activeId,
 }: {
   id: string;
   task: string;
+  activeId: string | null;
 }) {
   const {
     attributes,
@@ -70,9 +72,14 @@ function SortableTaskItem({
     isDragging,
   } = useSortable({ id });
 
+  // ドラッグ中またはドラッグ終了直後はアニメーションを無効化して、即座に反映させる
+  // activeId が null でない場合は、まだドラッグ処理中なのでアニメーションを無効化
+  const shouldAnimate = !isDragging && activeId === null;
+
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition,
+    // アニメーションを制御: ドラッグ中やドラッグ終了直後は無効化、それ以外は即座に反映
+    transition: shouldAnimate ? transition : 'none',
     opacity: isDragging ? 0.5 : 1,
   };
 
@@ -197,9 +204,8 @@ export default function PreflightPage() {
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
-    setActiveId(null);
-
     if (over && active.id !== over.id) {
+      // データを即座に更新（アニメーションを待たない）
       setTasks((items) => {
         const oldIndex = items.findIndex((_, i) => `task-${i}` === active.id);
         const newIndex = items.findIndex((_, i) => `task-${i}` === over.id);
@@ -207,6 +213,12 @@ export default function PreflightPage() {
         return arrayMove(items, oldIndex, newIndex);
       });
     }
+
+    // activeId を null にすることで、アニメーションを再開
+    // requestAnimationFrame を使って、DOM更新が確実に反映されてからアニメーションを再開
+    requestAnimationFrame(() => {
+      setActiveId(null);
+    });
   };
 
   const handleStart = submitGuard(async () => {
@@ -306,6 +318,7 @@ export default function PreflightPage() {
                 key={`task-${index}`}
                 id={`task-${index}`}
                 task={task}
+                activeId={activeId}
               />
             ))}
           </div>

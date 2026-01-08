@@ -164,6 +164,14 @@ export const register = (
 export const fetchMe = () => apiRequest("/api/me", { method: "GET" });
 export const getMe = fetchMe;
 
+// チュートリアルを非表示にする
+export const dismissTutorial = () =>
+  apiRequest(
+    "/api/tutorial/dismiss",
+    { method: "POST" },
+    { includeXsrfHeader: true }
+  );
+
 // 設定は patch で更新し、レスポンスの settings を採用する前提。
 export const updateSettings = (payload: Partial<UserSettings>) =>
   apiRequest(

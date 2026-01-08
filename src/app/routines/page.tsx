@@ -17,7 +17,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { deleteRoutine, getCsrfCookie, listRoutines } from "@/lib/api";
+import { deleteRoutine, dismissTutorial, getCsrfCookie, listRoutines } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import ConfirmDialog from "@/components/ConfirmDialog";
@@ -56,24 +56,21 @@ export default function RoutinesPage() {
 
   // チュートリアルは初回ログイン時のみ表示する
   // 判定条件：
-  // 1. 認証状態が"authenticated"であること
-  // 2. localStorageに"rm_tutorial_seen"が存在しないこと（初回ログイン）
-  // ×ボタンで閉じた場合は、localStorageに保存して以後表示しない
+  // 1. /api/me が成功し、user が存在すること（認証が確定したタイミング）
+  // 2. user.tutorial_should_show === true（DBで管理、tutorial_dismissed_at が null の場合）
+  // ×ボタンで閉じた場合は、POST /api/tutorial/dismiss を呼び出してDBに保存
+  // ログイン経路（ログイン/新規登録/将来のGoogle OAuth）に依存しない実装
   useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-    
-    // 認証済みの場合のみチュートリアル表示を判定
-    if (status === "authenticated") {
-      const seen = window.localStorage.getItem("rm_tutorial_seen");
-      // localStorageに値がなければ初回ログインとして表示
-      setShowTutorial(!seen);
+    // /api/me が成功し、user が存在するタイミングでチュートリアル表示を判定
+    // これにより、新規登録直後の遷移でも確実に判定される
+    if (user) {
+      // DBで管理されている tutorial_should_show で判定
+      setShowTutorial(user.tutorial_should_show ?? false);
     } else {
-      // 未認証時は非表示
+      // user が存在しない場合は非表示
       setShowTutorial(false);
     }
-  }, [status]);
+  }, [user]);
 
   // 一覧は /routines でのみ取得する前提。
   useEffect(() => {
@@ -178,9 +175,25 @@ export default function RoutinesPage() {
           <button
             type="button"
             className="routines-home-tutorial-close"
-            onClick={() => {
-              window.localStorage.setItem("rm_tutorial_seen", "1");
-              setShowTutorial(false);
+            onClick={async () => {
+              // チュートリアルを閉じたことをDBに保存
+              try {
+                await getCsrfCookie();
+                const result = await dismissTutorial();
+                if (result.status === 200) {
+                  // 成功したら即座にUIからチュートリアルを消す
+                  setShowTutorial(false);
+                  // /api/me を再取得して状態を更新
+                  await me();
+                } else {
+                  // 失敗した場合は控えめにエラーを表示（実行中画面には影響なし）
+                  console.error("Failed to dismiss tutorial:", result.status, result.body);
+                  // フラッシュメッセージは出さない（過剰に騒がない）
+                }
+              } catch (err) {
+                // エラー時も控えめに処理
+                console.error("Error dismissing tutorial:", err);
+              }
             }}
             aria-label="閉じる"
           >
