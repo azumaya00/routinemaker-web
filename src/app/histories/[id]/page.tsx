@@ -8,6 +8,7 @@ import { useParams, useRouter } from "next/navigation";
 
 import { getHistory } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 type HistoryDetail = {
   id: number;
@@ -96,7 +97,7 @@ export default function HistoryDetailPage() {
   }
 
   if (!history) {
-    return <div className="rm-muted text-sm">読み込み中...</div>;
+    return <LoadingSpinner />;
   }
 
   return (

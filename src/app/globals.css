@@ -161,54 +161,111 @@ h3 {
   padding: 0.75rem;
 }
 
+/* 
+  ボタンのデザイントークン（統一）
+  全画面で一貫した見た目を提供
+*/
+
+/* 基本ボタンスタイル: ピル型（角丸最大）、高さ48px、統一された影 */
 .rm-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px; /* 高さ48px（最低44pxは下回らない） */
+  padding: 0 20px; /* 左右padding 16-20px（20px） */
+  font-size: 16px;
+  font-weight: 500;
   border: 1px solid var(--border);
   background: var(--bg);
   color: var(--fg);
-  border-radius: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  font-size: 16px; /* 最低16pxを確保 */
+  border-radius: 9999px; /* ピル型（角丸最大） */
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* 薄い影（強すぎる影は禁止） */
+  white-space: nowrap;
 }
 
-.rm-btn:hover {
+.rm-btn:hover:not(:disabled) {
   background: var(--muted);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
 }
 
+.rm-btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Primaryボタン: 主要ボタン（テーマ青、白文字、薄い影） */
 .rm-btn-primary {
-  border-color: var(--accent);
-  background: var(--accent);
-  color: var(--bg);
+  border-color: #3b82f6; /* 既存のテーマ青を維持 */
+  background: #3b82f6;
+  color: white;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2); /* 薄い影 */
 }
 
-.rm-btn-primary:hover {
-  filter: brightness(0.95);
+.rm-btn-primary:hover:not(:disabled) {
+  background: #2563eb; /* hover時：色を少し濃く */
+  border-color: #2563eb;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); /* hover時：影を少し強く */
+  transform: translateY(-1px);
 }
 
+.rm-btn-primary:active:not(:disabled) {
+  background: #1d4ed8;
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+}
+
+/* Dangerボタン: 危険な操作用 */
 .rm-btn-danger {
   border-color: var(--danger);
   background: var(--danger);
-  color: var(--bg);
+  color: white;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2);
 }
 
-.rm-btn-danger:hover {
-  filter: brightness(0.95);
+.rm-btn-danger:hover:not(:disabled) {
+  background: #b91c1c;
+  border-color: #b91c1c;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+  transform: translateY(-1px);
 }
 
+.rm-btn-danger:active:not(:disabled) {
+  background: #991b1b;
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(220, 38, 38, 0.3);
+}
+
+/* Disabled状態: 彩度を落として押せないことが明確になる */
 .rm-btn:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
+  background: #9ca3af;
+  border-color: #9ca3af;
+  color: white;
+  box-shadow: none;
+  transform: none;
 }
 
+.rm-btn-primary:disabled {
+  background: #9ca3af;
+  border-color: #9ca3af;
+}
+
+/* Smallボタン: 補助ボタン用（高さは維持、paddingを調整） */
 .rm-btn-sm {
-  padding: 0.375rem 0.5rem;
-  font-size: 16px; /* 最低16pxを確保 */
+  min-height: 48px; /* 高さは統一（48px） */
+  padding: 0 16px; /* 左右paddingを少し小さく */
+  font-size: 16px;
 }
 
+/* Largeボタン: 強調したいボタン用（高さは維持、paddingを調整） */
 .rm-btn-lg {
-  padding: 0.875rem 1.25rem;
-  font-size: 1rem;
+  min-height: 48px; /* 高さは統一（48px） */
+  padding: 0 24px; /* 左右paddingを大きく */
+  font-size: 16px;
 }
 
 .rm-input {
@@ -734,76 +791,102 @@ h3 {
   }
 }
 
-/* 無料で使うボタン: 元画像と同じ形状（角丸の矩形、中サイズの青い背景、白いテキスト） */
-.top-page-btn-primary {
-  background: #3b82f6; /* 中サイズの青い背景 */
-  color: #ffffff; /* 白いテキスト */
+/* 
+  LP（非ログインTop/Hero）専用CTAボタンスタイル
+  アプリ内ボタンとは独立した見た目を提供
+  影響範囲：.top-page-cta内のみ
+*/
+
+/* 無料で使うボタン: LP専用Primary（ピル型、高さ44-48px、ごく薄い影） */
+.top-page-cta .top-page-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px; /* 高さ44-48px（46px、LP専用） */
+  padding: 0 24px; /* 左右padding（LP専用） */
+  background: #3b82f6; /* トップページ専用の固定色（テーマ切替の影響を受けない） */
+  color: #ffffff;
   border: none;
-  border-radius: 0.5rem; /* 角丸の矩形（元画像に合わせて控えめな角丸） */
-  padding: 0.75rem 1.5rem; /* ボタンのサイズを調整 */
+  border-radius: 9999px; /* ピル型（角丸最大） */
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
-  transition: background 0.2s ease, transform 0.1s ease;
-  box-shadow: none; /* 元画像では影がない（あればごく薄く） */
-  white-space: nowrap; /* テキストが折り返さないように */
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* LPに合う程度にごく薄い影（強い影は禁止） */
+  white-space: nowrap;
 }
 
 /* スマホ・iPad縦型: 主CTAボタンの幅を調整（横幅はほぼいっぱい、左右に一定の余白） */
 @media (max-width: 768px) {
-  .top-page-btn-primary {
+  .top-page-cta .top-page-btn-primary {
     width: 100%; /* 横幅はほぼいっぱい */
-    padding: 1.2rem 1.5rem; /* タップしやすい高さ */
     font-size: 22px; /* iPad・スマホでのフォントサイズを22pxに */
+    min-height: 48px; /* スマホでは48px */
   }
 }
 
-.top-page-btn-primary:hover {
-  background: #2563eb;
-  transform: translateY(-1px);
+/* hover/active: 控えめ（色を少し濃く、または1段だけ沈む） */
+.top-page-cta .top-page-btn-primary:hover {
+  background: #2563eb; /* hover時：色を少し濃く */
+  transform: translateY(-1px); /* 1段だけ沈む */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12); /* hover時も控えめな影 */
 }
 
-.top-page-btn-primary:active {
+.top-page-cta .top-page-btn-primary:active {
+  background: #1d4ed8;
   transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-/* Googleで続けるボタン: 元画像と同じ形状（角丸の矩形、白い背景、薄い青いボーダー） */
-.top-page-btn-secondary {
-  background: #ffffff; /* 白い背景 */
-  color: #3b82f6; /* 青いテキスト */
-  border: 1px solid #93c5fd; /* 薄い青いボーダー（元画像に合わせて薄く） */
-  border-radius: 0.5rem; /* 角丸の矩形（元画像に合わせて控えめな角丸） */
-  padding: 0.75rem 1.5rem; /* ボタンのサイズを調整 */
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s ease, transform 0.1s ease, border-color 0.2s ease;
-  display: flex;
+/* Googleで続けるボタン: LP専用Secondary（ピル型、高さPrimaryと同じ、白背景＋薄い枠、影は不要か極薄） */
+.top-page-cta .top-page-btn-secondary {
+  display: inline-flex;
   align-items: center;
-  gap: 0.5rem; /* アイコンとテキストの間隔を調整 */
   justify-content: center;
-  white-space: nowrap; /* テキストが折り返さないように */
-  box-shadow: none; /* 元画像では影がない（あればごく薄く） */
+  min-height: 46px; /* 高さPrimaryと同じ（46px、LP専用） */
+  padding: 0 24px; /* 左右padding（LP専用） */
+  background: #ffffff; /* 白背景（トップページ専用の固定色） */
+  color: #1f2937; /* 濃いグレー/黒（背景画像上でも視認できる） */
+  border: 1px solid rgba(0, 0, 0, 0.1); /* 薄いグレーの枠（背景画像上でも輪郭が見える） */
+  border-radius: 9999px; /* ピル型（角丸最大） */
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease, border-color 0.2s ease;
+  gap: 0.5rem; /* アイコンとテキストの間隔 */
+  white-space: nowrap;
+  box-shadow: none; /* 影は不要（背景画像上で自然に見える） */
 }
 
 /* スマホ・iPad縦型: 副CTAボタンの幅を調整（横幅はほぼいっぱい、左右に一定の余白） */
 @media (max-width: 768px) {
-  .top-page-btn-secondary {
+  .top-page-cta .top-page-btn-secondary {
     width: 100%; /* 横幅はほぼいっぱい */
-    padding: 1.2rem 1.5rem; /* タップしやすい高さ */
     font-size: 22px; /* iPad・スマホでのフォントサイズを22pxに */
+    min-height: 48px; /* スマホでは48px */
   }
 }
 
-.top-page-btn-secondary:hover:not(:disabled) {
-  background: #f0f7ff;
-  border-color: #3b82f6; /* ホバー時はボーダーを少し濃く */
-  transform: translateY(-1px);
+/* hover/active: 控えめ（色を少し濃く、または1段だけ沈む） */
+.top-page-cta .top-page-btn-secondary:hover:not(:disabled) {
+  background: #f9fafb; /* hover時：背景を少し濃く */
+  border-color: rgba(0, 0, 0, 0.15); /* ホバー時はボーダーを少し濃く */
+  transform: translateY(-1px); /* 1段だけ沈む */
+  /* 影は不要 */
 }
 
-.top-page-btn-secondary:disabled {
-  opacity: 0.6;
+.top-page-cta .top-page-btn-secondary:active:not(:disabled) {
+  background: #f3f4f6;
+  transform: translateY(0);
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+.top-page-cta .top-page-btn-secondary:disabled {
+  opacity: 0.5; /* disabled状態 */
   cursor: not-allowed;
+  transform: none;
+  background: #f9fafb;
+  border-color: rgba(0, 0, 0, 0.08);
 }
 
 .top-page-google-icon {
@@ -931,11 +1014,11 @@ h3 {
   width: 100%;
 }
 
-/* アクションボタン: 入力欄との間に明確な余白、指で押しやすい高さ */
+/* アクションボタン: 認証画面のPrimaryボタン（共通トークンに統一） */
 .auth-page-button {
   margin-top: 0.5rem; /* 入力欄とボタンの間は少し広め */
-  padding: 0.875rem 1.5rem; /* タップしやすい高さ */
   width: 100%;
+  /* 高さ・角丸・影は.rm-btn-primaryで統一されている */
 }
 
 /* 補助リンク: ボタンの直下、小さめ・目立たせすぎない（最低16px） */
@@ -980,16 +1063,20 @@ h3 {
 
 /* 
   タスクリスト作成・編集画面共通レイアウト
-  1カラム縦構成、最大幅を制限、スマホ最優先
+  Home画面と同じトーン（背景/余白/角丸/影/ボタン形状）で統一
 */
 .routine-form-container {
   width: 100%;
-  max-width: 600px; /* PCでも広げすぎない */
+  max-width: 600px; /* 読みやすい最大幅（560-640pxの範囲、600px） */
   margin-left: auto;
   margin-right: auto;
+  padding-left: 16px; /* SP: 左右padding 16px（Home画面と同じ） */
+  padding-right: 16px;
+  padding-top: 24px; /* トップから24-32px（24px） */
+  padding-bottom: 100px; /* 下部固定バーのスペース確保 */
   display: flex;
   flex-direction: column;
-  gap: 2rem; /* タイトル ↔ 入力欄：やや広め */
+  gap: 0;
 }
 
 /* 
@@ -1086,34 +1173,10 @@ h3 {
   margin-bottom: 28px; /* スマホ時の余白調整：主ボタンとリスト1件目の間を少し広めに */
 }
 
-/* 新規作成ボタン: 丸いピル型（塗りつぶし青、文字白、角丸9999px） */
+/* 新規作成ボタン: 共通トークンに統一（.rm-btn-primaryのスタイルを継承） */
 .routines-home-create-btn {
   flex: 1; /* 残りのスペースを占める */
-  height: 46px; /* 高さ44-48px（46px） */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 0 24px;
-  background: #3b82f6; /* 塗りつぶし青 */
-  color: white;
-  border: none;
-  border-radius: 9999px; /* ピル型（角丸大きく） */
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.15s ease, transform 0.1s ease;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
-}
-
-.routines-home-create-btn:hover {
-  background: #2563eb;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-}
-
-.routines-home-create-btn:active {
-  transform: translateY(0);
+  /* 高さ・角丸・影・色は.rm-btn-primaryで統一されている */
 }
 
 /* 履歴リンク: 控えめ、押せるサイズ確保（横並び） */
@@ -1260,19 +1323,21 @@ h3 {
   }
 }
 
-/* ページタイトル: 認証画面と同じスタイルに統一 */
+/* ページタイトル: Home画面と同じスタイル（大きめ、左寄せ） */
 .routine-form-title {
-  font-size: 1.5rem; /* text-xl相当、auth-page-titleと同じ */
-  font-weight: 600; /* font-semibold相当、auth-page-titleと同じ */
-  margin-bottom: 0; /* gapで管理するため0 */
+  font-size: 24px; /* SP: 24-28px（24px、Home画面と同じ） */
+  font-weight: 600;
+  margin-bottom: 24px; /* 見出しとフォーム間の余白を一定に（24px） */
   text-align: left;
+  color: var(--fg);
 }
 
 /* エラーメッセージ */
 .routine-form-error {
   color: var(--danger);
-  font-size: 16px;
-  margin-top: -1rem;
+  font-size: 14px;
+  margin-bottom: 1rem;
+  opacity: 0.8;
 }
 
 /* ラベル: 読みやすさを確保 */
@@ -1280,98 +1345,461 @@ h3 {
   display: flex;
   flex-direction: column;
   font-size: 16px;
-  gap: 0.5rem;
+  font-weight: 500;
+  gap: 8px; /* ラベルと入力欄の間隔 */
+  margin-bottom: 24px; /* 入力欄間の縦間隔を一定に（24px） */
 }
 
-/* 入力欄 */
+/* 入力欄: Home画面と同じトーン（角丸、薄い枠線、余白十分） */
 .routine-form-input {
   width: 100%;
+  height: 46px; /* 入力高さ44-48px（46px） */
+  padding: 0 16px;
+  font-size: 16px;
+  background: var(--bg);
+  border: 1px solid rgba(0, 0, 0, 0.1); /* 薄い枠線 */
+  border-radius: 12px; /* 角丸（Home画面のカードより控えめ） */
+  color: var(--fg);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  outline: none;
+}
+
+.routine-form-input:focus {
+  border-color: #3b82f6; /* フォーカス時はテーマカラー寄り（Homeと統一感） */
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.routine-form-input::placeholder {
+  color: rgba(0, 0, 0, 0.4);
 }
 
 /* タスク入力エリア */
 .routine-form-tasks {
   display: flex;
   flex-direction: column;
-  gap: 1rem; /* 入力欄同士：一定 */
+  gap: 14px; /* 入力欄間の縦間隔12-16px（14px） */
+  margin-bottom: 32px; /* タスクエリアとアクションボタンの間隔 */
 }
 
 .routine-form-label-text {
   font-size: 16px;
   font-weight: 500;
+  margin-bottom: 4px;
 }
 
-/* タスク行: 縦に並べる、削除ボタンは右端・小さめ */
+/* タスク行: 縦に並べる、削除ボタンは右端（誤操作を減らすため間隔を確保） */
 .routine-form-task-row {
   display: flex;
   align-items: center;
-  gap: 0.75rem; /* 誤タップしにくい間隔 */
+  gap: 12px; /* 入力欄と削除ボタンの間隔を8-12px（12px）に拡大 */
 }
 
 .routine-form-task-row .routine-form-input {
   flex: 1;
 }
 
-/* 削除ボタン: ゴミ箱アイコン、小さめ・控えめ */
+/* 削除ボタン: ゴミ箱アイコン（誤操作を減らすためタップ領域を44pxに拡大） */
 .routine-form-delete-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  padding: 0;
-  border: 1px solid var(--border);
-  background: var(--bg);
+  min-width: 44px; /* 最小44pxのタップ領域（誤操作を減らす） */
+  min-height: 44px;
+  width: 44px;
+  height: 44px;
+  padding: 10px; /* アイコン周囲の余白（44px - 24pxアイコン = 20px / 2 = 10px） */
+  background: transparent;
+  border: none;
   color: var(--fg);
-  border-radius: 0.5rem;
+  opacity: 0.5;
   cursor: pointer;
-  opacity: 0.7;
-  transition: opacity 0.15s ease;
+  transition: opacity 0.15s ease, background-color 0.15s ease, transform 0.1s ease;
+  border-radius: 50%; /* 円形ハイライト用 */
+  flex-shrink: 0;
 }
 
 .routine-form-delete-btn:hover:not(:disabled) {
-  opacity: 1;
+  opacity: 0.85; /* hover時：不透明度が上がる */
+  background-color: rgba(0, 0, 0, 0.06); /* hover時：背景に薄い円形ハイライト */
+  transform: scale(1.05); /* 押した感が分かる */
+}
+
+.routine-form-delete-btn:active:not(:disabled) {
+  opacity: 1; /* active時：さらに不透明度が上がる */
+  background-color: rgba(0, 0, 0, 0.08);
+  transform: scale(0.95); /* 押した感が分かる */
 }
 
 .routine-form-delete-btn:disabled {
   opacity: 0.3;
   cursor: not-allowed;
+  transform: none;
 }
 
-/* タスク追加ボタン: ＋アイコン付き（通常のボタンサイズ） */
+/* タスク追加ボタン: Primaryより一段弱い位置づけ（アウトラインまたは薄い背景） */
 .routine-form-add-btn {
+  width: auto; /* コンテンツ幅寄せ（フル幅にしない） */
+  min-width: 200px; /* ただし押しにくくならないよう最小幅を確保 */
+  margin-top: 4px;
+  margin-left: auto; /* 右寄せ（コンテンツ幅寄せ） */
+  margin-right: 0;
+  /* 高さ・角丸は.rm-btnで統一されている */
+  /* Primaryより弱くするため、.rm-btn-primaryを外して.rm-btnのデフォルトスタイルを使用 */
+  background: var(--bg);
+  border: 1px solid rgba(59, 130, 246, 0.3); /* 薄い青いボーダー */
+  color: #3b82f6; /* テーマ青の文字 */
+  box-shadow: none; /* 影は不要 */
+}
+
+.routine-form-add-btn:hover:not(:disabled) {
+  background: rgba(59, 130, 246, 0.05); /* hover時：薄い青背景 */
+  border-color: #3b82f6;
+  transform: translateY(-1px);
+}
+
+.routine-form-add-btn:active:not(:disabled) {
+  background: rgba(59, 130, 246, 0.1);
+  transform: translateY(0);
+}
+
+.routine-form-add-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: var(--bg);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: var(--fg);
+  transform: none;
+}
+
+/* 上限メッセージ: 小さくエラーメッセージ（赤く派手にしない） */
+.routine-form-limit-message {
+  color: #dc2626; /* 赤系だが控えめ */
+  font-size: 13px;
+  margin-top: 4px;
+  opacity: 0.8;
+}
+
+/* 戻るボタン: 上部に配置（見出しの下、誤タップを防ぐ） */
+.routine-form-back-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px; /* 控えめな高さ */
+  padding: 0 16px;
+  background: transparent;
+  border: none;
+  color: var(--fg);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s ease, color 0.15s ease;
+  opacity: 0.7;
+  margin-bottom: 16px; /* 見出しとの間隔 */
+  text-decoration: none;
+}
+
+.routine-form-back-btn:hover {
+  opacity: 1;
+  color: var(--accent);
+}
+
+/* 下部固定アクションバー: 「保存する」を最優先Primaryとして配置 */
+.routine-form-actions {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
+  padding: 16px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)); /* iOSの安全領域を考慮 */
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05); /* 上部に薄い影 */
+  z-index: 10;
 }
 
-/* 上限メッセージ */
-.routine-form-limit-message {
-  color: var(--fg);
-  opacity: 0.7;
-  font-size: 14px;
-  margin-top: -0.5rem;
-}
-
-/* アクションボタン: 下部に配置、縦に並べる */
-.routine-form-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-top: 1rem; /* 入力欄 ↔ ボタン：少し溜めを作る */
-}
-
-/* 保存ボタン: 主役 */
+/* 保存ボタン: Primaryボタン（固定バー内フル幅、最優先） */
 .routine-form-save-btn {
   width: 100%;
-  padding: 0.875rem 1.5rem;
-  font-size: 16px;
+  max-width: 600px; /* コンテナと同じ最大幅 */
+  /* 高さ・角丸・影・色は.rm-btn-primaryで統一されている */
 }
 
-/* 戻るボタン: 副 */
-.routine-form-back-btn {
-  width: 100%;
-  padding: 0.875rem 1.5rem;
-  font-size: 16px;
+/* PC: タブレット以上で左右padding 24px（Home画面と同じ）、max-widthを効かせる */
+@media (min-width: 769px) {
+  .routine-form-container {
+    padding-left: 24px;
+    padding-right: 24px;
+    /* max-width: 600pxが効いているため、PCでも間延びしない */
+  }
+
+  .routine-form-title {
+    font-size: 32px; /* PC: 32px前後（Home画面と同じ） */
+  }
+
+  /* PC: 「タスクを追加する」ボタンを右寄せ（視線の流れを整理） */
+  .routine-form-add-btn {
+    margin-left: auto;
+    margin-right: 0;
+  }
+
+  /* PC: 保存ボタンもmax-widthに合わせる */
+  .routine-form-save-btn {
+    max-width: 600px;
+  }
 }
+
+/* 
+  ローディングスピナー: 中央にリングが回るスピナー
+  全ての画面で共通使用
+*/
+.loading-spinner-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh; /* 画面中央に配置するための最小高さ */
+  width: 100%;
+}
+
+.loading-spinner {
+  position: relative;
+  width: 48px;
+  height: 48px;
+}
+
+/* リングスピナー: グラデーションのリングが回転 */
+.loading-spinner-ring {
+  width: 100%;
+  height: 100%;
+  border: 4px solid rgba(59, 130, 246, 0.2); /* 薄い青グレー（非アクティブ部分） */
+  border-top-color: #93c5fd; /* 明るい青（アクティブ部分） */
+  border-radius: 50%;
+  animation: loading-spin 1s linear infinite;
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.1); /* ごく薄いグロー */
+}
+
+@keyframes loading-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* 
+  削除確認ダイアログ（中央モーダル）
+  既存デザイン（角丸、青系ボタン、余白感）と統一
+  参考画像に合わせた見た目と挙動
+*/
+.confirm-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5); /* 黒の半透明（背景がうっすら見える程度） */
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+  cursor: pointer; /* クリック可能であることを示す */
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.confirm-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1001;
+  background: var(--bg);
+  border-radius: 20px; /* 大きめの角丸（16-20px） */
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); /* 「浮いてる」と分かる程度の影（強すぎない） */
+  padding: 28px; /* 十分なpadding（24px前後） */
+  max-width: 90vw;
+  width: 100%;
+  max-width: 480px; /* スマホで見切れない最大幅 */
+  animation: slideIn 0.2s ease;
+  cursor: default; /* ダイアログ本体はクリックで閉じない */
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -45%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.confirm-dialog-title {
+  font-size: 20px; /* 本文より大きく */
+  font-weight: 600; /* 太め */
+  color: var(--fg);
+  margin-bottom: 16px; /* タイトルと説明文の間隔 */
+  line-height: 1.4;
+}
+
+.confirm-dialog-description {
+  font-size: 14px; /* 小さめ */
+  color: var(--fg);
+  opacity: 0.7; /* 落ち着いた色 */
+  margin-bottom: 28px; /* 説明文とボタンの間隔を広めに */
+  line-height: 1.6;
+}
+
+.confirm-dialog-actions {
+  display: flex;
+  gap: 16px; /* ボタン間に十分な間隔（最低12px、できれば16px） */
+  justify-content: flex-end;
+}
+
+.confirm-dialog-cancel {
+  /* .rm-btnのデフォルトスタイルを継承 */
+  /* ニュートラル、アウトライン寄り（既存の.rm-btnスタイル） */
+  min-height: 44px; /* タップしやすいサイズ（44px以上） */
+}
+
+.confirm-dialog-confirm {
+  /* .rm-btnのデフォルトスタイルを継承 */
+  min-height: 44px; /* タップしやすいサイズ（44px以上） */
+}
+
+.confirm-dialog-confirm-destructive {
+  background: #dc2626; /* 赤系（destructive） */
+  border-color: #dc2626;
+  color: white;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2);
+}
+
+.confirm-dialog-confirm-destructive:hover:not(:disabled) {
+  background: #b91c1c;
+  border-color: #b91c1c;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.confirm-dialog-confirm-destructive:active:not(:disabled) {
+  background: #991b1b;
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(220, 38, 38, 0.3);
+}
+
+/* スマホ: 狭い場合は横並びのままでも良いが、見た目が崩れないこと優先 */
+@media (max-width: 360px) {
+  .confirm-dialog {
+    padding: 20px; /* 狭い画面ではpaddingを少し減らす */
+  }
+
+  .confirm-dialog-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .confirm-dialog-cancel,
+  .confirm-dialog-confirm {
+    width: 100%;
+  }
+}
+
+/* 
+  フラッシュメッセージ
+  画面上部に固定表示、既存デザイン（角丸、軽い影、アイコン付き）と統一
+*/
+.flash-message-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: calc(80px + env(safe-area-inset-top, 0px)); /* ヘッダーと被らないように、safe-areaも考慮 */
+  z-index: 999;
+  pointer-events: none; /* クリックイベントを透過 */
+}
+
+.flash-message {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 12px; /* 角丸 */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* 軽い影 */
+  max-width: 90vw;
+  width: 100%;
+  max-width: 400px; /* スマホで見切れない最大幅 */
+  pointer-events: auto; /* ボタンクリックを有効化 */
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.flash-message-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.flash-message-success {
+  background: #d1fae5; /* 薄いグリーン系背景 */
+  color: #065f46;
+  border: 1px solid #6ee7b7;
+}
+
+.flash-message-error {
+  background: #fee2e2; /* 薄いレッド系背景 */
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+.flash-message-info {
+  background: #dbeafe; /* 薄いブルー系背景 */
+  color: #1e40af;
+  border: 1px solid #93c5fd;
+}
+
+.flash-message-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.flash-message-text {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+  word-break: break-word; /* 長文でも折り返し */
+}
+
+.flash-message-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: inherit;
+  opacity: 0.7;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+  flex-shrink: 0;
+}
+
+.flash-message-close:hover {
+  opacity: 1;
+}
+

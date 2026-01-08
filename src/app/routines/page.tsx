@@ -19,6 +19,9 @@ import { useRouter } from "next/navigation";
 
 import { deleteRoutine, getCsrfCookie, listRoutines } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import ConfirmDialog from "@/components/ConfirmDialog";
+import { useFlash } from "@/components/FlashMessageProvider";
 
 type Routine = {
   id: number;
@@ -37,10 +40,14 @@ const parseJson = <T,>(input: string): T | null => {
 export default function RoutinesPage() {
   const router = useRouter();
   const { status, me } = useAuth();
+  const { showFlash } = useFlash();
   const [routines, setRoutines] = useState<Routine[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [showTutorial, setShowTutorial] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   // 認証判定は /api/me の成否だけを使う方針。
   useEffect(() => {
@@ -82,25 +89,55 @@ export default function RoutinesPage() {
     });
   }, [status, router, me]);
 
-  const handleDelete = async (id: number) => {
-    // 削除は一覧画面で許可するが、詳細編集は別画面に寄せる方針。
-    setError(null);
-    await getCsrfCookie();
-    const result = await deleteRoutine(id);
-    if (result.status === 200) {
-      const refreshed = await listRoutines();
-      if (refreshed.status === 200) {
-        const parsed = parseJson<{ data: Routine[] }>(refreshed.body);
-        setRoutines(parsed?.data ?? []);
-      }
-      return;
-    }
+  // 削除ボタンクリック時: 確認ダイアログを開く
+  const handleDeleteClick = (id: number) => {
+    setDeleteTargetId(id);
+    setDeleteDialogOpen(true);
+  };
 
-    setError(`削除に失敗しました (${result.status})`);
+  // 削除確認: 実際の削除処理を実行
+  const handleDeleteConfirm = async () => {
+    if (!deleteTargetId) return;
+
+    setDeleteLoading(true);
+    setError(null);
+    
+    try {
+      await getCsrfCookie();
+      const result = await deleteRoutine(deleteTargetId);
+      
+      if (result.status === 200) {
+        // 一覧を再取得
+        const refreshed = await listRoutines();
+        if (refreshed.status === 200) {
+          const parsed = parseJson<{ data: Routine[] }>(refreshed.body);
+          setRoutines(parsed?.data ?? []);
+        }
+        // 成功フラッシュを表示
+        showFlash("success", "削除しました");
+        // ダイアログを閉じる
+        setDeleteDialogOpen(false);
+        setDeleteTargetId(null);
+      } else {
+        // エラーフラッシュを表示（ダイアログは閉じない）
+        showFlash("error", `削除に失敗しました (${result.status})`);
+        setDeleteLoading(false); // エラー時はローディングを解除して再試行可能にする
+      }
+    } catch {
+      // エラーフラッシュを表示（ダイアログは閉じない）
+      showFlash("error", "削除に失敗しました");
+      setDeleteLoading(false); // エラー時はローディングを解除して再試行可能にする
+    }
+  };
+
+  // 削除キャンセル
+  const handleDeleteCancel = () => {
+    setDeleteDialogOpen(false);
+    setDeleteTargetId(null);
   };
 
   if (loading) {
-    return <div className="rm-muted text-sm">読み込み中...</div>;
+    return <LoadingSpinner />;
   }
 
   return (
@@ -151,7 +188,7 @@ export default function RoutinesPage() {
       <div className="routines-home-actions">
         <button
           type="button"
-          className="routines-home-create-btn"
+          className="rm-btn rm-btn-primary routines-home-create-btn"
           onClick={() => router.push("/routines/new")}
         >
           ＋ 新しいタスクリストを作る
@@ -215,7 +252,7 @@ export default function RoutinesPage() {
               <button
                 type="button"
                 className="routines-home-item-delete"
-                onClick={() => void handleDelete(routine.id)}
+                onClick={() => handleDeleteClick(routine.id)}
                 aria-label="削除"
               >
                 <svg
@@ -237,6 +274,19 @@ export default function RoutinesPage() {
           </div>
         ))}
       </section>
+
+      {/* 削除確認ダイアログ */}
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        title="リストを削除しますか？"
+        description="この操作は取り消せません。"
+        confirmLabel="削除する"
+        cancelLabel="キャンセル"
+        confirmVariant="destructive"
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+        loading={deleteLoading}
+      />
     </section>
   );
 }

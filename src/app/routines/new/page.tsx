@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 
 import { createRoutine, getCsrfCookie, type RoutinePayload } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
+import { useFlash } from "@/components/FlashMessageProvider";
 
 const normalizeTasks = (tasks: string[]) =>
   tasks.map((task) => task.trim()).filter((task) => task.length > 0);
@@ -24,6 +25,7 @@ const canAppendTask = (tasks: string[]) => {
 export default function RoutineNewPage() {
   const router = useRouter();
   const { me } = useAuth();
+  const { showFlash } = useFlash();
   const [title, setTitle] = useState("");
   const [tasks, setTasks] = useState<string[]>([""]);
   const [error, setError] = useState<string | null>(null);
@@ -75,20 +77,31 @@ export default function RoutineNewPage() {
     await getCsrfCookie();
     const result = await createRoutine(payload);
     if (result.status === 201) {
+      showFlash("success", "リストを作成しました");
       router.push("/routines");
       return;
     }
 
     if (result.status === 422) {
       setError("入力内容を確認してください。");
+      showFlash("error", "入力内容を確認してください。");
       return;
     }
 
     setError(`保存に失敗しました (${result.status})`);
+    showFlash("error", `保存に失敗しました (${result.status})`);
   };
 
   return (
     <section className="routine-form-container">
+      {/* 戻るボタン: 上部に配置（誤タップを防ぐ） */}
+      <button
+        type="button"
+        className="routine-form-back-btn"
+        onClick={() => router.push("/routines")}
+      >
+        ← 戻る
+      </button>
       <h1 className="routine-form-title">新しいタスクリストを作る</h1>
       {error ? <div className="routine-form-error">{error}</div> : null}
 
@@ -98,7 +111,7 @@ export default function RoutineNewPage() {
         <input
           value={title}
           onChange={(event) => setTitle(event.target.value)}
-          className="rm-input routine-form-input"
+          className="routine-form-input"
           placeholder="例: 朝のルーティン"
         />
       </label>
@@ -117,7 +130,7 @@ export default function RoutineNewPage() {
                   )
                 )
               }
-              className="rm-input routine-form-input"
+              className="routine-form-input"
               placeholder="タスクを入力"
             />
             <button
@@ -134,7 +147,7 @@ export default function RoutineNewPage() {
               <svg
                 aria-hidden="true"
                 viewBox="0 0 24 24"
-                className="h-4 w-4"
+                className="h-6 w-6"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2"
@@ -150,30 +163,18 @@ export default function RoutineNewPage() {
         ))}
         <button
           type="button"
-          className="rm-btn flex items-center justify-center gap-2"
+          className="rm-btn routine-form-add-btn"
           onClick={handleAddTask}
+          disabled={tasks.length >= 10}
         >
-          <svg
-            aria-hidden="true"
-            viewBox="0 0 24 24"
-            className="h-4 w-4"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M12 5v14" />
-            <path d="M5 12h14" />
-          </svg>
-          タスクを追加する
+          ＋ タスクを追加する
         </button>
         {limitMessage ? (
           <div className="routine-form-limit-message">{limitMessage}</div>
         ) : null}
       </div>
 
-      {/* アクションボタン: 下部に配置、縦に並べる */}
+      {/* アクションボタン: 下部固定バー（保存するを最優先Primary） */}
       <div className="routine-form-actions">
         <button
           type="button"
@@ -181,13 +182,6 @@ export default function RoutineNewPage() {
           onClick={handleSave}
         >
           保存する
-        </button>
-        <button
-          type="button"
-          className="rm-btn routine-form-back-btn"
-          onClick={() => router.push("/routines")}
-        >
-          戻る
         </button>
       </div>
     </section>

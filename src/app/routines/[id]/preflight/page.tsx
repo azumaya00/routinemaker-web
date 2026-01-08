@@ -13,6 +13,7 @@ import {
   updateRoutine,
 } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 type Routine = {
   id: number;
@@ -142,12 +143,12 @@ export default function PreflightPage() {
   }
 
   if (!routine) {
-    return <div className="rm-muted text-sm">読み込み中...</div>;
+    return <LoadingSpinner />;
   }
 
   return (
     <section className="space-y-6">
-      <h1 className="text-xl font-semibold">実行前</h1>
+      <h1 className="text-xl font-semibold">このタスクを実行します</h1>
       <div className="rm-muted text-sm">{routine.title}</div>
 
       <div className="space-y-2">

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Josefin_Sans, Noto_Sans_JP } from "next/font/google";
 
 import { AppShell } from "@/components/AppShell";
+import { FlashMessageProvider } from "@/components/FlashMessageProvider";
 import "./globals.css";
 
 // ロゴ用フォント: Josefin Sans（ヘッダーのサービス名に使用）
@@ -34,7 +35,9 @@ export default function RootLayout({
       <body
         className={`${josefinSans.variable} ${notoSansJP.variable} antialiased`}
       >
-        <AppShell>{children}</AppShell>
+        <FlashMessageProvider>
+          <AppShell>{children}</AppShell>
+        </FlashMessageProvider>
       </body>
     </html>
   );
