@@ -100,92 +100,138 @@ export default function RoutinesPage() {
   };
 
   if (loading) {
-    return <div className="rm-muted text-sm">Loading...</div>;
+    return <div className="rm-muted text-sm">読み込み中...</div>;
   }
 
   return (
-    <section className="space-y-10">
-      {/* タイトル: 余白を増やし、フォントサイズを少し大きくして存在感を出す */}
-      <h1 className="text-2xl font-semibold">今日は、何から始めますか？</h1>
+    <section className="routines-home-container">
+      {/* ページ見出し: 大きめに、中央カラム内で左寄せ */}
+      <h1 className="routines-home-title">今日は、何から始めますか？</h1>
       
-      {/* チュートリアル: 情報量を減らすため、視認性を下げる（opacity を下げ、フォントサイズを小さく） */}
+      {/* チュートリアル案内カード: ガラス風（薄い青、半透明、薄い枠線、角丸大きめ） */}
       {showTutorial ? (
-        <div className="rm-muted text-xs opacity-60">
-          <div>チュートリアル（初回のみ表示）</div>
+        <div className="routines-home-tutorial-card">
+          <div className="routines-home-tutorial-content">
+            <div className="routines-home-tutorial-title">チュートリアル（初回のみ表示）</div>
+            <div className="routines-home-tutorial-description">
+              RoutineMakerは、やることが多いと止まってしまう人のためのタスク管理アプリです。
+              今やる「ひとつ」だけに集中して、タスクを完了していきましょう。
+            </div>
+          </div>
           <button
             type="button"
-            className="rm-btn rm-btn-sm mt-2"
+            className="routines-home-tutorial-close"
             onClick={() => {
-              // 初回表示の扱いは要件に明示がないため、ローカル記録で代替する。
               window.localStorage.setItem("rm_tutorial_seen", "1");
               setShowTutorial(false);
             }}
+            aria-label="閉じる"
           >
-            閉じる
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              className="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M18 6L6 18" />
+              <path d="M6 6l12 12" />
+            </svg>
           </button>
         </div>
       ) : null}
       
-      {/* エラーメッセージ: 情報量を減らすため、視認性を下げる */}
-      {error ? <div className="rm-muted text-xs opacity-60">{error}</div> : null}
+      {/* エラーメッセージ */}
+      {error ? <div className="routines-home-error rm-muted text-xs opacity-60">{error}</div> : null}
 
-      {/* 主役の操作ボタン: 「+ 新しく作る」を大きく目立たせる */}
-      <div className="flex gap-3">
+      {/* 主導線エリア: 丸いピル型の主ボタン + 履歴リンク */}
+      <div className="routines-home-actions">
         <button
           type="button"
-          className="rm-btn rm-btn-primary rm-btn-lg"
+          className="routines-home-create-btn"
           onClick={() => router.push("/routines/new")}
         >
-          + 新しく作る
+          ＋ 新しいタスクリストを作る
         </button>
-        {/* 履歴ボタン: 情報量を減らすため、視認性を下げる */}
         <button
           type="button"
-          className="rm-btn rm-btn-sm opacity-70"
+          className="routines-home-history-link"
           onClick={() => router.push("/histories")}
         >
           履歴
         </button>
       </div>
 
-      {/* ルーティン一覧: カード間の余白を増やし、カード内の余白も増やす */}
-      <section className="space-y-4">
-        {/* 空状態メッセージ: 情報量を減らすため、視認性を下げる */}
+      {/* タスクリストのカード一覧: カード型（白背景、角丸大、薄い影） */}
+      <section className="routines-home-list">
+        {/* 空状態メッセージ */}
         {routines.length === 0 ? (
-          <div className="rm-muted text-xs opacity-60">No routines yet.</div>
+          <div className="routines-home-empty rm-muted text-xs opacity-60">ルーティンがありません</div>
         ) : null}
         {routines.map((routine) => (
-          <div
-            key={routine.id}
-            className="rm-card flex items-center justify-between py-4 px-5"
-          >
-            {/* ルーティンタイトル: フォントサイズを少し大きくして読みやすく */}
-            <div className="text-base font-medium">{routine.title}</div>
-            <div className="flex gap-2">
-              {/* 主役の操作: 「実行へ」を目立たせる（primary スタイル + サイズを大きく） */}
+          <div key={routine.id} className="routines-home-item">
+            {/* リスト名（左） */}
+            <div className="routines-home-item-title">{routine.title}</div>
+            {/* 操作群（右）: 実行する（主・円形アイコン） + 編集・削除（副・控えめ） */}
+            <div className="routines-home-item-actions">
               <button
                 type="button"
-                className="rm-btn rm-btn-primary"
-                onClick={() =>
-                  router.push(`/routines/${routine.id}/preflight`)
-                }
+                className="routines-home-item-run"
+                onClick={() => router.push(`/routines/${routine.id}/preflight`)}
+                aria-label="実行する"
               >
-                実行へ
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  className="h-5 w-5"
+                  fill="currentColor"
+                >
+                  <path d="M8 5v14l11-7z" />
+                </svg>
               </button>
-              {/* 編集・削除ボタン: 情報量を減らすため、視認性を下げる */}
               <button
                 type="button"
-                className="rm-btn rm-btn-sm opacity-60"
+                className="routines-home-item-edit"
                 onClick={() => router.push(`/routines/${routine.id}`)}
+                aria-label="編集"
               >
-                編集
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  className="h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                </svg>
               </button>
               <button
                 type="button"
-                className="rm-btn rm-btn-sm opacity-60"
+                className="routines-home-item-delete"
                 onClick={() => void handleDelete(routine.id)}
+                aria-label="削除"
               >
-                削除
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  className="h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M3 6h18" />
+                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                </svg>
               </button>
             </div>
           </div>

@@ -54,7 +54,7 @@ export default function SettingsPage() {
 
   return (
     <section className="space-y-6">
-      <h1 className="text-xl font-semibold">Settings</h1>
+      <h1 className="text-xl font-semibold">設定</h1>
       <div className="rm-muted text-xs">
         実行中に影響する項目は、次回の実行から反映されます。
       </div>
@@ -123,7 +123,7 @@ export default function SettingsPage() {
         </label>
 
         <label className="flex items-center gap-2">
-          <span className="w-32">Theme</span>
+          <span className="w-32">テーマ</span>
           <select
             className="rm-select"
             value={local.theme}
@@ -134,15 +134,15 @@ export default function SettingsPage() {
               }))
             }
           >
-            <option value="light">light</option>
-            <option value="soft">soft</option>
-            <option value="dark">dark</option>
+            <option value="light">ライト</option>
+            <option value="soft">ソフト</option>
+            <option value="dark">ダーク</option>
           </select>
           <span title="雰囲気の切り替え（light/soft/dark）">?</span>
         </label>
 
         <label className="flex items-center gap-2">
-          <span className="w-32">Dark mode</span>
+          <span className="w-32">ダークモード</span>
           <select
             className="rm-select"
             value={local.dark_mode}
@@ -153,9 +153,9 @@ export default function SettingsPage() {
               }))
             }
           >
-            <option value="system">system</option>
-            <option value="on">on</option>
-            <option value="off">off</option>
+            <option value="system">システム</option>
+            <option value="on">オン</option>
+            <option value="off">オフ</option>
           </select>
           <span title="表示モードの切り替え（system/on/off）">?</span>
         </label>
@@ -167,7 +167,7 @@ export default function SettingsPage() {
         onClick={handleSave}
         disabled={!canSave || saving}
       >
-        Save
+        保存
       </button>
     </section>
   );

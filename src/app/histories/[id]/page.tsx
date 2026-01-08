@@ -96,7 +96,7 @@ export default function HistoryDetailPage() {
   }
 
   if (!history) {
-    return <div className="rm-muted text-sm">Loading...</div>;
+    return <div className="rm-muted text-sm">読み込み中...</div>;
   }
 
   return (
@@ -111,7 +111,7 @@ export default function HistoryDetailPage() {
       </div>
 
       <section className="space-y-2">
-        <div className="text-sm">Tasks</div>
+        <div className="text-sm">タスク</div>
         {history.tasks.map((task, index) => (
           <div
             key={`task-${index}`}

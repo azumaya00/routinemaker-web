@@ -112,12 +112,12 @@ export default function HistoriesPage() {
   }, [status]);
 
   if (loading) {
-    return <div className="rm-muted text-sm">Loading...</div>;
+    return <div className="rm-muted text-sm">読み込み中...</div>;
   }
 
   return (
     <section className="space-y-6">
-      <h1 className="text-xl font-semibold">Histories</h1>
+      <h1 className="text-xl font-semibold">履歴</h1>
       {error ? <div className="rm-muted text-sm">{error}</div> : null}
 
       {items.length === 0 ? (

@@ -44,40 +44,51 @@ export default function LoginPage() {
   }, [status, router]);
 
   return (
-    <section className="space-y-6">
-      <h1 className="text-xl font-semibold">Login</h1>
-      <div className="grid gap-3">
-        <label className="text-sm">
-          Email
+    <section className="auth-page-container">
+      {/* ページタイトル: 明確な余白で区切る */}
+      <h1 className="auth-page-title">ログイン</h1>
+      
+      {/* フォーム本体: 入力欄とボタンを縦に配置 */}
+      <div className="auth-page-form">
+        <label className="auth-page-label">
+          メールアドレス
           <input
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            className="rm-input mt-1"
+            className="rm-input auth-page-input"
             type="email"
+            placeholder="example@email.com"
           />
         </label>
-        <label className="text-sm">
-          Password
+        <label className="auth-page-label">
+          パスワード
           <input
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            className="rm-input mt-1"
+            className="rm-input auth-page-input"
             type="password"
+            placeholder="パスワードを入力"
           />
         </label>
+        
+        {/* エラーメッセージ: 入力欄の直後に表示 */}
+        {errorMessage ? (
+          <div className="auth-page-error">{errorMessage}</div>
+        ) : null}
+        
+        {/* アクションボタン: 入力欄との間に明確な余白 */}
         <button
           type="button"
-          className="rm-btn rm-btn-primary"
+          className="rm-btn rm-btn-primary auth-page-button"
           onClick={() => void login(email, password)}
         >
-          Login
+          ログイン
         </button>
-        <Link className="rm-link text-sm" href="/forgot-password">
+        
+        {/* 補助リンク: ボタンの直下、小さめ・目立たせすぎない */}
+        <Link className="auth-page-link" href="/forgot-password">
           パスワードを忘れた場合
         </Link>
-        {errorMessage ? (
-          <div className="rm-danger text-sm">{errorMessage}</div>
-        ) : null}
       </div>
     </section>
   );

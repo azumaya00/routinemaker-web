@@ -16,7 +16,6 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const passwordHint = "8文字以上・英字/数字を各1文字以上";
 
   const formatError = (raw: string) => {
     try {
@@ -37,66 +36,75 @@ export default function SignupPage() {
   };
 
   return (
-    <section className="space-y-6">
-      <h1 className="text-xl font-semibold">Signup</h1>
-      <div className="space-y-2 text-sm">
-        <label className="block">
-          <div className="rm-muted mb-1">Email</div>
+    <section className="auth-page-container">
+      {/* ページタイトル: 明確な余白で区切る */}
+      <h1 className="auth-page-title">アカウント登録</h1>
+      
+      {/* フォーム本体: 入力項目が多いため、余白を広めに */}
+      <div className="auth-page-form auth-page-form-signup">
+        <label className="auth-page-label">
+          メールアドレス
           <input
-            className="rm-input"
+            className="rm-input auth-page-input"
             type="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
+            placeholder="example@email.com"
           />
         </label>
-        <label className="block">
-          <div className="rm-muted mb-1">Password</div>
-          <div className="rm-muted mb-1 text-xs">{passwordHint}</div>
+        
+        <label className="auth-page-label">
+          パスワード
           <input
-            className="rm-input"
+            className="rm-input auth-page-input"
             type="password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
+            placeholder="8文字以上・英字/数字を各1文字以上"
           />
         </label>
-        <label className="block">
-          <div className="rm-muted mb-1">Confirm Password</div>
-          <div className="rm-muted mb-1 text-xs">{passwordHint}</div>
+        
+        {/* パスワード確認: 視覚的に"セット"として見えるよう調整 */}
+        <label className="auth-page-label">
+          パスワード確認
           <input
-            className="rm-input"
+            className="rm-input auth-page-input"
             type="password"
             value={passwordConfirmation}
             onChange={(event) => setPasswordConfirmation(event.target.value)}
+            placeholder="パスワードを再入力"
           />
         </label>
+        
+        {/* エラーメッセージ: 入力欄の直後に表示 */}
+        {error && (
+          <div className="auth-page-error">{error}</div>
+        )}
+        
+        {/* アクションボタン: フォームの終わりが明確に分かる位置に */}
+        <button
+          type="button"
+          className="rm-btn rm-btn-primary auth-page-button"
+          onClick={async () => {
+            // 登録とセッション確立を API 側に任せ、完了後に /api/me で状態を同期する。
+            setError(null);
+            await getCsrfCookie();
+            const result = await register(
+              email,
+              password,
+              passwordConfirmation
+            );
+            if (result.status !== 204) {
+              setError(formatError(result.body));
+              return;
+            }
+            await me();
+            router.push("/routines");
+          }}
+        >
+          登録する
+        </button>
       </div>
-      {error && (
-        <div className="rm-danger rm-card text-sm">
-          {error}
-        </div>
-      )}
-      <button
-        type="button"
-        className="rm-btn rm-btn-primary"
-        onClick={async () => {
-          // 登録とセッション確立を API 側に任せ、完了後に /api/me で状態を同期する。
-          setError(null);
-          await getCsrfCookie();
-          const result = await register(
-            email,
-            password,
-            passwordConfirmation
-          );
-          if (result.status !== 204) {
-            setError(formatError(result.body));
-            return;
-          }
-          await me();
-          router.push("/routines");
-        }}
-      >
-        Create account
-      </button>
     </section>
   );
 }

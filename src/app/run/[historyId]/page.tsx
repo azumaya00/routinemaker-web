@@ -136,7 +136,7 @@ export default function RunPage() {
   };
 
   if (status === "loading") {
-    return <div className="rm-muted text-sm">Loading...</div>;
+    return <div className="rm-muted text-sm">読み込み中...</div>;
   }
 
   if (error) {
@@ -144,7 +144,7 @@ export default function RunPage() {
   }
 
   if (!payload) {
-    return <div className="rm-muted text-sm">Loading...</div>;
+    return <div className="rm-muted text-sm">読み込み中...</div>;
   }
 
   return (

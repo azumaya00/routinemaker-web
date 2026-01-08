@@ -87,17 +87,8 @@ export default function Home() {
       div.style.setProperty("padding-bottom", "0", "important");
     }
     
-    // .top-page、.top-page-container、.top-page-content、.top-page-visualの背景も完全に透明に
-    const topPage = document.querySelector(".top-page");
-    if (topPage) {
-      const el = topPage as HTMLElement;
-      el.style.setProperty("background", "transparent", "important");
-      el.style.setProperty("background-color", "transparent", "important");
-      el.style.setProperty("background-image", "none", "important");
-      el.style.setProperty("backdrop-filter", "none", "important");
-      el.style.setProperty("box-shadow", "none", "important");
-      el.style.setProperty("border", "none", "important");
-    }
+    // .top-page-container、.top-page-content、.top-page-visualの背景も完全に透明に
+    // 注意: .top-pageは背景画像を表示するための要素なので、背景を透明にしない
     
     const topPageContainer = document.querySelector(".top-page-container");
     if (topPageContainer) {
@@ -150,6 +141,9 @@ export default function Home() {
       document.body.style.removeProperty("backdrop-filter");
       document.body.style.removeProperty("overflow");
       document.body.style.removeProperty("height");
+      
+      // クリーンアップ時にも要素を再取得する
+      const mainElement = document.querySelector("main");
       if (mainElement) {
         const main = mainElement as HTMLElement;
         main.style.removeProperty("background");
@@ -161,6 +155,8 @@ export default function Home() {
         main.style.removeProperty("padding-top");
         main.style.removeProperty("padding-bottom");
       }
+      
+      const pb20Div = document.querySelector("main > div.pb-20");
       if (pb20Div) {
         const div = pb20Div as HTMLElement;
         div.style.removeProperty("background");
@@ -171,15 +167,9 @@ export default function Home() {
         div.style.removeProperty("border");
         div.style.removeProperty("padding-bottom");
       }
-      if (topPage) {
-        const el = topPage as HTMLElement;
-        el.style.removeProperty("background");
-        el.style.removeProperty("background-color");
-        el.style.removeProperty("background-image");
-        el.style.removeProperty("backdrop-filter");
-        el.style.removeProperty("box-shadow");
-        el.style.removeProperty("border");
-      }
+      
+      // 注意: .top-pageは背景画像を表示するための要素なので、クリーンアップしない
+      const topPageContainer = document.querySelector(".top-page-container");
       if (topPageContainer) {
         const el = topPageContainer as HTMLElement;
         el.style.removeProperty("background");
@@ -189,6 +179,8 @@ export default function Home() {
         el.style.removeProperty("box-shadow");
         el.style.removeProperty("border");
       }
+      
+      const topPageContent = document.querySelector(".top-page-content");
       if (topPageContent) {
         const el = topPageContent as HTMLElement;
         el.style.removeProperty("background");
@@ -198,6 +190,8 @@ export default function Home() {
         el.style.removeProperty("box-shadow");
         el.style.removeProperty("border");
       }
+      
+      const topPageVisual = document.querySelector(".top-page-visual");
       if (topPageVisual) {
         const el = topPageVisual as HTMLElement;
         el.style.removeProperty("background");

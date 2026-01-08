@@ -95,7 +95,7 @@ export default function RoutineEditPage() {
   const handleAddTask = () => {
     // 11個目の追加操作時のみ制限メッセージを出す。
     if (tasks.length >= 10) {
-      setLimitMessage("Max 10 tasks.");
+      setLimitMessage("タスクは最大10個までです");
       return;
     }
 
@@ -143,26 +143,29 @@ export default function RoutineEditPage() {
   }
 
   if (!routine) {
-    return <div className="rm-muted text-sm">Loading...</div>;
+    return <div className="rm-muted text-sm">読み込み中...</div>;
   }
 
   return (
-    <section className="space-y-6">
-      <h1 className="text-xl font-semibold">編集</h1>
+    <section className="routine-form-container">
+      <h1 className="routine-form-title">タスクリストを編集する</h1>
 
-      <label className="text-sm">
-        Title
+      {/* リスト名: 先頭に配置、余白をしっかり取る */}
+      <label className="routine-form-label">
+        リスト名
         <input
           value={title}
           onChange={(event) => setTitle(event.target.value)}
-          className="rm-input mt-1"
+          className="rm-input routine-form-input"
+          placeholder="例: 朝のルーティン"
         />
       </label>
 
-      <div className="space-y-2">
-        <div className="text-sm">Tasks</div>
+      {/* タスク入力: 各タスクは縦に並べる */}
+      <div className="routine-form-tasks">
+        <div className="routine-form-label-text">タスク</div>
         {tasks.map((task, index) => (
-          <div key={`task-${index}`} className="flex gap-2">
+          <div key={`task-${index}`} className="routine-form-task-row">
             <input
               value={task}
               onChange={(event) =>
@@ -172,48 +175,77 @@ export default function RoutineEditPage() {
                   )
                 )
               }
-              className="rm-input w-full"
+              className="rm-input routine-form-input"
+              placeholder="タスクを入力"
             />
             <button
               type="button"
-              className="rm-btn rm-btn-sm"
+              className="routine-form-delete-btn"
               onClick={() =>
                 setTasks((prev) =>
                   prev.filter((_, itemIndex) => itemIndex !== index)
                 )
               }
               disabled={tasks.length <= 1}
+              aria-label="削除"
             >
-              Remove
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M3 6h18" />
+                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+              </svg>
             </button>
           </div>
         ))}
         <button
           type="button"
-          className="rm-btn"
+          className="rm-btn flex items-center justify-center gap-2"
           onClick={handleAddTask}
         >
-          Add task
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            className="h-4 w-4"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M12 5v14" />
+            <path d="M5 12h14" />
+          </svg>
+          タスクを追加する
         </button>
         {limitMessage ? (
-          <div className="rm-muted text-xs">{limitMessage}</div>
+          <div className="routine-form-limit-message">{limitMessage}</div>
         ) : null}
       </div>
 
-      <div className="flex gap-2">
+      {/* アクションボタン: 下部に配置、縦に並べる */}
+      <div className="routine-form-actions">
         <button
           type="button"
-          className="rm-btn"
-          onClick={() => router.push("/routines")}
+          className="rm-btn rm-btn-primary routine-form-save-btn"
+          onClick={handleSave}
         >
-          Back
+          保存する
         </button>
         <button
           type="button"
-          className="rm-btn rm-btn-primary"
-          onClick={handleSave}
+          className="rm-btn routine-form-back-btn"
+          onClick={() => router.push("/routines")}
         >
-          Save
+          戻る
         </button>
       </div>
     </section>

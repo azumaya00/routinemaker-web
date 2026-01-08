@@ -142,7 +142,7 @@ export default function PreflightPage() {
   }
 
   if (!routine) {
-    return <div className="rm-muted text-sm">Loading...</div>;
+    return <div className="rm-muted text-sm">読み込み中...</div>;
   }
 
   return (
@@ -151,7 +151,7 @@ export default function PreflightPage() {
       <div className="rm-muted text-sm">{routine.title}</div>
 
       <div className="space-y-2">
-        <div className="text-sm">Tasks</div>
+        <div className="text-sm">タスク</div>
         {tasks.map((task, index) => (
           <div
             key={`${routine.id}-${index}`}
@@ -182,14 +182,14 @@ export default function PreflightPage() {
           className="rm-btn"
           onClick={() => router.push("/routines")}
         >
-          Back
+          戻る
         </button>
         <button
           type="button"
           className="rm-btn rm-btn-primary"
           onClick={handleStart}
         >
-          Start
+          開始
         </button>
       </div>
     </section>
