@@ -35,8 +35,9 @@ export default function FlashMessage({
   }, []);
 
   // 自動消滅
+  // 成功は短く控えめに（1.5秒）、エラーは現状維持（4秒）
   useEffect(() => {
-    const defaultDuration = type === "success" ? 3000 : type === "error" ? 4000 : 2500;
+    const defaultDuration = type === "success" ? 1500 : type === "error" ? 4000 : 2500;
     const timeout = duration ?? defaultDuration;
     const timer = setTimeout(() => {
       setIsVisible(false);

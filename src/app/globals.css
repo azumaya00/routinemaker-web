@@ -284,20 +284,29 @@ h3 {
   color: var(--fg);
   border-radius: 9999px; /* ピル型（角丸最大） */
   cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+  /* 押した感のアニメーション: 150msで統一（集中を邪魔しない最小限の速度） */
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* 薄い影（強すぎる影は禁止） */
   white-space: nowrap;
 }
 
+/* hover: ごく僅かな明度変化（ダークでも分かる程度） */
 .rm-btn:hover:not(:disabled) {
   background: var(--muted);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
   transform: translateY(-1px);
 }
 
+/* active: translateYで1-2px沈む（押した感を表現） */
 .rm-btn:active:not(:disabled) {
-  transform: translateY(0);
+  transform: translateY(1px); /* 押下時に1px沈む */
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* focus-visible: テーマ色の薄いリング（アクセシビリティ） */
+.rm-btn:focus-visible:not(:disabled) {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent);
 }
 
 /* Primaryボタン: 主要ボタン（テーマカラー、白文字、薄い影） */
@@ -319,8 +328,14 @@ h3 {
 .rm-btn-primary:active:not(:disabled) {
   background: var(--accent-active); /* active時：テーマ変数を使用 */
   border-color: var(--accent-active);
-  transform: translateY(0);
+  transform: translateY(1px); /* 押下時に1px沈む */
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* focus-visible: テーマ色の薄いリング（アクセシビリティ） */
+.rm-btn-primary:focus-visible:not(:disabled) {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent), 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 /* Dangerボタン: 危険な操作用 */
@@ -340,8 +355,14 @@ h3 {
 
 .rm-btn-danger:active:not(:disabled) {
   background: #991b1b;
-  transform: translateY(0);
+  transform: translateY(1px); /* 押下時に1px沈む */
   box-shadow: 0 2px 6px rgba(220, 38, 38, 0.3);
+}
+
+/* focus-visible: テーマ色の薄いリング（アクセシビリティ） */
+.rm-btn-danger:focus-visible:not(:disabled) {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 20%, transparent), 0 2px 8px rgba(220, 38, 38, 0.2);
 }
 
 /* Disabled状態: 彩度を落として押せないことが明確になる */
@@ -374,6 +395,7 @@ h3 {
   font-size: 16px;
 }
 
+/* フォーム入力要素: ダークモードでの視認性を確保 */
 .rm-input {
   border: 1px solid var(--border);
   background: var(--bg);
@@ -382,8 +404,35 @@ h3 {
   padding: 0.5rem 0.75rem;
   font-size: 16px; /* フォーム入力は必ず16px */
   width: 100%;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  outline: none;
 }
 
+/* ダークモードでの枠線視認性改善: 背景色と同化しないように明るく */
+.rm-input::placeholder {
+  color: var(--fg);
+  opacity: 0.5; /* プレースホルダーは本文より薄いが、読める明度を確保 */
+}
+
+/* focus時: テーマ色の枠線とリング */
+.rm-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+/* autofill時の文字色が見えるように（ダークモード対応） */
+.rm-input:-webkit-autofill {
+  -webkit-text-fill-color: var(--fg);
+  -webkit-box-shadow: 0 0 0px 1000px var(--bg) inset;
+  box-shadow: 0 0 0px 1000px var(--bg) inset;
+}
+
+.rm-input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px var(--bg) inset, 0 0 0 3px color-mix(in srgb, var(--accent) 10%, transparent);
+  box-shadow: 0 0 0px 1000px var(--bg) inset, 0 0 0 3px color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+/* セレクト要素: ダークモードでの視認性を確保 */
 .rm-select {
   border: 1px solid var(--border);
   background: var(--bg);
@@ -391,6 +440,14 @@ h3 {
   border-radius: 0.5rem;
   padding: 0.375rem 0.5rem;
   font-size: 16px; /* フォーム入力は必ず16px */
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  outline: none;
+}
+
+/* focus時: テーマ色の枠線とリング */
+.rm-select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 10%, transparent);
 }
 
 .rm-link {
@@ -1606,13 +1663,15 @@ h3 {
 }
 
 /* 入力欄: Home画面と同じトーン（角丸、薄い枠線、余白十分） */
+/* ダークモードでの視認性を確保 */
 .routine-form-input {
   width: 100%;
   height: 46px; /* 入力高さ44-48px（46px） */
   padding: 0 16px;
   font-size: 16px;
   background: var(--bg);
-  border: 1px solid rgba(0, 0, 0, 0.1); /* 薄い枠線 */
+  /* ダークモードでの枠線視認性改善: var(--border)を使用（テーマ変数で自動調整） */
+  border: 1px solid var(--border);
   border-radius: 12px; /* 角丸（Home画面のカードより控えめ） */
   color: var(--fg);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -1624,8 +1683,22 @@ h3 {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 10%, transparent); /* テーマ変数を使用 */
 }
 
+/* プレースホルダー: ダークモードでも読める明度を確保 */
 .routine-form-input::placeholder {
-  color: rgba(0, 0, 0, 0.4);
+  color: var(--fg);
+  opacity: 0.5; /* 本文より薄いが、読める明度を確保（消えない） */
+}
+
+/* autofill時の文字色が見えるように（ダークモード対応） */
+.routine-form-input:-webkit-autofill {
+  -webkit-text-fill-color: var(--fg);
+  -webkit-box-shadow: 0 0 0px 1000px var(--bg) inset;
+  box-shadow: 0 0 0px 1000px var(--bg) inset;
+}
+
+.routine-form-input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px var(--bg) inset, 0 0 0 3px color-mix(in srgb, var(--accent) 10%, transparent);
+  box-shadow: 0 0 0px 1000px var(--bg) inset, 0 0 0 3px color-mix(in srgb, var(--accent) 10%, transparent);
 }
 
 /* タスク入力エリア */
@@ -1646,14 +1719,14 @@ h3 {
 .routine-form-task-row {
   display: flex;
   align-items: center;
-  gap: 12px; /* 入力欄と削除ボタンの間隔を8-12px（12px）に拡大 */
+  gap: 16px; /* 入力欄と削除ボタンの間隔を拡大（誤タップを防ぐ） */
 }
 
 .routine-form-task-row .routine-form-input {
   flex: 1;
 }
 
-/* 削除ボタン: ゴミ箱アイコン（誤操作を減らすためタップ領域を44pxに拡大） */
+/* 削除ボタン: ゴミ箱アイコン（誤操作を減らすためタップ領域を44pxに拡大、視覚強度を下げる） */
 .routine-form-delete-btn {
   display: flex;
   align-items: center;
@@ -1666,7 +1739,7 @@ h3 {
   background: transparent;
   border: none;
   color: var(--fg);
-  opacity: 0.5;
+  opacity: 0.4; /* 視覚強度を下げる（0.5 → 0.4） */
   cursor: pointer;
   transition: opacity 0.15s ease, background-color 0.15s ease, transform 0.1s ease;
   border-radius: 50%; /* 円形ハイライト用 */
@@ -1674,15 +1747,15 @@ h3 {
 }
 
 .routine-form-delete-btn:hover:not(:disabled) {
-  opacity: 0.85; /* hover時：不透明度が上がる */
-  background-color: rgba(0, 0, 0, 0.06); /* hover時：背景に薄い円形ハイライト */
-  transform: scale(1.05); /* 押した感が分かる */
+  opacity: 0.7; /* hover時：控えめに（0.85 → 0.7） */
+  background-color: rgba(0, 0, 0, 0.04); /* hover時：背景をさらに薄く（0.06 → 0.04） */
+  transform: scale(1.02); /* 押した感を控えめに（1.05 → 1.02） */
 }
 
 .routine-form-delete-btn:active:not(:disabled) {
-  opacity: 1; /* active時：さらに不透明度が上がる */
-  background-color: rgba(0, 0, 0, 0.08);
-  transform: scale(0.95); /* 押した感が分かる */
+  opacity: 0.8; /* active時：控えめに（1 → 0.8） */
+  background-color: rgba(0, 0, 0, 0.06); /* active時：背景をさらに薄く（0.08 → 0.06） */
+  transform: scale(0.98); /* 押した感を控えめに（0.95 → 0.98） */
 }
 
 .routine-form-delete-btn:disabled {
@@ -1692,6 +1765,7 @@ h3 {
 }
 
 /* タスク追加ボタン: Primaryより一段弱い位置づけ（アウトラインまたは薄い背景） */
+/* ダークモードで背景に沈まないように、少しグレー寄りの背景色に変更 */
 .routine-form-add-btn {
   width: auto; /* コンテンツ幅寄せ（フル幅にしない） */
   min-width: 200px; /* ただし押しにくくならないよう最小幅を確保 */
@@ -1700,27 +1774,36 @@ h3 {
   margin-right: 0;
   /* 高さ・角丸は.rm-btnで統一されている */
   /* Primaryより弱くするため、.rm-btn-primaryを外して.rm-btnのデフォルトスタイルを使用 */
-  background: var(--bg);
+  /* ダークモードで背景に沈まないように、少しグレー寄りの背景色（見失わない最低限の差分） */
+  background: var(--muted); /* ダークモードでも見えるように、--mutedを使用 */
   border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent); /* テーマ変数を使用（透明度30%） */
   color: var(--accent); /* テーマ変数を使用 */
-  box-shadow: none; /* 影は不要 */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* 最小限の影で存在感を出す */
 }
 
 .routine-form-add-btn:hover:not(:disabled) {
   background: var(--muted); /* hover時：テーマ変数を使用 */
   border-color: var(--accent); /* テーマ変数を使用 */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12); /* hover時：影を少し強く */
   transform: translateY(-1px);
 }
 
 .routine-form-add-btn:active:not(:disabled) {
   background: var(--muted); /* active時もテーマ変数を使用 */
-  transform: translateY(0);
+  transform: translateY(1px); /* 押下時に1px沈む */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* focus-visible: テーマ色の薄いリング（アクセシビリティ） */
+.routine-form-add-btn:focus-visible:not(:disabled) {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent), 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .routine-form-add-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  background: var(--bg);
+  background: var(--muted); /* disabled時も--mutedを使用 */
   border-color: rgba(0, 0, 0, 0.1);
   color: var(--fg);
   transform: none;
@@ -2434,9 +2517,10 @@ h3 {
 }
 
 .flash-message-success {
-  background: #d1fae5; /* 薄いグリーン系背景 */
+  background: rgba(209, 250, 229, 0.85); /* 薄いグリーン系背景（控えめ：透明度を下げる） */
   color: #065f46;
-  border: 1px solid #6ee7b7;
+  border: 1px solid rgba(110, 231, 183, 0.5); /* 境界線も控えめに */
+  opacity: 0.9; /* 全体的に控えめに */
 }
 
 .flash-message-error {
@@ -2464,6 +2548,13 @@ h3 {
   font-weight: 500;
   line-height: 1.5;
   word-break: break-word; /* 長文でも折り返し */
+}
+
+/* 成功メッセージはさらに控えめに（サイズと太さを調整） */
+.flash-message-success .flash-message-text {
+  font-size: 13px; /* 少し小さく */
+  font-weight: 400; /* 太さを下げる */
+  opacity: 0.9; /* 少し薄く */
 }
 
 .flash-message-close {
@@ -2891,6 +2982,26 @@ h3 {
   cursor: not-allowed;
 }
 
+/* エラーメッセージ: sessionStorage欠損時のフォールバック表示 */
+.run-page-error-message {
+  font-size: 18px;
+  font-weight: 500;
+  text-align: center;
+  color: var(--fg);
+  line-height: 1.5;
+  margin: 0;
+  opacity: 0.9;
+}
+
+/* ホームへ戻るボタン: エラー時のフォールバック導線 */
+.run-page-home-btn {
+  width: auto;
+  min-width: 200px; /* 読みやすい最小幅 */
+  max-width: 400px; /* 画面いっぱいにはしない */
+  margin-top: 16px; /* エラーメッセージとの間隔 */
+  /* 高さ・角丸・影・色は.rm-btn-primaryで統一されている */
+}
+
 /* PC: タブレット以上で左右padding 24px */
 @media (min-width: 769px) {
   .run-page-container {
@@ -2906,6 +3017,10 @@ h3 {
     width: 140px; /* PC: 少し大きく */
     height: 140px;
     font-size: 20px;
+  }
+
+  .run-page-error-message {
+    font-size: 20px; /* PC: 少し大きく */
   }
 }
 

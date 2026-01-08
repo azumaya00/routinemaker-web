@@ -6,8 +6,7 @@ export type ApiResult = {
   body: string;
 };
 
-// 設定は API の user_settings に合わせた最小形で扱う。
-// 目安時間（enable_task_estimated_time）は仕様から削除
+// 設定は API の user_settings に合わせた最小形で扱う
 export type UserSettings = {
   theme: "light" | "soft" | "dark";
   dark_mode: "system" | "on" | "off";

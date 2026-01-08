@@ -8,19 +8,20 @@ import { useParams, useRouter } from "next/navigation";
 
 import { abortHistory, completeHistory, getCsrfCookie } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
+import { useSubmitGuard } from "@/hooks/useSubmitGuard";
 import LoadingSpinner from "@/components/LoadingSpinner";
 
 type RunPayload = {
   title: string;
   tasks: string[];
   started_at?: string | null;
-  task_estimates?: number[] | null;
 };
 
 export default function RunPage() {
   const router = useRouter();
   const params = useParams<{ historyId: string }>();
   const { status, me, settings } = useAuth();
+  const { isSubmitting, submitGuard } = useSubmitGuard();
   const [payload, setPayload] = useState<RunPayload | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -41,8 +42,6 @@ export default function RunPage() {
     }
     return Math.max(payload.tasks.length - currentIndex - 1, 0);
   }, [payload, currentIndex]);
-
-  // 目安時間機能は仕様から削除（コードは残すが使用しない）
 
   // 経過時間を計算（設定されている場合のみ）
   // 注意: Hooksの順序を固定するため、早期リターンの前に配置
@@ -84,22 +83,30 @@ export default function RunPage() {
   // 未認証の遷移はガード側で統一する。
 
   // 実行中は API から再取得せず、開始時に保存したタスクを使う。
+  // sessionStorage が欠損している場合（リロード、タブ復元、OSのメモリ解放など）のフォールバック処理を含む
   useEffect(() => {
     if (!historyId || Number.isNaN(historyId)) {
-      setError("履歴IDが不正です。");
-      return;
-    }
-
-    const raw = sessionStorage.getItem(`run:${historyId}`);
-    if (!raw) {
-      setError("実行情報が見つかりません。");
+      setError("データが見つかりません。");
       return;
     }
 
     try {
-      setPayload(JSON.parse(raw) as RunPayload);
-    } catch {
-      setError("実行情報の読み込みに失敗しました。");
+      const raw = sessionStorage.getItem(`run:${historyId}`);
+      if (!raw) {
+        // sessionStorage が欠損している場合: 静かな出口を提供
+        setError("データが見つかりません。");
+        return;
+      }
+
+      try {
+        setPayload(JSON.parse(raw) as RunPayload);
+      } catch {
+        // パースエラー: データが破損している場合
+        setError("データが見つかりません。");
+      }
+    } catch (err) {
+      // sessionStorage アクセスエラー（プライベートモードなど）のフォールバック
+      setError("データが見つかりません。");
     }
   }, [historyId]);
 
@@ -128,8 +135,17 @@ export default function RunPage() {
       return;
     }
 
+    // 最後のタスク完了時のみ二重実行ガードを適用
+    await handleCompleteLast();
+  };
+
+  const handleCompleteLast = submitGuard(async () => {
+    if (!payload) {
+      return;
+    }
+
     if (!historyId || Number.isNaN(historyId)) {
-      setError("履歴IDが不正です。");
+      setError("データが見つかりません。");
       return;
     }
 
@@ -186,12 +202,15 @@ export default function RunPage() {
       return;
     }
 
-    setError(`完了に失敗しました (${result.status})`);
-  };
+    // 実行中画面ではフラッシュを出さず、ページ内にエラーを表示
+    // 技術的詳細はコンソールに出力（ユーザーには見せない）
+    console.error("Complete history failed:", result.status, result.body);
+    setError("処理に失敗しました。もう一度お試しください。");
+  });
 
-  const handleAbort = async () => {
+  const handleAbort = submitGuard(async () => {
     if (!historyId || Number.isNaN(historyId)) {
-      setError("履歴IDが不正です。");
+      setError("データが見つかりません。");
       return;
     }
 
@@ -204,19 +223,39 @@ export default function RunPage() {
       return;
     }
 
-    setError(`中断に失敗しました (${result.status})`);
-  };
+    // 実行中画面ではフラッシュを出さず、ページ内にエラーを表示
+    // 技術的詳細はコンソールに出力（ユーザーには見せない）
+    console.error("Abort history failed:", result.status, result.body);
+    setError("処理に失敗しました。もう一度お試しください。");
+  });
 
   if (status === "loading") {
     return <LoadingSpinner />;
   }
 
-  if (error) {
-    return <div className="rm-muted text-sm">{error}</div>;
-  }
-
-  if (!payload) {
-    return <LoadingSpinner />;
+  // sessionStorage 欠損時のフォールバックUI: 静かな出口を提供
+  // エラーメッセージは短く、技術文言は出さない
+  // 「ホームへ戻る」ボタンで /routines に戻す
+  if (error || !payload) {
+    return (
+      <section className="run-page-container">
+        <div className="run-page-content">
+          {/* エラーメッセージ: 短く、技術文言なし */}
+          <p className="run-page-error-message">
+            {error || "データが見つかりません。"}
+          </p>
+          
+          {/* ホームへ戻るボタン: 既存のボタンスタイルに合わせる */}
+          <button
+            type="button"
+            className="rm-btn rm-btn-primary run-page-home-btn"
+            onClick={() => router.push("/routines")}
+          >
+            ホームへ戻る
+          </button>
+        </div>
+      </section>
+    );
   }
 
   return (
@@ -236,6 +275,7 @@ export default function RunPage() {
           type="button"
           className="run-page-complete-btn"
           onClick={handleComplete}
+          disabled={isSubmitting}
         >
           できた！
         </button>
@@ -245,6 +285,7 @@ export default function RunPage() {
           type="button"
           className="run-page-abort-btn"
           onClick={handleAbort}
+          disabled={isSubmitting}
         >
           中断する
         </button>

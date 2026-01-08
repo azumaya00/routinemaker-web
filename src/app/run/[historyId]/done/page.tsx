@@ -15,7 +15,6 @@ type RunPayload = {
   title: string;
   tasks: string[];
   started_at?: string | null;
-  task_estimates?: number[] | null;
 };
 
 export default function RunDonePage() {

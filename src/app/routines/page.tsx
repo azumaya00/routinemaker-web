@@ -39,7 +39,7 @@ const parseJson = <T,>(input: string): T | null => {
 
 export default function RoutinesPage() {
   const router = useRouter();
-  const { status, me } = useAuth();
+  const { status, me, user } = useAuth();
   const { showFlash } = useFlash();
   const [routines, setRoutines] = useState<Routine[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -127,23 +127,31 @@ export default function RoutinesPage() {
         }
         // 成功フラッシュを表示
         showFlash("success", "削除しました");
+        // ローディング状態を解除
+        setDeleteLoading(false);
         // ダイアログを閉じる
         setDeleteDialogOpen(false);
         setDeleteTargetId(null);
       } else {
         // エラーフラッシュを表示（ダイアログは閉じない）
-        showFlash("error", `削除に失敗しました (${result.status})`);
+        // 技術的詳細（ステータスコード）はコンソールに出力（ユーザーには見せない）
+        console.error("Delete routine failed:", result.status, result.body);
+        showFlash("error", "削除に失敗しました。もう一度お試しください。");
         setDeleteLoading(false); // エラー時はローディングを解除して再試行可能にする
       }
-    } catch {
+    } catch (err) {
       // エラーフラッシュを表示（ダイアログは閉じない）
-      showFlash("error", "削除に失敗しました");
+      // 技術的詳細はコンソールに出力（ユーザーには見せない）
+      console.error("Delete routine error:", err);
+      showFlash("error", "削除に失敗しました。もう一度お試しください。");
       setDeleteLoading(false); // エラー時はローディングを解除して再試行可能にする
     }
   };
 
   // 削除キャンセル
   const handleDeleteCancel = () => {
+    // ローディング状態を解除（処理中にキャンセルした場合に備える）
+    setDeleteLoading(false);
     setDeleteDialogOpen(false);
     setDeleteTargetId(null);
   };
@@ -201,7 +209,18 @@ export default function RoutinesPage() {
         <button
           type="button"
           className="rm-btn rm-btn-primary routines-home-create-btn"
-          onClick={() => router.push("/routines/new")}
+          onClick={() => {
+            // freeユーザーで10件以上作成済みの場合は制限
+            if (user?.plan === 'free' && routines.length >= 10) {
+              showFlash(
+                "error",
+                "無料プランではタスクリストは10件までです。"
+              );
+              return;
+            }
+            // それ以外は従来どおり新規作成画面に遷移
+            router.push("/routines/new");
+          }}
         >
           ＋ 新しいタスクリストを作る
         </button>

@@ -32,6 +32,7 @@ import {
   updateRoutine,
 } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
+import { useSubmitGuard } from "@/hooks/useSubmitGuard";
 import LoadingSpinner from "@/components/LoadingSpinner";
 
 type Routine = {
@@ -116,6 +117,7 @@ export default function PreflightPage() {
   const router = useRouter();
   const params = useParams<{ id: string }>();
   const { status, me } = useAuth();
+  const { isSubmitting, submitGuard } = useSubmitGuard();
   const [routine, setRoutine] = useState<Routine | null>(null);
   const [tasks, setTasks] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -207,7 +209,7 @@ export default function PreflightPage() {
     }
   };
 
-  const handleStart = async () => {
+  const handleStart = submitGuard(async () => {
     if (!routine) {
       setError("ルーティン情報がありません。");
       return;
@@ -222,7 +224,9 @@ export default function PreflightPage() {
       tasks,
     });
     if (updateResult.status !== 200) {
-      setError(`並び替えの反映に失敗しました (${updateResult.status})`);
+      // 技術的詳細はコンソールに出力（ユーザーには見せない）
+      console.error("Update routine failed:", updateResult.status, updateResult.body);
+      setError("処理に失敗しました。もう一度お試しください。");
       return;
     }
 
@@ -235,7 +239,7 @@ export default function PreflightPage() {
       const historyId = parsed?.data?.id;
       const startedAt = parsed?.data?.started_at ?? null;
       if (!historyId) {
-        setError("履歴IDが取得できませんでした。");
+        setError("データが見つかりません。");
         return;
       }
 
@@ -249,8 +253,10 @@ export default function PreflightPage() {
       return;
     }
 
-    setError(`開始に失敗しました (${startResult.status})`);
-  };
+    // 技術的詳細はコンソールに出力（ユーザーには見せない）
+    console.error("Start history failed:", startResult.status, startResult.body);
+    setError("処理に失敗しました。もう一度お試しください。");
+  });
 
   if (error) {
     return <div className="rm-muted text-sm">{error}</div>;
@@ -348,8 +354,9 @@ export default function PreflightPage() {
             type="button"
             className="rm-btn rm-btn-primary preflight-start-btn"
             onClick={handleStart}
+            disabled={isSubmitting}
           >
-            開始する
+            {isSubmitting ? "開始中..." : "開始する"}
           </button>
         </div>
       </div>

@@ -1,7 +1,7 @@
 "use client";
 
 // 設定画面: リスト作成/編集画面と同じUI構造に揃える
-// 各設定項目にツールチップを追加し、目安時間機能は削除
+// 各設定項目にツールチップを追加
 
 import { useEffect, useMemo, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
@@ -150,7 +150,9 @@ export default function SettingsPage() {
       router.push("/routines");
     } else {
       // 保存失敗時はエラーフラッシュメッセージを表示
-      showFlash("error", `保存に失敗しました (${result.status})`);
+      // 技術的詳細はコンソールに出力（ユーザーには見せない）
+      console.error("Save settings failed:", result.status, result.body);
+      showFlash("error", "保存に失敗しました。もう一度お試しください。");
       setSaving(false);
       isSavingRef.current = false; // 保存失敗時はフラグを戻す
     }
