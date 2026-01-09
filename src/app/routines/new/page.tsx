@@ -310,7 +310,7 @@ export default function RoutineNewPage() {
         <button
           type="button"
           className="rm-btn routine-form-add-btn"
-          onClick={handleAddTask}
+          onClick={() => handleAddTask()}
           // unlimitedユーザーは制限なし、それ以外は10件でdisable
           disabled={user?.plan !== 'unlimited' && tasks.length >= 10}
         >
