@@ -116,6 +116,21 @@ export const apiRequest = async (
 export const getCsrfCookie = () =>
   apiRequest("/sanctum/csrf-cookie", { method: "GET" });
 
+// API 疎通確認用（本番デプロイ時の確認用）
+export const checkHealth = async (): Promise<void> => {
+  try {
+    const result = await apiRequest("/api/health", { method: "GET" });
+    if (result.status !== 200) {
+      console.error(
+        `[API Health Check] Failed: status=${result.status}, body=${result.body}`
+      );
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`[API Health Check] Error: ${message}`);
+  }
+};
+
 // Sanctum SPA のセッション開始は POST /login で行う前提。
 export const login = (email: string, password: string) =>
   apiRequest(

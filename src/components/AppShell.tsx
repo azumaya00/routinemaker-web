@@ -23,6 +23,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
+import { checkHealth } from "@/lib/api";
 
 /**
  * Header: アプリ共通ヘッダー
@@ -498,6 +499,11 @@ const AppShellContent = ({ children }: { children: React.ReactNode }) => {
     () => ["/routines", "/run", "/histories", "/settings"],
     []
   );
+
+  // アプリ起動時に API 疎通確認を実行（本番デプロイ時の確認用）
+  useEffect(() => {
+    void checkHealth();
+  }, []);
 
   // ログイン後の画面かどうかを判定
   const isAuthenticatedPage = status === "authenticated" && 
