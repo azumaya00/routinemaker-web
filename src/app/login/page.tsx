@@ -22,8 +22,8 @@ import { useAuth } from "@/hooks/useAuth";
 export default function LoginPage() {
   const router = useRouter();
   const { status, login, error } = useAuth();
-  const [email, setEmail] = useState("you@example.com");
-  const [password, setPassword] = useState("password");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const errorMessage = useMemo(() => {
     if (!error) {
       return null;
