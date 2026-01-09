@@ -21,6 +21,8 @@ export type UserSettings = {
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8001";
 
+const STATEFUL_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
+
 // Sanctum SPA の前提として XSRF-TOKEN は client 側で読む。
 const readCookieValue = (name: string) => {
   if (typeof document === "undefined") {
@@ -80,12 +82,17 @@ export const apiRequest = async (
 ): Promise<ApiResult> => {
   try {
     const headers = new Headers(options.headers);
+    const method = (options.method ?? "GET").toUpperCase();
+    const isBrowser =
+      typeof window !== "undefined" && typeof document !== "undefined";
 
     if (!headers.has("Accept")) {
       headers.set("Accept", "application/json");
     }
 
-    if (includeXsrfHeader) {
+    const shouldAttachXsrf =
+      includeXsrfHeader || (isBrowser && STATEFUL_METHODS.has(method));
+    if (shouldAttachXsrf) {
       const token = readCookieValue("XSRF-TOKEN");
       if (token) {
         headers.set("X-XSRF-TOKEN", token);
@@ -178,8 +185,9 @@ export const register = (
   );
 
 // パスワードリセットリンク送信
-export const forgotPassword = (email: string) =>
-  apiRequest(
+export const forgotPassword = async (email: string) => {
+  await getCsrfCookie();
+  return apiRequest(
     "/api/forgot-password",
     {
       method: "POST",
@@ -187,17 +195,20 @@ export const forgotPassword = (email: string) =>
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ email }),
-    }
+    },
+    { includeXsrfHeader: true }
   );
+};
 
 // パスワードリセット実行
-export const resetPassword = (
+export const resetPassword = async (
   token: string,
   email: string,
   password: string,
   passwordConfirmation: string
-) =>
-  apiRequest(
+) => {
+  await getCsrfCookie();
+  return apiRequest(
     "/api/reset-password",
     {
       method: "POST",
@@ -210,8 +221,10 @@ export const resetPassword = (
         password,
         password_confirmation: passwordConfirmation,
       }),
-    }
+    },
+    { includeXsrfHeader: true }
   );
+};
 
 // アカウント削除（退会）
 export const deleteAccount = (password: string) =>
