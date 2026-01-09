@@ -175,6 +175,42 @@ export const register = (
     { includeXsrfHeader: true }
   );
 
+// パスワードリセットリンク送信
+export const forgotPassword = (email: string) =>
+  apiRequest(
+    "/api/forgot-password",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email }),
+    }
+  );
+
+// パスワードリセット実行
+export const resetPassword = (
+  token: string,
+  email: string,
+  password: string,
+  passwordConfirmation: string
+) =>
+  apiRequest(
+    "/api/reset-password",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        token,
+        email,
+        password,
+        password_confirmation: passwordConfirmation,
+      }),
+    }
+  );
+
 // /api/me の成否を認証状態の唯一の判断材料に固定する。
 export const fetchMe = () => apiRequest("/api/me", { method: "GET" });
 export const getMe = fetchMe;
