@@ -23,6 +23,8 @@ type AuthUser = {
   email: string;
   plan: string;
   is_admin: boolean; // 管理者フラグ（APIから取得）
+  has_password?: boolean; // パスワード保持有無（ソーシャルログイン判定用、APIが返す場合のみ使用）
+  provider?: string; // ソーシャルログインの種別（APIが返す場合のみ使用）
   tutorial_dismissed_at: string | null; // チュートリアル非表示日時（ISO8601形式）
   tutorial_should_show: boolean; // チュートリアル表示判定（tutorial_dismissed_at が null なら true）
 };

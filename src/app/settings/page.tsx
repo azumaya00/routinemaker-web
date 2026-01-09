@@ -22,7 +22,16 @@ const emptySettings: UserSettings = {
 
 export default function SettingsPage() {
   const router = useRouter();
-  const { status, settings, me, saveSettings, isLoggingOut, finishLogout, startLoggingOut } = useAuth();
+  const {
+    status,
+    user,
+    settings,
+    me,
+    saveSettings,
+    isLoggingOut,
+    finishLogout,
+    startLoggingOut,
+  } = useAuth();
   const { showFlash } = useFlash();
   const [local, setLocal] = useState<UserSettings>(emptySettings);
   const [saving, setSaving] = useState(false);
@@ -31,6 +40,7 @@ export default function SettingsPage() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deletePassword, setDeletePassword] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
+  const requiresPassword = user?.has_password !== false; // passwordがnullならfalseを想定（未提供ならtrue扱いで従来挙動）
   // 元の設定テーマを保持（保存せずに遷移した場合に元に戻すため）
   const originalThemeRef = useRef<string | null>(null);
   const originalDarkModeRef = useRef<string | null>(null);
@@ -386,7 +396,7 @@ export default function SettingsPage() {
         cancelLabel="キャンセル"
         confirmVariant="destructive"
         onConfirm={async () => {
-          if (!deletePassword) {
+          if (requiresPassword && !deletePassword) {
             showFlash("error", "パスワードを入力してください。");
             return;
           }
@@ -443,19 +453,24 @@ export default function SettingsPage() {
         }}
         loading={isDeleting}
       >
-        {/* パスワード入力欄 */}
-        <label className="auth-page-label" style={{ marginBottom: "40px" }}>
-          パスワードを入力してください
-          <input
-            type="password"
-            className="rm-input auth-page-input"
-            value={deletePassword}
-            onChange={(event) => setDeletePassword(event.target.value)}
-            placeholder="パスワードを入力"
-            disabled={isDeleting}
-            autoFocus
-          />
-        </label>
+        {requiresPassword ? (
+          <label className="auth-page-label" style={{ marginBottom: "40px" }}>
+            パスワードを入力してください
+            <input
+              type="password"
+              className="rm-input auth-page-input"
+              value={deletePassword}
+              onChange={(event) => setDeletePassword(event.target.value)}
+              placeholder="パスワードを入力"
+              disabled={isDeleting}
+              autoFocus
+            />
+          </label>
+        ) : (
+          <p className="settings-description" style={{ marginBottom: "24px" }}>
+            Googleでログインしたアカウントのため、パスワード入力なしで退会できます。
+          </p>
+        )}
       </ConfirmDialog>
 
       {/* アクションボタン: 下部固定バー（保存するを最優先Primary） */}
