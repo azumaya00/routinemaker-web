@@ -33,9 +33,6 @@ export default function ResetPasswordClient() {
     const tokenParam = searchParams.get("token");
     const emailParam = searchParams.get("email");
 
-    console.log("URL token raw:", tokenParam);
-    console.log("URL email raw:", emailParam);
-
     if (tokenParam) {
       setToken(tokenParam);
     }
@@ -63,8 +60,6 @@ export default function ResetPasswordClient() {
   };
 
   const handleSubmit = async () => {
-    console.log("submit token:", token);
-    console.log("submit email:", email);
     if (!token || !email) {
       setError("リセットリンクが無効です。メールから再度アクセスしてください。");
       return;
