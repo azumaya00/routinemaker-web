@@ -34,6 +34,7 @@ type AuthContextValue = {
   error: string | null;
   isLoggingOut: boolean;
   finishLogout: () => void;
+  startLoggingOut: () => void; // 退会処理時にガードを無効化するために使用
   me: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -153,7 +154,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       await getCsrfCookie();
       const result = await login(email, password);
       if (result.status !== 204) {
-        setError(result.body);
+        // エラーメッセージをパースして設定
+        try {
+          const payload = JSON.parse(result.body) as {
+            message?: string;
+            errors?: Record<string, string[]>;
+          };
+          const errorMessage = payload.message ?? result.body;
+          setError(errorMessage);
+        } catch {
+          setError(result.body);
+        }
+        return; // エラー時は me() を呼ばない
       }
       await me();
     },
@@ -182,6 +194,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // ログアウト導線の完了後にだけフラグを戻す。
   const finishLogout = useCallback(() => {
     setIsLoggingOut(false);
+  }, []);
+
+  // 退会処理時にガードを無効化するために使用
+  const startLoggingOut = useCallback(() => {
+    setIsLoggingOut(true);
+    setStatus("loading");
+    setUser(null);
+    setSettings(null);
+    // キャッシュを無効化
+    meCache = null;
+    meInFlight = null;
   }, []);
 
   // 設定更新は API に寄せ、成功時だけローカルを更新する。
@@ -218,6 +241,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       error,
       isLoggingOut,
       finishLogout,
+      startLoggingOut,
       me,
       login: handleLogin,
       logout: handleLogout,
@@ -230,6 +254,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       error,
       isLoggingOut,
       finishLogout,
+      startLoggingOut,
       me,
       handleLogin,
       handleLogout,

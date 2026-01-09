@@ -1,3 +1,5 @@
+"use client";
+
 // Phase 1〜3 の API アクセスをこのファイルに集約して責務を固定する。
 // 以降のフェーズで API 仕様が増えても呼び出し口はここに寄せる前提。
 export type ApiResult = {
@@ -209,6 +211,20 @@ export const resetPassword = (
         password_confirmation: passwordConfirmation,
       }),
     }
+  );
+
+// アカウント削除（退会）
+export const deleteAccount = (password: string) =>
+  apiRequest(
+    "/api/me",
+    {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ password }),
+    },
+    { includeXsrfHeader: true }
   );
 
 // /api/me の成否を認証状態の唯一の判断材料に固定する。

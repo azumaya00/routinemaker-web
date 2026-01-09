@@ -6,10 +6,11 @@
 import { useEffect, useMemo, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 
-import { useAuth } from "@/hooks/useAuth";
-import { type UserSettings } from "@/lib/api";
+import { useAuth, invalidateMeCache } from "@/hooks/useAuth";
+import { type UserSettings, deleteAccount, getCsrfCookie } from "@/lib/api";
 import { useFlash } from "@/components/FlashMessageProvider";
 import Tooltip from "@/components/Tooltip";
+import ConfirmDialog from "@/components/ConfirmDialog";
 
 const emptySettings: UserSettings = {
   theme: "light",
@@ -21,12 +22,15 @@ const emptySettings: UserSettings = {
 
 export default function SettingsPage() {
   const router = useRouter();
-  const { status, settings, me, saveSettings, error } = useAuth();
+  const { status, settings, me, saveSettings, isLoggingOut, finishLogout, startLoggingOut } = useAuth();
   const { showFlash } = useFlash();
   const [local, setLocal] = useState<UserSettings>(emptySettings);
   const [saving, setSaving] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const actionsRef = useRef<HTMLDivElement>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
   // 元の設定テーマを保持（保存せずに遷移した場合に元に戻すため）
   const originalThemeRef = useRef<string | null>(null);
   const originalDarkModeRef = useRef<string | null>(null);
@@ -354,6 +358,105 @@ export default function SettingsPage() {
           </div>
         </div>
       </div>
+
+      {/* 退会セクション */}
+      <div className="settings-section">
+        <h2 className="settings-section-title" style={{ marginBottom: "20px" }}>退会</h2>
+        <div className="settings-section-content">
+          <p className="settings-description">
+            アカウントを削除すると、すべてのデータが削除され、復元できません。
+        </p>
+          <button
+            type="button"
+            className="rm-btn settings-delete-btn"
+            onClick={() => setShowDeleteDialog(true)}
+            style={{ marginBottom: "40px" }}
+          >
+            アカウントを削除する
+          </button>
+        </div>
+      </div>
+
+      {/* 削除確認ダイアログ */}
+      <ConfirmDialog
+        open={showDeleteDialog}
+        title="アカウントを削除しますか？"
+        description="この操作は取り消せません。すべてのデータが削除されます。"
+        confirmLabel="削除する"
+        cancelLabel="キャンセル"
+        confirmVariant="destructive"
+        onConfirm={async () => {
+          if (!deletePassword) {
+            showFlash("error", "パスワードを入力してください。");
+            return;
+          }
+          setIsDeleting(true);
+          try {
+            await getCsrfCookie();
+            const result = await deleteAccount(deletePassword);
+            if (result.status === 204) {
+              // 退会処理で既にセッションが無効化されているため、認証状態を更新する
+              // ガードを無効化するためにisLoggingOutを設定
+              startLoggingOut();
+              
+              // キャッシュを無効化
+              invalidateMeCache();
+              
+              // テーマを明示的にリセット（非ログイン領域ではデフォルトテーマを使用）
+              const root = document.documentElement;
+              delete root.dataset.theme;
+              root.classList.remove("dark");
+              
+              showFlash("success", "アカウントを削除しました。");
+              
+              // LPにリダイレクト（isLoggingOutが設定されているため、ガードは発動しない）
+              // replaceを使用して履歴を残さない
+              router.replace("/");
+              
+              // 認証状態を更新（LP側のHeaderで自動的にme()が呼ばれる）
+              // LPはpublicPathなので、statusがunauthenticatedになってもガードは発動しない
+              // また、isLoggingOutが設定されているため、/settingsページにいる状態でもガードは発動しない
+              // LPに遷移後、AppShell.tsxの84-89行目でfinishLogout()が呼ばれる
+            } else {
+              const errorMessage = (() => {
+                try {
+                  const payload = JSON.parse(result.body) as {
+                    message?: string;
+                  };
+                  return payload.message ?? "アカウント削除に失敗しました。";
+                } catch {
+                  return "アカウント削除に失敗しました。";
+                }
+              })();
+              showFlash("error", errorMessage);
+              setIsDeleting(false);
+            }
+          } catch (err) {
+            const message = err instanceof Error ? err.message : String(err);
+            showFlash("error", `アカウント削除に失敗しました: ${message}`);
+            setIsDeleting(false);
+          }
+        }}
+        onCancel={() => {
+          setShowDeleteDialog(false);
+          setDeletePassword("");
+        }}
+        loading={isDeleting}
+      >
+        {/* パスワード入力欄 */}
+        <label className="auth-page-label" style={{ marginBottom: "40px" }}>
+          パスワードを入力してください
+          <input
+            type="password"
+            className="rm-input auth-page-input"
+            value={deletePassword}
+            onChange={(event) => setDeletePassword(event.target.value)}
+            placeholder="パスワードを入力"
+            disabled={isDeleting}
+            autoFocus
+          />
+        </label>
+      </ConfirmDialog>
 
       {/* アクションボタン: 下部固定バー（保存するを最優先Primary） */}
       <div

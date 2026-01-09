@@ -23,6 +23,7 @@ export interface ConfirmDialogProps {
   onConfirm: () => Promise<void> | void;
   onCancel: () => void;
   loading?: boolean;
+  children?: React.ReactNode; // カスタムコンテンツ（パスワード入力欄など）
 }
 
 export default function ConfirmDialog({
@@ -35,6 +36,7 @@ export default function ConfirmDialog({
   onConfirm,
   onCancel,
   loading = false,
+  children,
 }: ConfirmDialogProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const cancelButtonRef = useRef<HTMLButtonElement>(null);
@@ -168,6 +170,13 @@ export default function ConfirmDialog({
           <p id="confirm-dialog-description" className="confirm-dialog-description">
             {description}
           </p>
+        )}
+        
+        {/* カスタムコンテンツ（パスワード入力欄など） */}
+        {children && (
+          <div className="confirm-dialog-content">
+            {children}
+          </div>
         )}
         
         {/* ボタン群 */}

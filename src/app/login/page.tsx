@@ -32,7 +32,7 @@ export default function LoginPage() {
     if (error.includes("Failed to fetch")) {
       return "ログインに失敗しました。APIに接続できません。";
     }
-    return "メールもしくはパスワードが異なります。";
+    return "メールアドレスもしくはパスワードが異なります。";
   }, [error]);
 
   // 認証済みの場合はここに留まらず / へ戻す。
