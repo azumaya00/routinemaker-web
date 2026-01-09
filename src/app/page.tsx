@@ -18,6 +18,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 import { useAuth } from "@/hooks/useAuth";
+import { GoogleLoginButton } from "@/components/auth/GoogleLoginButton";
 
 export default function Home() {
   const router = useRouter();
@@ -248,15 +249,10 @@ export default function Home() {
               >
                 無料で使う
               </button>
-              <button
-                type="button"
-                className="top-page-btn-secondary"
-                onClick={() => router.push("/login")}
-                disabled
-              >
-                <span className="top-page-google-icon">G</span>
-                Googleで続ける
-              </button>
+              {/* Google 公式準拠ボタンで OAuth へ遷移 */}
+              <div style={{ display: "inline-flex" }}>
+                <GoogleLoginButton />
+              </div>
             </div>
           </div>
 

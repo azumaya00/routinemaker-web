@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 import { useAuth } from "@/hooks/useAuth";
+import { GoogleLoginButton } from "@/components/auth/GoogleLoginButton";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -84,6 +85,10 @@ export default function LoginPage() {
         >
           ログイン
         </button>
+        {/* Google 公式準拠ボタンで OAuth へ遷移 */}
+        <div style={{ marginTop: "12px", width: "100%" }}>
+          <GoogleLoginButton fullWidth />
+        </div>
         
         {/* 補助リンク: ボタンの直下、小さめ・目立たせすぎない */}
         <Link className="auth-page-link" href="/forgot-password">
