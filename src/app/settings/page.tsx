@@ -403,7 +403,9 @@ export default function SettingsPage() {
           setIsDeleting(true);
           try {
             await getCsrfCookie();
-            const result = await deleteAccount(deletePassword);
+            const result = await deleteAccount(
+              requiresPassword ? deletePassword : undefined
+            );
             if (result.status === 204) {
               // 退会処理で既にセッションが無効化されているため、認証状態を更新する
               // ガードを無効化するためにisLoggingOutを設定

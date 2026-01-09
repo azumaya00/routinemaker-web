@@ -227,7 +227,7 @@ export const resetPassword = async (
 };
 
 // アカウント削除（退会）
-export const deleteAccount = (password: string) =>
+export const deleteAccount = (password?: string) =>
   apiRequest(
     "/api/me",
     {
@@ -235,7 +235,8 @@ export const deleteAccount = (password: string) =>
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ password }),
+      // パスワードを送る必要がない場合はフィールドごと省略する
+      body: JSON.stringify(password ? { password } : {}),
     },
     { includeXsrfHeader: true }
   );
