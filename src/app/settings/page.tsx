@@ -198,9 +198,9 @@ export default function SettingsPage() {
             <div className="settings-item-label-text">
               残りタスク数を表示する
               <Tooltip content="実行中に、残りのタスク数を表示します。">
-                <span className="settings-help-icon" aria-label="ヘルプ">
+                <button type="button" className="settings-help-icon" aria-label="ヘルプ">
                   ?
-                </span>
+                </button>
               </Tooltip>
             </div>
           </div>
@@ -236,9 +236,9 @@ export default function SettingsPage() {
             <div className="settings-item-label-text">
               経過時間を表示する
               <Tooltip content="実行を開始してからの経過時間を表示します。">
-                <span className="settings-help-icon" aria-label="ヘルプ">
+                <button type="button" className="settings-help-icon" aria-label="ヘルプ">
                   ?
-                </span>
+                </button>
               </Tooltip>
             </div>
           </div>
@@ -274,9 +274,9 @@ export default function SettingsPage() {
             <div className="settings-item-label-text">
               完了演出を表示する
               <Tooltip content="すべてのタスク完了時に、ちょっとした演出を表示します。">
-                <span className="settings-help-icon" aria-label="ヘルプ">
+                <button type="button" className="settings-help-icon" aria-label="ヘルプ">
                   ?
-                </span>
+                </button>
               </Tooltip>
             </div>
           </div>
@@ -312,9 +312,9 @@ export default function SettingsPage() {
             <div className="settings-item-label-text">
               テーマ
               <Tooltip content="画面の見た目を選びます。">
-                <span className="settings-help-icon" aria-label="ヘルプ">
+                <button type="button" className="settings-help-icon" aria-label="ヘルプ">
                   ?
-                </span>
+                </button>
               </Tooltip>
             </div>
           </div>
@@ -343,9 +343,9 @@ export default function SettingsPage() {
             <div className="settings-item-label-text">
               ダークモード
               <Tooltip content="ダークモードの設定方法を選びます。&#10;「システム」は端末の設定に合わせます。">
-                <span className="settings-help-icon" aria-label="ヘルプ">
+                <button type="button" className="settings-help-icon" aria-label="ヘルプ">
                   ?
-                </span>
+                </button>
               </Tooltip>
             </div>
           </div>

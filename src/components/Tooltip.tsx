@@ -1,11 +1,12 @@
 "use client";
 
 // ツールチップコンポーネント
-// PC: hoverで表示、フォーカスでも表示
-// Mobile: タップで表示、外側タップで閉じる
+// PC: hoverで表示、クリックでもトグル可能
+// Mobile: タップでトグル（hover無効化）
+// 共通: 外側タップまたはスクロールで閉じる
 // アクセシビリティ配慮: aria-label、キーボード操作対応
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 type TooltipProps = {
   content: string;
@@ -23,11 +24,24 @@ export default function Tooltip({
     top: number;
     left: number;
   } | null>(null);
+  // hover対応デバイスかどうか（PC = true, スマホ = false）
+  const [canHover, setCanHover] = useState(true);
   const triggerRef = useRef<HTMLDivElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
 
+  // マウント時にhover対応デバイスかを判定
+  useEffect(() => {
+    // pointer: fine = マウス等の精密デバイス、coarse = タッチデバイス
+    const mediaQuery = window.matchMedia("(pointer: fine)");
+    setCanHover(mediaQuery.matches);
+
+    const handler = (event: MediaQueryListEvent) => setCanHover(event.matches);
+    mediaQuery.addEventListener("change", handler);
+    return () => mediaQuery.removeEventListener("change", handler);
+  }, []);
+
   // ツールチップの位置を計算（画面端で収まるように調整）
-  const updateTooltipPosition = () => {
+  const updateTooltipPosition = useCallback(() => {
     if (!triggerRef.current || !tooltipRef.current) {
       return;
     }
@@ -84,7 +98,7 @@ export default function Tooltip({
     }
 
     setTooltipPosition({ top, left });
-  };
+  }, [position]);
 
   // ツールチップが開いた時に位置を計算
   useEffect(() => {
@@ -94,15 +108,15 @@ export default function Tooltip({
         updateTooltipPosition();
       }, 0);
     }
-  }, [isOpen, position]);
+  }, [isOpen, updateTooltipPosition]);
 
-  // 外側クリックで閉じる（Mobile対応）
+  // 外側クリック/タップで閉じる（PC/Mobile共通）
   useEffect(() => {
     if (!isOpen) {
       return;
     }
 
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event: PointerEvent | MouseEvent) => {
       if (
         triggerRef.current &&
         tooltipRef.current &&
@@ -113,9 +127,26 @@ export default function Tooltip({
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
+    // pointerdownを優先（モバイル対応）、フォールバックでmousedown
+    document.addEventListener("pointerdown", handleClickOutside);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("pointerdown", handleClickOutside);
+    };
+  }, [isOpen]);
+
+  // スクロールで閉じる（誤表示を残さない）
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    const handleScroll = () => {
+      setIsOpen(false);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
     };
   }, [isOpen]);
 
@@ -130,15 +161,34 @@ export default function Tooltip({
     }
   };
 
+  // クリック/タップでトグル
+  const handleClick = (event: React.MouseEvent | React.PointerEvent) => {
+    // イベントの伝播を止める（親要素への影響を防ぐ）
+    event.stopPropagation();
+    setIsOpen((prev) => !prev);
+  };
+
+  // PC: hover開始で表示（モバイルでは無効）
+  const handleMouseEnter = () => {
+    if (canHover) {
+      setIsOpen(true);
+    }
+  };
+
+  // PC: hover終了で非表示（モバイルでは無効）
+  const handleMouseLeave = () => {
+    if (canHover) {
+      setIsOpen(false);
+    }
+  };
+
   return (
     <div
       ref={triggerRef}
       className="tooltip-trigger"
-      onMouseEnter={() => setIsOpen(true)} // PC: hoverで表示
-      onMouseLeave={() => setIsOpen(false)} // PC: hover解除で非表示
-      onFocus={() => setIsOpen(true)} // フォーカスで表示
-      onBlur={() => setIsOpen(false)} // フォーカス解除で非表示
-      onClick={() => setIsOpen(!isOpen)} // Mobile: タップで開閉
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onClick={handleClick}
       onKeyDown={handleKeyDown}
       role="button"
       tabIndex={0}

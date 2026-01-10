@@ -1589,6 +1589,10 @@ h3 {
   cursor: pointer;
   flex-shrink: 0;
   transition: background-color 0.15s ease, color 0.15s ease;
+  /* button要素用のリセット */
+  border: none;
+  padding: 0;
+  font-family: inherit;
 }
 
 .settings-help-icon:hover {
