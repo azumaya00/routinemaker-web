@@ -547,6 +547,28 @@ h3 {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  flex: 1;
+}
+
+.menu-legal-links {
+  margin-top: auto;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.menu-legal-link {
+  font-size: 12px;
+  color: var(--fg);
+  opacity: 0.7;
+  text-decoration: none;
+  transition: opacity 0.15s ease;
+}
+
+.menu-legal-link:hover {
+  opacity: 1;
 }
 
 .menu-item {
@@ -1554,6 +1576,13 @@ h3 {
   font-weight: 600;
   margin-bottom: 24px; /* 見出しとフォーム間の余白を一定に（24px） */
   text-align: left;
+  color: var(--fg);
+}
+
+.policy-content {
+  white-space: pre-wrap;
+  line-height: 1.8;
+  font-size: 15px;
   color: var(--fg);
 }
 
@@ -3097,4 +3126,3 @@ h3 {
     font-size: 20px; /* PC: 少し大きく */
   }
 }
-

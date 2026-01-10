@@ -160,7 +160,7 @@ const Header = () => {
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const drawerRef = useRef<HTMLDivElement>(null);
   const publicPaths = useMemo(
-    () => ["/", "/login", "/signup", "/forgot-password", "/reset-password"],
+    () => ["/", "/login", "/signup", "/forgot-password", "/reset-password", "/privacy", "/terms"],
     []
   );
   const protectedPrefixes = useMemo(
@@ -494,6 +494,22 @@ const Header = () => {
                   </Link>
                 </>
               )}
+              <div className="menu-legal-links">
+                <Link
+                  href="/privacy"
+                  className="menu-legal-link"
+                  onClick={closeMenu}
+                >
+                  プライバシーポリシー
+                </Link>
+                <Link
+                  href="/terms"
+                  className="menu-legal-link"
+                  onClick={closeMenu}
+                >
+                  利用規約
+                </Link>
+              </div>
             </div>
           </div>
         </>
@@ -521,7 +537,7 @@ const PublicFooter = () => {
   const { status } = useAuth();
   const pathname = usePathname();
   const publicPaths = useMemo(
-    () => ["/", "/login", "/signup", "/forgot-password", "/reset-password"],
+    () => ["/", "/login", "/signup", "/forgot-password", "/reset-password", "/privacy", "/terms"],
     []
   );
 
