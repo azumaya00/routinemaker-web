@@ -464,6 +464,19 @@ h3 {
   }
 }
 
+/* ハンバーガーメニューボタン: iOS Safari 対策で fill/stroke を直接設定 */
+.header-hamburger-btn svg {
+  /* 閉じている時（三本線）は fill、開いている時（×）は stroke */
+}
+.header-hamburger-btn.public svg {
+  fill: var(--accent);
+  stroke: var(--accent);
+}
+.header-hamburger-btn.private svg {
+  fill: var(--fg);
+  stroke: var(--fg);
+}
+
 /* 
   ドロワーメニュー: オーバーレイ＋右からスライド
   z-index: 100（header/footerより前面に表示）
@@ -1447,6 +1460,11 @@ h3 {
   box-shadow: 0 1px 4px rgba(59, 130, 246, 0.3); /* active時も控えめに */
 }
 
+/* iOS Safari 対策: currentColor を使わず fill を直接設定 */
+.routines-home-item-run svg {
+  fill: #f8fafc;
+}
+
 /* 編集・削除ボタン: 安心感を上げる（hover/active時に背景に薄い円形ハイライト、不透明度が上がる） */
 .routines-home-item-edit,
 .routines-home-item-delete {
@@ -1479,6 +1497,12 @@ h3 {
 .routines-home-item-delete:active {
   opacity: 1; /* active時はさらに不透明度が上がる */
   background-color: rgba(0, 0, 0, 0.08);
+}
+
+/* iOS Safari 対策: currentColor を使わず fill を直接設定 */
+.routines-home-item-edit svg,
+.routines-home-item-delete svg {
+  fill: var(--fg);
 }
 
 /* PC: タブレット以上で左右padding 24px */

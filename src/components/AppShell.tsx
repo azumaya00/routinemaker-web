@@ -238,7 +238,7 @@ const Header = () => {
         <button
           ref={menuButtonRef}
           type="button"
-          className="flex items-center justify-center flex-shrink-0 w-8 h-8 hover:opacity-70 transition-opacity bg-transparent border-none outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+          className={`header-hamburger-btn ${isPublicPath ? "public" : "private"} flex items-center justify-center flex-shrink-0 w-8 h-8 hover:opacity-70 transition-opacity bg-transparent border-none outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent`}
           onClick={toggleMenu}
           aria-label="メニュー"
           aria-expanded={menuOpen}
@@ -246,9 +246,7 @@ const Header = () => {
           style={{ 
             minWidth: "32px", 
             minHeight: "32px",
-            // 非ログイン領域は常にメインカラー（アクセントブルー）で固定
-            color: isPublicPath ? "var(--accent)" : "var(--fg)",
-            marginRight: "12px" // 右側に12pxの余白を追加
+            marginRight: "12px"
           }}
         >
           {menuOpen ? (
@@ -257,10 +255,8 @@ const Header = () => {
               viewBox="0 0 24 24"
               className="h-5 w-5"
               fill="none"
-              stroke="currentColor"
               strokeWidth="2.5"
               strokeLinecap="round"
-              style={{ color: isPublicPath ? "var(--accent)" : "var(--fg)" }}
             >
               <path d="M18 6L6 18" />
               <path d="M6 6l12 12" />
@@ -270,8 +266,6 @@ const Header = () => {
               aria-hidden="true"
               viewBox="0 0 24 24"
               className="h-5 w-5"
-              fill="currentColor"
-              style={{ color: isPublicPath ? "var(--accent)" : "var(--fg)" }}
             >
               <path d="M3 5h18v2H3zM3 11h18v2H3zM3 17h18v2H3z" />
             </svg>

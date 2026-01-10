@@ -332,8 +332,6 @@ export default function RoutineEditPage() {
                 aria-hidden="true"
                 viewBox="0 0 24 24"
                 className="h-6 w-6"
-                fill="currentColor"
-                style={{ color: "var(--fg)" }}
               >
                 <path d="M4 6h16v2H4zM9 4h6l1 2H8zM6 9h12v11a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V9z" />
               </svg>
