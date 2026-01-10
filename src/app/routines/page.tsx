@@ -202,6 +202,7 @@ export default function RoutinesPage() {
               viewBox="0 0 24 24"
               className="h-5 w-5"
               fill="none"
+              stroke="currentColor"
             >
               <path
                 d="M18 6L6 18"
@@ -272,6 +273,7 @@ export default function RoutinesPage() {
                   aria-hidden="true"
                   viewBox="0 0 24 24"
                   className="h-5 w-5"
+                  fill="currentColor"
                 >
                   <path d="M8 5v14l11-7z" />
                 </svg>
@@ -286,6 +288,7 @@ export default function RoutinesPage() {
                   aria-hidden="true"
                   viewBox="0 0 24 24"
                   className="h-6 w-6"
+                  fill="currentColor"
                 >
                   <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z" />
                   <path d="M14.06 6.19 16.19 4.06 19.94 7.81 17.81 9.94z" />
@@ -301,6 +304,7 @@ export default function RoutinesPage() {
                   aria-hidden="true"
                   viewBox="0 0 24 24"
                   className="h-6 w-6"
+                  fill="currentColor"
                 >
                   <path d="M4 6h16v2H4zM9 4h6l1 2H8zM6 9h12v11a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V9z" />
                 </svg>
