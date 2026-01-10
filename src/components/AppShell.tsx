@@ -246,8 +246,8 @@ const Header = () => {
           style={{ 
             minWidth: "32px", 
             minHeight: "32px",
-            // iOS Safari で currentColor が抜けないケースを避けるため色を明示
-            color: isTopPage ? "var(--accent)" : "var(--fg)", // トップはアクセント系、その他は通常の前景色
+            // 非ログイン領域は常にメインカラー（アクセントブルー）で固定
+            color: isPublicPath ? "var(--accent)" : "var(--fg)",
             marginRight: "12px" // 右側に12pxの余白を追加
           }}
         >
@@ -257,7 +257,7 @@ const Header = () => {
               viewBox="0 0 24 24"
               className="h-5 w-5"
               fill="none"
-              stroke="currentColor"
+              stroke={isPublicPath ? "var(--accent)" : "currentColor"}
               strokeWidth="2.5"
               strokeLinecap="round"
               style={{ padding: 0 }}
@@ -270,7 +270,7 @@ const Header = () => {
               aria-hidden="true"
               viewBox="0 0 24 24"
               className="h-5 w-5"
-              fill="var(--fg)"
+              fill={isPublicPath ? "var(--accent)" : "var(--fg)"}
               style={{ padding: 0 }}
             >
               <path d="M3 5h18v2H3zM3 11h18v2H3zM3 17h18v2H3z" />
