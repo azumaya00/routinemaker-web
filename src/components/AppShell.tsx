@@ -507,35 +507,42 @@ const AppShellContent = ({ children }: { children: React.ReactNode }) => {
     void checkHealth();
   }, []);
 
-  // 開発時のみ、横幅オーバー要素に data-overflow を付与して可視化（本番では無効）
+  // 開発時のみ、横幅オーバー要素を rect.right で検知してログ出力（本番では無効）
   useEffect(() => {
     if (process.env.NODE_ENV === "production" || typeof window === "undefined") {
       return;
     }
 
     const reportOverflow = () => {
-      document.documentElement.dataset.debugOverflow = "1";
-      document
-        .querySelectorAll<HTMLElement>("[data-overflow]")
-        .forEach((el) => el.removeAttribute("data-overflow"));
+      const viewportWidth = document.documentElement.clientWidth;
+      const offenders = Array.from(document.querySelectorAll<HTMLElement>("*"))
+        .map((el) => {
+          const rect = el.getBoundingClientRect();
+          if (rect.right > viewportWidth + 1) {
+            return {
+              tag: el.tagName,
+              id: el.id || "",
+              className: (typeof el.className === "string" ? el.className : "").slice(0, 120),
+              right: Math.round(rect.right),
+              viewportWidth,
+              width: Math.round(rect.width),
+            };
+          }
+          return null;
+        })
+        .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry))
+        .slice(0, 40);
 
-      const offenders = Array.from(
-        document.querySelectorAll<HTMLElement>("*")
-      ).filter((el) => el.scrollWidth > el.clientWidth + 1);
-
-      offenders.slice(0, 120).forEach((el) => {
-        el.setAttribute("data-overflow", "1");
-      });
+      if (offenders.length > 0) {
+        // eslint-disable-next-line no-console
+        console.table(offenders);
+      }
     };
 
     reportOverflow();
     window.addEventListener("resize", reportOverflow);
     return () => {
       window.removeEventListener("resize", reportOverflow);
-      document.documentElement.removeAttribute("data-debug-overflow");
-      document
-        .querySelectorAll<HTMLElement>("[data-overflow]")
-        .forEach((el) => el.removeAttribute("data-overflow"));
     };
   }, [pathname]);
 
