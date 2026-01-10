@@ -96,8 +96,7 @@ export default function Home() {
       const rectInfo = (el: Element | null) => {
         if (!el) return null;
         const rect = el.getBoundingClientRect();
-        // @ts-expect-error offsetHeight is on HTMLElement
-        const offsetHeight = (el as HTMLElement).offsetHeight ?? null;
+        const offsetHeight = el instanceof HTMLElement ? el.offsetHeight : null;
         return { h: rect.height, offsetHeight };
       };
 
