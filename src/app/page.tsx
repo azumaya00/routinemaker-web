@@ -48,16 +48,10 @@ export default function Home() {
     document.documentElement.style.setProperty("background-color", "transparent", "important");
     document.documentElement.style.setProperty("background-image", "none", "important");
     document.documentElement.style.setProperty("backdrop-filter", "none", "important");
-    // トップページではスクロールを無効化
-    document.documentElement.style.setProperty("overflow", "hidden", "important");
-    document.documentElement.style.setProperty("height", "100svh", "important");
     document.body.style.setProperty("background", "transparent", "important");
     document.body.style.setProperty("background-color", "transparent", "important");
     document.body.style.setProperty("background-image", "none", "important");
     document.body.style.setProperty("backdrop-filter", "none", "important");
-    // トップページではスクロールを無効化
-    document.body.style.setProperty("overflow", "hidden", "important");
-    document.body.style.setProperty("height", "100svh", "important");
     
     // main要素の背景を完全に透明に、paddingを削除
     const mainElement = document.querySelector("main");

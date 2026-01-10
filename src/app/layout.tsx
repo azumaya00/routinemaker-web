@@ -31,7 +31,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="ja" suppressHydrationWarning>
       <head>
         {/* SSR/CSRのちらつき対策: テーマとダークモードの初期値を注入 */}
         {/* このscriptはHTMLのhead内で実行され、Reactのhydration前にテーマを適用する */}
