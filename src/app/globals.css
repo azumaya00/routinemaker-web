@@ -79,8 +79,8 @@ body {
   --accent-hover: #d4a574;    /* 茶〜オレンジ（hover時：少し明るく） */
   --accent-active: #b8733f;    /* 茶〜オレンジ（active時：少し濃く） */
   --danger: #f87171;    /* 暗色上で見える赤 */
-  --gray-500: #a78bfa;  /* グレー（茶系テーマでは紫系に） */
-  --gray-400: #8b5cf6;  /* グレー（disabled等） */
+  --gray-500: #94a3b8;  /* ダーク時の中間グレー（ボタンdisabled等で紫化しないよう統一） */
+  --gray-400: #64748b;  /* ダーク時の薄いグレー（ボタンdisabled等で紫化しないよう統一） */
   
   /* ログイン後画面用のDesign Token（darkテーマ、ダークモードオフ時） */
   --app-bg: #2a2520;
@@ -127,8 +127,8 @@ body {
   --accent-hover: #7c3aed;
   --accent-active: #6d28d9;
   --danger: #f87171;    /* 暗色上で見える赤 */
-  --gray-500: #a78bfa;  /* グレー（ダークモードでは紫系に） */
-  --gray-400: #8b5cf6;  /* グレー（disabled等、ダークモードでは紫系に） */
+  --gray-500: #94a3b8;  /* ダーク時の中間グレー（共通トークンに揃える） */
+  --gray-400: #64748b;  /* ダーク時の薄いグレー（共通トークンに揃える） */
   
   /* ログイン後画面用のDesign Token（softテーマのダークモード） */
   --app-bg: #1a1625;
@@ -149,8 +149,8 @@ body {
   --accent-hover: #d4a574;    /* 茶〜オレンジ（hover時：少し明るく） */
   --accent-active: #b8733f;    /* 茶〜オレンジ（active時：少し濃く） */
   --danger: #f87171;    /* 暗色上で見える赤 */
-  --gray-500: #a78bfa;  /* グレー（茶系テーマでは紫系に） */
-  --gray-400: #8b5cf6;  /* グレー（disabled等） */
+  --gray-500: #94a3b8;  /* ダーク時の中間グレー（ボタンdisabled等で紫化しないよう統一） */
+  --gray-400: #64748b;  /* ダーク時の薄いグレー（ボタンdisabled等で紫化しないよう統一） */
   
   /* ログイン後画面用のDesign Token（darkテーマ、ダークモードオン時） */
   --app-bg: #161311;
@@ -1312,7 +1312,7 @@ h3 {
   border: none;
   border-radius: 50%;
   color: var(--fg);
-  opacity: 0.6;
+  opacity: 0.9; /* スマホでも見えるように不透明度を上げる */
   cursor: pointer;
   transition: opacity 0.15s ease, background-color 0.15s ease;
 }
@@ -1414,6 +1414,7 @@ h3 {
   flex-shrink: 0; /* スマホ幅で縮小されないように */
   margin-left: 16px; /* 視線誘導：タスク名との間隔を少し広げて一段落とす */
   min-width: 0; /* flexアイテムの縮小を許可（ただし子要素のflex-shrink: 0で保護） */
+  color: var(--fg); /* スマホでもアイコン色を確実に適用 */
 }
 
 /* 実行ボタン: 主張を少し抑える（カード内に馴染ませる、hover/active時のみ強調） */
@@ -1459,7 +1460,7 @@ h3 {
   background: transparent;
   border: none;
   color: var(--fg);
-  opacity: 0.6; /* スマホでも見えるように不透明度を上げる（0.5 → 0.6） */
+  opacity: 0.85; /* スマホでも見えるように不透明度を上げる */
   cursor: pointer;
   transition: opacity 0.15s ease, color 0.15s ease, background-color 0.15s ease;
   border-radius: 50%; /* 安心感：円形ハイライト用に変更 */
@@ -1744,7 +1745,7 @@ h3 {
   background: transparent;
   border: none;
   color: var(--fg);
-  opacity: 0.6; /* スマホでも見えるように不透明度を上げる（0.4 → 0.6） */
+  opacity: 0.85; /* スマホでも見えるように不透明度を上げる */
   cursor: pointer;
   transition: opacity 0.15s ease, background-color 0.15s ease, transform 0.1s ease;
   border-radius: 50%; /* 円形ハイライト用 */
@@ -2026,11 +2027,13 @@ h3 {
 }
 
 .history-card-status-interrupted {
-  color: var(--gray-500); /* テーマ変数を使用（ダークモード対応） */
+  color: var(--fg); /* テーマ変数で統一（ダーク/ライトで不整合が出ないように） */
+  opacity: 0.8;
 }
 
 .history-card-status-incomplete {
-  color: var(--gray-500); /* テーマ変数を使用（ダークモード対応） */
+  color: var(--fg); /* テーマ変数で統一 */
+  opacity: 0.8;
 }
 
 /* ページネーション */
