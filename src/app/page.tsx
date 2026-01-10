@@ -54,30 +54,13 @@ export default function Home() {
     };
   }, []);
 
-  // LP専用: ヘッダー高さをCSS変数に反映し、高さ計算を単一化
+  // LP専用: mainの余白調整用クラスを付与
   useEffect(() => {
-    const root = document.documentElement;
     const body = document.body;
     body.classList.add("lp-page");
 
-    const header = document.querySelector("header");
-    const applyHeaderHeight = () => {
-      const rect = header?.getBoundingClientRect();
-      root.style.setProperty("--lp-header-h", `${rect?.height ?? 0}px`);
-    };
-
-    applyHeaderHeight();
-
-    let observer: ResizeObserver | undefined;
-    if (header && typeof ResizeObserver !== "undefined") {
-      observer = new ResizeObserver(() => applyHeaderHeight());
-      observer.observe(header);
-    }
-
     return () => {
       body.classList.remove("lp-page");
-      root.style.removeProperty("--lp-header-h");
-      observer?.disconnect();
     };
   }, []);
 

@@ -39,6 +39,9 @@ const DebugOverlay = () => {
     bodyScrollWidth: number;
     bodyClientWidth: number;
     bodyOverflow: number;
+    scrollHeight: number;
+    clientHeight: number;
+    vOverflow: number;
   } | null>(null);
   const [visible, setVisible] = useState(false);
 
@@ -57,6 +60,9 @@ const DebugOverlay = () => {
         bodyScrollWidth: body.scrollWidth,
         bodyClientWidth: body.clientWidth,
         bodyOverflow: body.scrollWidth - body.clientWidth,
+        scrollHeight: docEl.scrollHeight,
+        clientHeight: docEl.clientHeight,
+        vOverflow: docEl.scrollHeight - docEl.clientHeight,
       });
     };
 
@@ -119,6 +125,12 @@ const DebugOverlay = () => {
           <div>bodyScrollW: {info.bodyScrollWidth}</div>
           <div style={{ color: info.bodyOverflow > 0 ? "#f00" : "#0f0" }}>
             bodyOverflow: {info.bodyOverflow}px
+          </div>
+          <div>---</div>
+          <div>scrollH: {info.scrollHeight}</div>
+          <div>clientH: {info.clientHeight}</div>
+          <div style={{ color: info.vOverflow > 0 ? "#f00" : "#0f0" }}>
+            vOverflow: {info.vOverflow}px
           </div>
         </div>
       )}
@@ -303,7 +315,7 @@ const Header = () => {
   
   return (
     <header
-      className={`relative py-3 md:py-4 w-full m-0 z-50 ${isTopPage ? "border-0" : "rm-border border-b"}`}
+      className={`fixed top-0 left-0 right-0 py-3 md:py-4 w-full m-0 z-50 ${isTopPage ? "border-0" : "rm-border border-b"}`}
       style={{ 
         background: isTopPage ? "transparent" : "var(--muted)",
         /* トップページでは完全に透明、ボーダーも削除 */
@@ -609,6 +621,29 @@ const AppShellContent = ({ children }: { children: React.ReactNode }) => {
     void checkHealth();
   }, []);
 
+  // ヘッダー高さをCSS変数に反映し、固定ヘッダーのオフセットに利用する。
+  useEffect(() => {
+    const root = document.documentElement;
+    const header = document.querySelector("header");
+    const applyHeaderHeight = () => {
+      const rect = header?.getBoundingClientRect();
+      root.style.setProperty("--lp-header-h", `${rect?.height ?? 0}px`);
+    };
+
+    applyHeaderHeight();
+
+    let observer: ResizeObserver | undefined;
+    if (header && typeof ResizeObserver !== "undefined") {
+      observer = new ResizeObserver(() => applyHeaderHeight());
+      observer.observe(header);
+    }
+
+    return () => {
+      root.style.removeProperty("--lp-header-h");
+      observer?.disconnect();
+    };
+  }, []);
+
   // 開発時のみ、横幅オーバー要素を rect.right で検知してログ出力（本番では無効）
   useEffect(() => {
     if (process.env.NODE_ENV === "production" || typeof window === "undefined") {
@@ -665,6 +700,7 @@ const AppShellContent = ({ children }: { children: React.ReactNode }) => {
         className="mx-auto w-full max-w-6xl flex-1 px-6 py-8 md:px-10 lg:px-12"
         style={{
           backgroundColor: isAuthenticatedPage ? "var(--app-bg)" : undefined,
+          paddingTop: "calc(var(--lp-header-h, 0px) + 2rem)",
         }}
       >
         {/* 
