@@ -246,6 +246,7 @@ const Header = () => {
           style={{ 
             minWidth: "32px", 
             minHeight: "32px",
+            color: isTopPage ? "#3b82f6" : "var(--fg)", // テーマに応じて確実に色を適用
             marginRight: "12px" // 右側に12pxの余白を追加
           }}
         >
@@ -254,7 +255,7 @@ const Header = () => {
             viewBox="0 0 24 24"
             className="h-5 w-5"
             fill="none"
-            stroke={isTopPage ? "#3b82f6" : "var(--fg)"}
+            stroke="currentColor" // 親のcolorを確実に継承
             strokeWidth="2.5"
             strokeLinecap="round"
             style={{ 
