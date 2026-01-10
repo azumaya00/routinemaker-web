@@ -26,6 +26,107 @@ import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { checkHealth } from "@/lib/api";
 
 /**
+ * DebugOverlay: Android横幅問題デバッグ用オーバーレイ
+ * 本番では表示されない（NODE_ENV !== "production" で制御）
+ */
+const DebugOverlay = () => {
+  const [info, setInfo] = useState<{
+    innerWidth: number;
+    innerHeight: number;
+    clientWidth: number;
+    scrollWidth: number;
+    overflow: number;
+    bodyScrollWidth: number;
+    bodyClientWidth: number;
+    bodyOverflow: number;
+  } | null>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (process.env.NODE_ENV === "production") return;
+
+    const update = () => {
+      const docEl = document.documentElement;
+      const body = document.body;
+      setInfo({
+        innerWidth: window.innerWidth,
+        innerHeight: window.innerHeight,
+        clientWidth: docEl.clientWidth,
+        scrollWidth: docEl.scrollWidth,
+        overflow: docEl.scrollWidth - docEl.clientWidth,
+        bodyScrollWidth: body.scrollWidth,
+        bodyClientWidth: body.clientWidth,
+        bodyOverflow: body.scrollWidth - body.clientWidth,
+      });
+    };
+
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  if (process.env.NODE_ENV === "production" || !info) return null;
+
+  return (
+    <>
+      {/* トグルボタン */}
+      <button
+        type="button"
+        onClick={() => setVisible((v) => !v)}
+        style={{
+          position: "fixed",
+          bottom: "80px",
+          right: "8px",
+          zIndex: 9999,
+          background: "#ef4444",
+          color: "#fff",
+          border: "none",
+          borderRadius: "4px",
+          padding: "4px 8px",
+          fontSize: "10px",
+          opacity: 0.9,
+        }}
+      >
+        {visible ? "DBG ✕" : "DBG"}
+      </button>
+
+      {/* デバッグ情報パネル */}
+      {visible && (
+        <div
+          style={{
+            position: "fixed",
+            bottom: "120px",
+            right: "8px",
+            zIndex: 9999,
+            background: "rgba(0,0,0,0.85)",
+            color: "#0f0",
+            padding: "8px",
+            borderRadius: "4px",
+            fontSize: "10px",
+            fontFamily: "monospace",
+            lineHeight: 1.4,
+            maxWidth: "200px",
+          }}
+        >
+          <div>innerW: {info.innerWidth}</div>
+          <div>innerH: {info.innerHeight}</div>
+          <div>docClientW: {info.clientWidth}</div>
+          <div>docScrollW: {info.scrollWidth}</div>
+          <div style={{ color: info.overflow > 0 ? "#f00" : "#0f0" }}>
+            docOverflow: {info.overflow}px
+          </div>
+          <div>bodyClientW: {info.bodyClientWidth}</div>
+          <div>bodyScrollW: {info.bodyScrollWidth}</div>
+          <div style={{ color: info.bodyOverflow > 0 ? "#f00" : "#0f0" }}>
+            bodyOverflow: {info.bodyOverflow}px
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
+
+/**
  * Header: アプリ共通ヘッダー
  * 
  * 責務：
@@ -580,6 +681,9 @@ const AppShellContent = ({ children }: { children: React.ReactNode }) => {
       <div className="shrink-0">
         <PublicFooter />
       </div>
+
+      {/* デバッグオーバーレイ: 本番では非表示 */}
+      <DebugOverlay />
     </div>
   );
 };
