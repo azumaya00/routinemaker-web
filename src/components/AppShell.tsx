@@ -69,14 +69,14 @@ const DebugOverlay = () => {
 
   return (
     <>
-      {/* トグルボタン */}
+      {/* トグルボタン（左下に配置：Android右切れ対策） */}
       <button
         type="button"
         onClick={() => setVisible((v) => !v)}
         style={{
           position: "fixed",
           bottom: "80px",
-          right: "8px",
+          left: "8px",
           zIndex: 9999,
           background: "#ef4444",
           color: "#fff",
@@ -90,13 +90,13 @@ const DebugOverlay = () => {
         {visible ? "DBG ✕" : "DBG"}
       </button>
 
-      {/* デバッグ情報パネル */}
+      {/* デバッグ情報パネル（左下に配置） */}
       {visible && (
         <div
           style={{
             position: "fixed",
             bottom: "120px",
-            right: "8px",
+            left: "8px",
             zIndex: 9999,
             background: "rgba(0,0,0,0.85)",
             color: "#0f0",
