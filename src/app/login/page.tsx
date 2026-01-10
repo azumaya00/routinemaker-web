@@ -25,8 +25,10 @@ export default function LoginPage() {
   const { status, login, error } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [hasAttemptedLogin, setHasAttemptedLogin] = useState(false);
   const errorMessage = useMemo(() => {
-    if (!error) {
+    // ログイン試行前はエラーを表示しない
+    if (!hasAttemptedLogin || !error) {
       return null;
     }
     // 失敗理由の詳細は出さず、認証情報の不一致として扱う。
@@ -34,7 +36,7 @@ export default function LoginPage() {
       return "ログインに失敗しました。APIに接続できません。";
     }
     return "メールアドレスもしくはパスワードが異なります。";
-  }, [error]);
+  }, [error, hasAttemptedLogin]);
 
   // 認証済みの場合はここに留まらず / へ戻す。
   useEffect(() => {
@@ -43,6 +45,12 @@ export default function LoginPage() {
       router.push("/routines");
     }
   }, [status, router]);
+
+  // ログイン試行時にフラグを立てる
+  const handleLoginClick = () => {
+    setHasAttemptedLogin(true);
+    void login(email, password);
+  };
 
   return (
     <section className="auth-page-container">
@@ -81,7 +89,7 @@ export default function LoginPage() {
         <button
           type="button"
           className="rm-btn rm-btn-primary auth-page-button"
-          onClick={() => void login(email, password)}
+          onClick={handleLoginClick}
         >
           ログイン
         </button>

@@ -250,9 +250,7 @@ export default function Home() {
                 無料で使う
               </button>
               {/* Google 公式準拠ボタンで OAuth へ遷移 */}
-              <div style={{ display: "inline-flex" }}>
-                <GoogleLoginButton />
-              </div>
+              <GoogleLoginButton />
             </div>
           </div>
 

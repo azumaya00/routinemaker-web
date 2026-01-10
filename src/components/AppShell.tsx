@@ -246,7 +246,6 @@ const Header = () => {
           style={{ 
             minWidth: "32px", 
             minHeight: "32px",
-            color: isTopPage ? "#3b82f6" : "var(--fg)", // トップページでは青系に統一
             marginRight: "12px" // 右側に12pxの余白を追加
           }}
         >
@@ -255,10 +254,14 @@ const Header = () => {
             viewBox="0 0 24 24"
             className="h-5 w-5"
             fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
+            stroke={isTopPage ? "#3b82f6" : "var(--fg)"}
+            strokeWidth="2.5"
             strokeLinecap="round"
-            style={{ padding: 0 }} /* SVGのパディングを明示的に0に設定 */
+            style={{ 
+              padding: 0,
+              // スマホでも確実に見えるように色を明示的に設定（背景var(--muted)とのコントラスト確保）
+              color: isTopPage ? "#3b82f6" : "var(--fg)"
+            }}
           >
             {menuOpen ? (
               // 閉じるアイコン（X）

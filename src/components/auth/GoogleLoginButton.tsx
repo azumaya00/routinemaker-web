@@ -71,7 +71,7 @@ export function GoogleLoginButton({ fullWidth = false }: GoogleLoginButtonProps)
           font-weight: 500;
           border: none;
           cursor: pointer;
-          padding: 0 16px;
+          padding: 0 24px; /* 「無料で使う」ボタンと同じ左右padding */
           min-width: 200px;
           box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
           transition: background-color 0.2s ease, box-shadow 0.2s ease,
