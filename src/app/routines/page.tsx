@@ -270,7 +270,7 @@ export default function RoutinesPage() {
                 className="routines-home-item-run"
                 onClick={() => router.push(`/routines/${routine.id}/preflight`)}
                 aria-label="実行する"
-                style={{ color: "var(--bg)" }}
+                style={{ color: "#f8fafc" }} // 優しい白系（純白#fffではない）
               >
                 <svg
                   aria-hidden="true"

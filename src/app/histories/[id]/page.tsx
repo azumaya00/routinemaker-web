@@ -172,7 +172,7 @@ export default function HistoryDetailPage() {
                 <circle cx="16" cy="16" r="16" fill="currentColor" />
                 <path
                   d="M10 16 L14 20 L22 12"
-                  stroke="white"
+                  stroke="#f8fafc"
                   strokeWidth="3"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -194,8 +194,8 @@ export default function HistoryDetailPage() {
                 style={{ color: "var(--fg)" }} /* テーマに追従する中間色 */
               >
                 <circle cx="16" cy="16" r="16" fill="currentColor" />
-                <rect x="12" y="8" width="3" height="16" fill="white" />
-                <rect x="17" y="8" width="3" height="16" fill="white" />
+                <rect x="12" y="8" width="3" height="16" fill="#f8fafc" />
+                <rect x="17" y="8" width="3" height="16" fill="#f8fafc" />
               </svg>
               <span>中断</span>
             </>
@@ -213,8 +213,8 @@ export default function HistoryDetailPage() {
                 style={{ color: "var(--gray-500)" }} /* テーマ変数を使用（ダークモード対応） */
               >
                 <circle cx="16" cy="16" r="16" fill="currentColor" />
-                <rect x="12" y="8" width="3" height="16" fill="white" />
-                <rect x="17" y="8" width="3" height="16" fill="white" />
+                <rect x="12" y="8" width="3" height="16" fill="#f8fafc" />
+                <rect x="17" y="8" width="3" height="16" fill="#f8fafc" />
               </svg>
               <span>中断</span>
             </>
@@ -241,7 +241,7 @@ export default function HistoryDetailPage() {
                 <circle cx="10" cy="10" r="10" fill="currentColor" />
               <path
                 d="M6 10 L9 13 L14 7"
-                stroke="white"
+                stroke="#f8fafc"
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
