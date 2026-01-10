@@ -21,8 +21,20 @@ body {
   margin: 0;
   padding: 0;
   width: 100%;
+  max-width: 100%;
   min-height: 100%; /* スクロールを阻害しない最小限の指定に戻す */
   overflow-x: hidden;
+}
+
+#__next,
+body > div {
+  width: 100%;
+  max-width: 100%;
+}
+
+main {
+  width: 100%;
+  max-width: 100%;
 }
 
 :root {
@@ -185,36 +197,6 @@ body {
   position: relative;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-/* トップページではbody、html、mainの背景を完全に透明にする（クラスベースで確実に） */
-/* 白い半透明の矩形を完全に削除: すべての背景関連プロパティを完全に透明に */
-/* トップページではスクロールを無効化: 1スクリーン完結のデザイン */
-html.top-page-active,
-body.top-page-active {
-  background: transparent !important;
-  background-color: transparent !important;
-  background-image: none !important;
-  backdrop-filter: none !important;
-  overflow: hidden !important; /* トップページではスクロールを無効化 */
-  height: 100svh !important; /* 高さを100svhに固定 */
-}
-
-body.top-page-active main,
-body.top-page-active main > div {
-  background: transparent !important;
-  background-color: transparent !important;
-  background-image: none !important;
-  backdrop-filter: none !important;
-  box-shadow: none !important;
-  border: none !important;
-  padding-top: 0 !important; /* トップページではmainの上paddingを削除 */
-  padding-bottom: 0 !important; /* トップページではmainの下paddingを削除 */
-}
-
-/* トップページではdiv.pb-20のpadding-bottomを削除 */
-body.top-page-active main > div.pb-20 {
-  padding-bottom: 0 !important; /* トップページではフッター分の余白を削除 */
 }
 
 /* 補助テキスト用クラス: 14px（ラベル、補足情報など） */
