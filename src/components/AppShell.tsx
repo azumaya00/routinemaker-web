@@ -256,12 +256,11 @@ const Header = () => {
             viewBox="0 0 24 24"
             className="h-5 w-5"
             fill="none"
-            stroke="var(--fg)" // スマホでの currentColor 不具合を避ける
+            stroke={isTopPage ? "var(--accent)" : "var(--fg)"}
             strokeWidth="2.5"
             strokeLinecap="round"
-            style={{ 
-              padding: 0
-            }}
+            strokeLinejoin="round"
+            style={{ padding: 0 }}
           >
             {menuOpen ? (
               // 閉じるアイコン（X）

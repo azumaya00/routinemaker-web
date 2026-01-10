@@ -646,17 +646,14 @@ h3 {
   TOPページ専用の背景画像を設定
 */
 .top-page {
-  position: fixed; /* ブラウザ全体を覆うように固定 */
-  inset: 0; /* top: 0; right: 0; bottom: 0; left: 0; でブラウザ全体を覆う */
-  z-index: -1; /* ヘッダーの後ろに配置 */
-  height: 100svh; /* モバイルのアドレスバーを考慮、高さを100svhに固定 */
-  min-height: 100svh; /* iOS Safari含む想定で100svhを使用 */
-  min-height: 100dvh; /* Androidブラウザ向けにdvhも併用して崩れを防ぐ */
+  position: absolute; /* 背景レイヤー：背面固定 */
+  inset: 0;
+  z-index: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden; /* スクロールを防止 */
-  pointer-events: none; /* クリックイベントを無効化 */
+  overflow: hidden;
+  pointer-events: none;
   /* TOPページ専用の背景画像を設定（ブラウザ全体を覆う） */
   background-image: url("/images/bgimage.webp");
   background-size: cover;
@@ -667,49 +664,66 @@ h3 {
   backdrop-filter: none;
   box-shadow: none;
   border: none;
-  /* .top-pageは背景画像のみを担当（paddingは不要） */
+  min-height: 100vh;
 }
-
-/* TOPページのコンテンツラッパー: 背景画像の上に表示 */
-.top-page-content-wrapper {
-  position: relative;
-  z-index: 1; /* 背景画像より前面に */
-  min-height: 100svh; /* モバイルのアドレスバーを考慮 */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  /* PC/タブレット: 中央配置、適度な余白（40px上に上げる） */
-  padding-top: calc(4rem - 40px); /* pt-16から40px減 */
-  padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px)); /* CTAぶつかり防止に余白を拡張 */
+/* 高さは supports で一意に上書き（重複指定しない） */
+@supports (height: 100svh) {
+  .top-page {
+    min-height: 100svh;
+  }
 }
-
-/* スマホ・iPad縦型: 上寄り配置、header高さ + safe-area-inset-topを考慮した上余白 */
-@media (max-width: 768px) {
-  .top-page-content-wrapper {
-    align-items: flex-start; /* 上寄り配置 */
-    justify-content: flex-start; /* 上寄り配置 */
-    /* header高さ（約48px = 3rem）+ safe-area-inset-top + 適度な余白をclamp()で可変 */
-    padding-top: clamp(
-      3.5rem, /* 最小値: header高さ + 最小余白 */
-      calc(3rem + env(safe-area-inset-top, 0px) + 0.5rem), /* 推奨値: header + safe-area + 余白 */
-      5rem  /* 最大値: 最大余白（safe-areaが大きい場合も対応） */
-    );
-    padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px)); /* 下部CTAがかぶらないよう余白を厚めに */
+@supports (height: 100dvh) {
+  .top-page {
+    min-height: 100dvh;
   }
 }
 
-/* タブレット横型以上: 中央配置、適度な余白（768px以下はスマホレイアウトを適用） */
+/* ヒーローコンテンツのラッパー（前面） */
+.top-page-content-wrapper {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: calc(4rem - 40px); /* 既存レイアウトを維持 */
+  padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+}
+@supports (height: 100svh) {
+  .top-page-content-wrapper {
+    min-height: 100svh;
+  }
+}
+@supports (height: 100dvh) {
+  .top-page-content-wrapper {
+    min-height: 100dvh;
+  }
+}
+
+@media (max-width: 768px) {
+  .top-page-content-wrapper {
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding-top: clamp(
+      3.5rem,
+      calc(3rem + env(safe-area-inset-top, 0px) + 0.5rem),
+      5rem
+    );
+    padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
 @media (min-width: 769px) {
   .top-page-content-wrapper {
-    padding-top: 4rem; /* pt-16 */
-    padding-bottom: 4rem; /* pb-16 */
+    padding-top: 4rem;
+    padding-bottom: 4rem;
   }
 }
 
 @media (min-width: 1024px) {
   .top-page-content-wrapper {
-    padding-top: calc(5rem - 40px); /* pt-20から40px減 */
-    padding-bottom: 5rem; /* pb-20 */
+    padding-top: calc(5rem - 40px);
+    padding-bottom: 5rem;
   }
 }
 
