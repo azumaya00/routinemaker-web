@@ -102,19 +102,19 @@ function SortableTaskItem({
           width="20"
           height="20"
           viewBox="0 0 20 20"
-          fill="none"
+          fill="currentColor"
           xmlns="http://www.w3.org/2000/svg"
-          style={{ color: "var(--fg)", stroke: "var(--fg)" }} // currentColor が効かない環境向けに明示
+          style={{ color: "var(--fg)" }}
         >
-          <circle cx="6" cy="6" r="1.5" fill="currentColor" />
-          <circle cx="10" cy="6" r="1.5" fill="currentColor" />
-          <circle cx="14" cy="6" r="1.5" fill="currentColor" />
-          <circle cx="6" cy="10" r="1.5" fill="currentColor" />
-          <circle cx="10" cy="10" r="1.5" fill="currentColor" />
-          <circle cx="14" cy="10" r="1.5" fill="currentColor" />
-          <circle cx="6" cy="14" r="1.5" fill="currentColor" />
-          <circle cx="10" cy="14" r="1.5" fill="currentColor" />
-          <circle cx="14" cy="14" r="1.5" fill="currentColor" />
+          <circle cx="6" cy="6" r="1.5" />
+          <circle cx="10" cy="6" r="1.5" />
+          <circle cx="14" cy="6" r="1.5" />
+          <circle cx="6" cy="10" r="1.5" />
+          <circle cx="10" cy="10" r="1.5" />
+          <circle cx="14" cy="10" r="1.5" />
+          <circle cx="6" cy="14" r="1.5" />
+          <circle cx="10" cy="14" r="1.5" />
+          <circle cx="14" cy="14" r="1.5" />
         </svg>
       </div>
     </div>

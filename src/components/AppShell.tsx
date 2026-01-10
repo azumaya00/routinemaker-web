@@ -257,7 +257,7 @@ const Header = () => {
               viewBox="0 0 24 24"
               className="h-5 w-5"
               fill="none"
-              stroke={isPublicPath ? "var(--accent)" : "currentColor"}
+              stroke="currentColor"
               strokeWidth="2.5"
               strokeLinecap="round"
               style={{ padding: 0 }}
@@ -270,7 +270,7 @@ const Header = () => {
               aria-hidden="true"
               viewBox="0 0 24 24"
               className="h-5 w-5"
-              fill={isPublicPath ? "var(--accent)" : "var(--fg)"}
+              fill="currentColor"
               style={{ padding: 0 }}
             >
               <path d="M3 5h18v2H3zM3 11h18v2H3zM3 17h18v2H3z" />

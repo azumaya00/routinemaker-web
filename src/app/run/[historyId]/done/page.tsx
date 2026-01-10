@@ -148,7 +148,7 @@ export default function RunDonePage() {
             {/* チェックマーク（白、太め） */}
             <path
               d="M35 60 L50 75 L85 40"
-              stroke="white"
+              stroke="var(--bg)"
               strokeWidth="10"
               strokeLinecap="round"
               strokeLinejoin="round"

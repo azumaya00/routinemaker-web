@@ -195,14 +195,14 @@ export default function SettingsPage() {
         {/* 残りタスク数を表示する */}
         <div className="settings-item">
           <div className="settings-item-label">
-            <label htmlFor="show_remaining_tasks" className="settings-item-label-text">
+            <div className="settings-item-label-text">
               残りタスク数を表示する
               <Tooltip content="実行中に、残りのタスク数を表示します。">
                 <span className="settings-help-icon" aria-label="ヘルプ">
                   ?
                 </span>
               </Tooltip>
-            </label>
+            </div>
           </div>
           <div className="settings-item-control">
             <label className="settings-toggle">
@@ -233,14 +233,14 @@ export default function SettingsPage() {
         {/* 経過時間を表示する */}
         <div className="settings-item">
           <div className="settings-item-label">
-            <label htmlFor="show_elapsed_time" className="settings-item-label-text">
+            <div className="settings-item-label-text">
               経過時間を表示する
               <Tooltip content="実行を開始してからの経過時間を表示します。">
                 <span className="settings-help-icon" aria-label="ヘルプ">
                   ?
                 </span>
               </Tooltip>
-            </label>
+            </div>
           </div>
           <div className="settings-item-control">
             <label className="settings-toggle">
@@ -271,14 +271,14 @@ export default function SettingsPage() {
         {/* 完了演出を表示する */}
         <div className="settings-item">
           <div className="settings-item-label">
-            <label htmlFor="show_celebration" className="settings-item-label-text">
+            <div className="settings-item-label-text">
               完了演出を表示する
               <Tooltip content="すべてのタスク完了時に、ちょっとした演出を表示します。">
                 <span className="settings-help-icon" aria-label="ヘルプ">
                   ?
                 </span>
               </Tooltip>
-            </label>
+            </div>
           </div>
           <div className="settings-item-control">
             <label className="settings-toggle">
@@ -309,14 +309,14 @@ export default function SettingsPage() {
         {/* テーマ */}
         <div className="settings-item">
           <div className="settings-item-label">
-            <label htmlFor="theme" className="settings-item-label-text">
+            <div className="settings-item-label-text">
               テーマ
               <Tooltip content="画面の見た目を選びます。">
                 <span className="settings-help-icon" aria-label="ヘルプ">
                   ?
                 </span>
               </Tooltip>
-            </label>
+            </div>
           </div>
           <div className="settings-item-control">
             <select
@@ -340,14 +340,14 @@ export default function SettingsPage() {
         {/* ダークモード */}
         <div className="settings-item">
           <div className="settings-item-label">
-            <label htmlFor="dark_mode" className="settings-item-label-text">
+            <div className="settings-item-label-text">
               ダークモード
               <Tooltip content="ダークモードの設定方法を選びます。&#10;「システム」は端末の設定に合わせます。">
                 <span className="settings-help-icon" aria-label="ヘルプ">
                   ?
                 </span>
               </Tooltip>
-            </label>
+            </div>
           </div>
           <div className="settings-item-control">
             <select

@@ -202,16 +202,17 @@ export default function RoutinesPage() {
               viewBox="0 0 24 24"
               className="h-5 w-5"
               fill="none"
+              style={{ color: "var(--gray-400)" }}
             >
               <path
                 d="M18 6L6 18"
-                stroke="var(--gray-400)"
+                stroke="currentColor"
                 strokeWidth="2"
                 strokeLinecap="round"
               />
               <path
                 d="M6 6l12 12"
-                stroke="var(--gray-400)"
+                stroke="currentColor"
                 strokeWidth="2"
                 strokeLinecap="round"
               />
@@ -269,6 +270,7 @@ export default function RoutinesPage() {
                 className="routines-home-item-run"
                 onClick={() => router.push(`/routines/${routine.id}/preflight`)}
                 aria-label="実行する"
+                style={{ color: "var(--bg)" }}
               >
                 <svg
                   aria-hidden="true"
@@ -284,12 +286,13 @@ export default function RoutinesPage() {
                 className="routines-home-item-edit"
                 onClick={() => router.push(`/routines/${routine.id}`)}
                 aria-label="編集"
+                style={{ color: "var(--fg)" }}
               >
                 <svg
                   aria-hidden="true"
                   viewBox="0 0 24 24"
                   className="h-6 w-6"
-                  fill="var(--fg)"
+                  fill="currentColor"
                 >
                   <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z" />
                   <path d="M14.06 6.19 16.19 4.06 19.94 7.81 17.81 9.94z" />
@@ -300,12 +303,13 @@ export default function RoutinesPage() {
                 className="routines-home-item-delete"
                 onClick={() => handleDeleteClick(routine.id)}
                 aria-label="削除"
+                style={{ color: "var(--fg)" }}
               >
                 <svg
                   aria-hidden="true"
                   viewBox="0 0 24 24"
                   className="h-6 w-6"
-                  fill="var(--fg)"
+                  fill="currentColor"
                 >
                   <path d="M4 6h16v2H4zM9 4h6l1 2H8zM6 9h12v11a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V9z" />
                 </svg>
