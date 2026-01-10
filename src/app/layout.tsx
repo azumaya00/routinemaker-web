@@ -21,8 +21,38 @@ const notoSansJP = Noto_Sans_JP({
 });
 
 export const metadata: Metadata = {
-  title: "RoutineMaker",
-  description: "RoutineMaker は「今やるひとつ」に集中するためのタスク管理アプリです。",
+  title: "RoutineMaker｜今やる「ひとつ」だけに集中するタスク管理アプリ",
+  description:
+    "やることが多くて手が止まってしまう人のための、シンプルなタスク管理アプリ。今やる「ひとつ」だけに集中できます。",
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/favicon-16x16.png", type: "image/png", sizes: "16x16" },
+      { url: "/favicon-32x32.png", type: "image/png", sizes: "32x32" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png" }],
+  },
+  manifest: "/manifest.json",
+  openGraph: {
+    title: "RoutineMaker｜今やる「ひとつ」だけに集中するタスク管理アプリ",
+    description:
+      "やることが多くて手が止まってしまう人のための、シンプルなタスク管理アプリ。今やる「ひとつ」だけに集中できます。",
+    type: "website",
+    images: [
+      {
+        url: "/ogp.png",
+        width: 1200,
+        height: 630,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "RoutineMaker｜今やる「ひとつ」だけに集中するタスク管理アプリ",
+    description:
+      "やることが多くて手が止まってしまう人のための、シンプルなタスク管理アプリ。今やる「ひとつ」だけに集中できます。",
+    images: ["/ogp.png"],
+  },
 };
 
 export default function RootLayout({
