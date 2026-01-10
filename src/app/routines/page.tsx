@@ -202,13 +202,19 @@ export default function RoutinesPage() {
               viewBox="0 0 24 24"
               className="h-5 w-5"
               fill="none"
-              stroke="var(--fg)"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
             >
-              <path d="M18 6L6 18" />
-              <path d="M6 6l12 12" />
+              <path
+                d="M18 6L6 18"
+                stroke="var(--gray-400)"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+              <path
+                d="M6 6l12 12"
+                stroke="var(--gray-400)"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
             </svg>
           </button>
         </div>
@@ -282,15 +288,11 @@ export default function RoutinesPage() {
                 <svg
                   aria-hidden="true"
                   viewBox="0 0 24 24"
-                  className="h-5 w-5"
-                  fill="none"
-                  stroke="var(--fg)" // iOS Safari でも確実に色を出す
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+                  className="h-6 w-6"
+                  fill="var(--fg)"
                 >
-                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                  <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z" />
+                  <path d="M14.06 6.19 16.19 4.06 19.94 7.81 17.81 9.94z" />
                 </svg>
               </button>
               <button
@@ -302,16 +304,10 @@ export default function RoutinesPage() {
                 <svg
                   aria-hidden="true"
                   viewBox="0 0 24 24"
-                  className="h-5 w-5"
-                  fill="none"
-                  stroke="var(--fg)" // iOS Safari でも確実に色を出す
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+                  className="h-6 w-6"
+                  fill="var(--fg)"
                 >
-                  <path d="M3 6h18" />
-                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                  <path d="M4 6h16v2H4zM9 4h6l1 2H8zM6 9h12v11a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V9z" />
                 </svg>
               </button>
             </div>

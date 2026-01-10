@@ -54,6 +54,71 @@ export default function Home() {
     };
   }, []);
 
+  // LP専用: ヘッダー高さをCSS変数に反映し、高さ計算を単一化
+  useEffect(() => {
+    const root = document.documentElement;
+    const body = document.body;
+    body.classList.add("lp-page");
+
+    const header = document.querySelector("header");
+    const applyHeaderHeight = () => {
+      const rect = header?.getBoundingClientRect();
+      root.style.setProperty("--lp-header-h", `${rect?.height ?? 0}px`);
+    };
+
+    applyHeaderHeight();
+
+    let observer: ResizeObserver | undefined;
+    if (header && typeof ResizeObserver !== "undefined") {
+      observer = new ResizeObserver(() => applyHeaderHeight());
+      observer.observe(header);
+    }
+
+    return () => {
+      body.classList.remove("lp-page");
+      root.style.removeProperty("--lp-header-h");
+      observer?.disconnect();
+    };
+  }, []);
+
+  // デバッグ用: PCでの余計なスクロール原因を数値で把握（本番無効）
+  useEffect(() => {
+    if (process.env.NODE_ENV === "production") return;
+
+    const logLayout = () => {
+      const docEl = document.documentElement;
+      const body = document.body;
+      const header = document.querySelector("header");
+      const topPage = document.querySelector(".top-page");
+      const wrapper = document.querySelector(".top-page-content-wrapper");
+      const main = document.querySelector("main");
+
+      const rectInfo = (el: Element | null) => {
+        if (!el) return null;
+        const rect = el.getBoundingClientRect();
+        // @ts-expect-error offsetHeight is on HTMLElement
+        const offsetHeight = (el as HTMLElement).offsetHeight ?? null;
+        return { h: rect.height, offsetHeight };
+      };
+
+       
+      console.table({
+        clientHeight: docEl.clientHeight,
+        scrollHeight: docEl.scrollHeight,
+        bodyScrollHeight: body.scrollHeight,
+        innerHeight: window.innerHeight,
+        header: rectInfo(header),
+        topPage: rectInfo(topPage),
+        wrapper: rectInfo(wrapper),
+        main: rectInfo(main),
+      });
+    };
+
+    logLayout();
+    window.addEventListener("resize", logLayout);
+    return () => window.removeEventListener("resize", logLayout);
+  }, []);
+
   // 認証状態の確定までは表示を出さず、ログイン直後のちらつきを防ぐ
   if (status === "loading") {
     return null;

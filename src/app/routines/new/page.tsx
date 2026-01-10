@@ -294,15 +294,9 @@ export default function RoutineNewPage() {
                 aria-hidden="true"
                 viewBox="0 0 24 24"
                 className="h-6 w-6"
-                fill="none"
-                stroke="var(--fg)" // iOS Safari でも確実に色を出す
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+                fill="var(--fg)"
               >
-                <path d="M3 6h18" />
-                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                <path d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-3 4h12v11a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V7Zm4 2v8h2V9H10Zm4 0v8h2V9h-2Z" />
               </svg>
             </button>
           </div>

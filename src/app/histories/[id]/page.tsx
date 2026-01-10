@@ -176,6 +176,7 @@ export default function HistoryDetailPage() {
                   strokeWidth="3"
                   strokeLinecap="round"
                   strokeLinejoin="round"
+                  fill="none"
                 />
               </svg>
               <span>完了</span>
@@ -238,13 +239,14 @@ export default function HistoryDetailPage() {
                 style={{ color: "var(--accent)" }} /* テーマカラーを適用 */
               >
                 <circle cx="10" cy="10" r="10" fill="currentColor" />
-                <path
-                  d="M6 10 L9 13 L14 7"
-                  stroke="white"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
+              <path
+                d="M6 10 L9 13 L14 7"
+                stroke="white"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill="none"
+              />
               </svg>
               <span className="history-detail-task-text">{task}</span>
             </div>

@@ -61,44 +61,19 @@ export default function FlashMessage({
       {/* アイコン */}
       <div className="flash-message-icon">
         {type === "success" ? (
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="h-5 w-5"
-          >
-            <path d="M20 6L9 17l-5-5" />
+          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="var(--fg)">
+            <circle cx="12" cy="12" r="12" fill="var(--fg)" />
+            <path d="M7 12.5 10.5 16l7-8L19 10l-8.5 10L5 14z" fill="var(--bg)" />
           </svg>
         ) : type === "error" ? (
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="h-5 w-5"
-          >
-            <circle cx="12" cy="12" r="10" />
-            <path d="M12 8v4" />
-            <path d="M12 16h.01" />
+          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="var(--fg)">
+            <circle cx="12" cy="12" r="12" fill="var(--fg)" />
+            <path d="M11 6h2v8h-2zM11 16h2v2h-2z" fill="var(--bg)" />
           </svg>
         ) : (
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="h-5 w-5"
-          >
-            <circle cx="12" cy="12" r="10" />
-            <path d="M12 16v-4" />
-            <path d="M12 8h.01" />
+          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="var(--fg)">
+            <circle cx="12" cy="12" r="12" fill="var(--fg)" />
+            <path d="M11 8h2v6h-2zM11 15h2v2h-2z" fill="var(--bg)" />
           </svg>
         )}
       </div>
@@ -114,17 +89,8 @@ export default function FlashMessage({
           onClick={handleClose}
           aria-label="閉じる"
         >
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="h-4 w-4"
-          >
-            <path d="M18 6L6 18" />
-            <path d="M6 6l12 12" />
+          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="var(--fg)">
+            <path d="M5 4h4l3 3 3-3h4v4l-3 3 3 3v4h-4l-3-3-3 3H5v-4l3-3-3-3Z" />
           </svg>
         </button>
       )}

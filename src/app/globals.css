@@ -24,6 +24,16 @@ body {
   min-height: 100%; /* スクロールを阻害しない最小限の指定に戻す */
 }
 
+/* LP専用: main の余計な下paddingをなくし、1画面収まりを補助 */
+body.lp-page main {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+body.lp-page main > div.pb-20 {
+  padding-bottom: 0;
+}
+
 :root {
   /* light：青系（明るいが目に刺さらない） */
   --bg: #f6f8fb;        /* 少し青みのあるオフホワイト（ログイン後画面の背景） */
@@ -614,7 +624,7 @@ h3 {
   TOPページ専用の背景画像を設定
 */
 .top-page {
-  position: absolute; /* 背景レイヤー：背面固定 */
+  position: fixed; /* 背景レイヤー：ビューポートに追従 */
   inset: 0;
   width: 100%;
   max-width: 100%;
@@ -634,18 +644,6 @@ h3 {
   backdrop-filter: none;
   box-shadow: none;
   border: none;
-  min-height: calc(100vh - var(--lp-header-h, 64px));
-}
-/* 高さは supports で一意に上書き（重複指定しない） */
-@supports (height: 100svh) {
-  .top-page {
-    min-height: calc(100svh - var(--lp-header-h, 64px));
-  }
-}
-@supports (height: 100dvh) {
-  .top-page {
-    min-height: calc(100dvh - var(--lp-header-h, 64px));
-  }
 }
 
 /* ヒーローコンテンツのラッパー（前面） */
@@ -655,22 +653,23 @@ h3 {
   z-index: 1;
   width: 100%;
   max-width: 100%;
-  min-height: calc(100vh - var(--lp-header-h));
+  height: calc(100vh - var(--lp-header-h));
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
   padding-top: calc(4rem - 40px); /* 既存レイアウトを維持 */
   padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
-  overflow-y: hidden;
+  overflow: hidden;
 }
 @supports (height: 100svh) {
   .top-page-content-wrapper {
-    min-height: calc(100svh - var(--lp-header-h));
+    height: calc(100svh - var(--lp-header-h));
   }
 }
 @supports (height: 100dvh) {
   .top-page-content-wrapper {
-    min-height: calc(100dvh - var(--lp-header-h));
+    height: calc(100dvh - var(--lp-header-h));
   }
 }
 
@@ -769,7 +768,6 @@ h3 {
   /* コンテナの幅を調整: スマホサイズになるまで文字が改行されないように */
   /* PC/タブレット: 十分な幅を確保して改行を防ぐ */
   max-width: 1000px; /* 横幅を調整（900px→1000px）で改行を防ぐ */
-  min-width: 700px; /* PC向けの最小幅を確保し、見出しを2行で維持 */
   width: 100%;
   /* containerには背景を一切指定しない */
   background: transparent !important;
@@ -784,7 +782,6 @@ h3 {
 @media (max-width: 1023px) {
   .top-page-content {
     max-width: 900px; /* タブレットでは十分な幅を確保（800px→900pxに拡大） */
-    min-width: 600px; /* タブレット向けの最小幅を確保し、見出しを2行で維持 */
   }
   
   /* 1023px幅でも見出しが改行されないようにする */

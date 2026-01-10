@@ -221,13 +221,14 @@ export default function HistoriesPage() {
                           style={{ color: "var(--accent)" }} /* テーマカラーを適用 */
                         >
                           <circle cx="10" cy="10" r="10" fill="currentColor" />
-                          <path
-                            d="M6 10 L9 13 L14 7"
-                            stroke="white"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
+                      <path
+                        d="M6 10 L9 13 L14 7"
+                        stroke="white"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        fill="none"
+                      />
                         </svg>
                         <span>完了</span>
                       </>
@@ -245,8 +246,8 @@ export default function HistoriesPage() {
                           style={{ color: "var(--gray-500)" }} /* テーマ変数を使用（ダークモード対応） */
                         >
                           <circle cx="10" cy="10" r="10" fill="currentColor" />
-                          <rect x="6" y="4" width="2" height="12" fill="white" />
-                          <rect x="12" y="4" width="2" height="12" fill="white" />
+                      <rect x="6" y="4" width="2" height="12" fill="white" />
+                      <rect x="12" y="4" width="2" height="12" fill="white" />
                         </svg>
                         <span>中断</span>
                       </>
@@ -264,8 +265,8 @@ export default function HistoriesPage() {
                           style={{ color: "var(--gray-500)" }} /* テーマ変数を使用（ダークモード対応） */
                         >
                           <circle cx="10" cy="10" r="10" fill="currentColor" />
-                          <rect x="6" y="4" width="2" height="12" fill="white" />
-                          <rect x="12" y="4" width="2" height="12" fill="white" />
+                      <rect x="6" y="4" width="2" height="12" fill="white" />
+                      <rect x="12" y="4" width="2" height="12" fill="white" />
                         </svg>
                         <span>中断</span>
                       </>

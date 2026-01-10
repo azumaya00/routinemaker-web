@@ -338,19 +338,10 @@ export default function PreflightPage() {
                     width="20"
                     height="20"
                     viewBox="0 0 20 20"
-                    fill="none"
+                    fill="var(--fg)"
                     xmlns="http://www.w3.org/2000/svg"
-                    style={{ color: "var(--fg)", stroke: "var(--fg)" }} // currentColor が効かない環境向けに明示
                   >
-                    <circle cx="6" cy="6" r="1.5" fill="currentColor" />
-                    <circle cx="10" cy="6" r="1.5" fill="currentColor" />
-                    <circle cx="14" cy="6" r="1.5" fill="currentColor" />
-                    <circle cx="6" cy="10" r="1.5" fill="currentColor" />
-                    <circle cx="10" cy="10" r="1.5" fill="currentColor" />
-                    <circle cx="14" cy="10" r="1.5" fill="currentColor" />
-                    <circle cx="6" cy="14" r="1.5" fill="currentColor" />
-                    <circle cx="10" cy="14" r="1.5" fill="currentColor" />
-                    <circle cx="14" cy="14" r="1.5" fill="currentColor" />
+                    <path d="M7 4h2v2H7V4Zm4 0h2v2h-2V4Zm-4 5h2v2H7V9Zm4 0h2v2h-2V9Zm-4 5h2v2H7v-2Zm4 0h2v2h-2v-2Z" />
                   </svg>
                 </div>
               </div>

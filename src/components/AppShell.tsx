@@ -251,32 +251,31 @@ const Header = () => {
             marginRight: "12px" // 右側に12pxの余白を追加
           }}
         >
-          <svg
-            aria-hidden="true"
-            viewBox="0 0 24 24"
-            className="h-5 w-5"
-            fill="none"
-            stroke={isTopPage ? "var(--accent)" : "var(--fg)"}
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            style={{ padding: 0 }}
-          >
-            {menuOpen ? (
-              // 閉じるアイコン（X）
-              <>
-                <path d="M18 6L6 18" />
-                <path d="M6 6l12 12" />
-              </>
-            ) : (
-              // ハンバーガーアイコン
-              <>
-                <path d="M3 6h18" />
-                <path d="M3 12h18" />
-                <path d="M3 18h18" />
-              </>
-            )}
-          </svg>
+          {menuOpen ? (
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              className="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              style={{ padding: 0 }}
+            >
+              <path d="M18 6L6 18" />
+              <path d="M6 6l12 12" />
+            </svg>
+          ) : (
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              className="h-5 w-5"
+              fill="var(--fg)"
+              style={{ padding: 0 }}
+            >
+              <path d="M3 5h18v2H3zM3 11h18v2H3zM3 17h18v2H3z" />
+            </svg>
+          )}
         </button>
       </div>
 
