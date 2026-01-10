@@ -1318,6 +1318,11 @@ h3 {
   background-color: rgba(0, 0, 0, 0.05);
 }
 
+/* iOS Safari 対策: CSS セレクタで SVG の stroke を直接指定（親からの color 継承が効かない） */
+.routines-home-tutorial-close svg {
+  stroke: var(--gray-400);
+}
+
 /* エラーメッセージ */
 .routines-home-error {
   margin-bottom: 1rem;
@@ -1764,6 +1769,11 @@ h3 {
   opacity: 0.3;
   cursor: not-allowed;
   transform: none;
+}
+
+/* iOS Safari 対策: CSS セレクタで SVG の fill を直接指定（親からの color 継承が効かない） */
+.routine-form-delete-btn svg {
+  fill: var(--fg);
 }
 
 /* タスク追加ボタン: Primaryより一段弱い位置づけ（アウトラインまたは薄い背景） */
