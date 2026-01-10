@@ -464,20 +464,8 @@ h3 {
   }
 }
 
-/* ハンバーガーメニューボタン: iOS Safari 対策で fill/stroke を直接設定 */
-/* 試行5: 固定色テストのため一時的にコメントアウト */
-/*
-.header-hamburger-btn svg {
-}
-.header-hamburger-btn.public svg {
-  fill: var(--accent);
-  stroke: var(--accent);
-}
-.header-hamburger-btn.private svg {
-  fill: var(--fg);
-  stroke: var(--fg);
-}
-*/
+/* ハンバーガーメニューボタン: iOS Safari 対策で inline style を使用（Tailwind クラスは効かない） */
+/* 色とサイズは AppShell.tsx の inline style で設定 */
 
 /* 
   ドロワーメニュー: オーバーレイ＋右からスライド
