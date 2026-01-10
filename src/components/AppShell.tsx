@@ -246,8 +246,8 @@ const Header = () => {
           style={{ 
             minWidth: "32px", 
             minHeight: "32px",
-            // iOS Safari で currentColor が抜けないようにボタン自身に色を明示
-            color: isTopPage ? "#3b82f6" : "var(--fg)", // テーマに応じて視認性を確保
+            // iOS Safari で currentColor が抜けないケースを避けるため色を明示
+            color: isTopPage ? "var(--accent)" : "var(--fg)", // トップはアクセント系、その他は通常の前景色
             marginRight: "12px" // 右側に12pxの余白を追加
           }}
         >

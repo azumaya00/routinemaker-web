@@ -651,6 +651,7 @@ h3 {
   z-index: -1; /* ヘッダーの後ろに配置 */
   height: 100svh; /* モバイルのアドレスバーを考慮、高さを100svhに固定 */
   min-height: 100svh; /* iOS Safari含む想定で100svhを使用 */
+  min-height: 100dvh; /* Androidブラウザ向けにdvhも併用して崩れを防ぐ */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -679,7 +680,7 @@ h3 {
   justify-content: center;
   /* PC/タブレット: 中央配置、適度な余白（40px上に上げる） */
   padding-top: calc(4rem - 40px); /* pt-16から40px減 */
-  padding-bottom: 4rem; /* pb-16 */
+  padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px)); /* CTAぶつかり防止に余白を拡張 */
 }
 
 /* スマホ・iPad縦型: 上寄り配置、header高さ + safe-area-inset-topを考慮した上余白 */
@@ -693,7 +694,7 @@ h3 {
       calc(3rem + env(safe-area-inset-top, 0px) + 0.5rem), /* 推奨値: header + safe-area + 余白 */
       5rem  /* 最大値: 最大余白（safe-areaが大きい場合も対応） */
     );
-    padding-bottom: 2rem; /* 下余白は控えめに */
+    padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px)); /* 下部CTAがかぶらないよう余白を厚めに */
   }
 }
 
