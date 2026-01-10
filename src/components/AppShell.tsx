@@ -507,40 +507,36 @@ const AppShellContent = ({ children }: { children: React.ReactNode }) => {
     void checkHealth();
   }, []);
 
-  // 開発時のみ、横幅オーバー要素を特定するデバッグログを出力（全画面で共通）
+  // 開発時のみ、横幅オーバー要素に data-overflow を付与して可視化（本番では無効）
   useEffect(() => {
     if (process.env.NODE_ENV === "production" || typeof window === "undefined") {
       return;
     }
 
     const reportOverflow = () => {
-      const offenders = Array.from(document.querySelectorAll<HTMLElement>("*"))
-        .map((el) => {
-          const scrollWidth = el.scrollWidth;
-          const clientWidth = el.clientWidth;
-          if (scrollWidth > clientWidth + 1) {
-            return {
-              tag: el.tagName,
-              id: el.id || "",
-              className: (typeof el.className === "string" ? el.className : "").slice(0, 120),
-              scrollWidth,
-              clientWidth,
-            };
-          }
-          return null;
-        })
-        .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry))
-        .slice(0, 30);
+      document.documentElement.dataset.debugOverflow = "1";
+      document
+        .querySelectorAll<HTMLElement>("[data-overflow]")
+        .forEach((el) => el.removeAttribute("data-overflow"));
 
-      if (offenders.length > 0) {
-        // eslint-disable-next-line no-console
-        console.table(offenders);
-      }
+      const offenders = Array.from(
+        document.querySelectorAll<HTMLElement>("*")
+      ).filter((el) => el.scrollWidth > el.clientWidth + 1);
+
+      offenders.slice(0, 120).forEach((el) => {
+        el.setAttribute("data-overflow", "1");
+      });
     };
 
     reportOverflow();
     window.addEventListener("resize", reportOverflow);
-    return () => window.removeEventListener("resize", reportOverflow);
+    return () => {
+      window.removeEventListener("resize", reportOverflow);
+      document.documentElement.removeAttribute("data-debug-overflow");
+      document
+        .querySelectorAll<HTMLElement>("[data-overflow]")
+        .forEach((el) => el.removeAttribute("data-overflow"));
+    };
   }, [pathname]);
 
   // ログイン後の画面かどうかを判定

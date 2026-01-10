@@ -21,20 +21,12 @@ body {
   margin: 0;
   padding: 0;
   width: 100%;
-  max-width: 100%;
   min-height: 100%; /* スクロールを阻害しない最小限の指定に戻す */
-  overflow-x: hidden;
 }
 
-#__next,
-body > div {
-  width: 100%;
-  max-width: 100%;
-}
-
-main {
-  width: 100%;
-  max-width: 100%;
+:root[data-debug-overflow] [data-overflow="1"] {
+  outline: 2px dashed rgba(255, 0, 0, 0.6);
+  outline-offset: 2px;
 }
 
 :root {
@@ -629,6 +621,8 @@ h3 {
 .top-page {
   position: absolute; /* 背景レイヤー：背面固定 */
   inset: 0;
+  width: 100%;
+  max-width: 100%;
   z-index: 0;
   display: flex;
   align-items: center;
@@ -640,7 +634,7 @@ h3 {
   background-size: cover;
   background-position: center center; /* 真ん中部分を表示 */
   background-repeat: no-repeat;
-  background-attachment: fixed; /* スクロールしても背景が固定される */
+  background-attachment: scroll; /* 固定で幅がズレるブラウザを避ける */
   background-color: transparent;
   backdrop-filter: none;
   box-shadow: none;
@@ -663,6 +657,8 @@ h3 {
 .top-page-content-wrapper {
   position: relative;
   z-index: 1;
+  width: 100%;
+  max-width: 100%;
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -776,7 +772,7 @@ h3 {
   /* コンテナの幅を調整: スマホサイズになるまで文字が改行されないように */
   /* PC/タブレット: 十分な幅を確保して改行を防ぐ */
   max-width: 1000px; /* 横幅を調整（900px→1000px）で改行を防ぐ */
-  min-width: 700px; /* 最小幅を設定して改行を防ぐ（1024px幅でも十分な幅を確保） */
+  min-width: 0; /* 横幅を強制せず、モバイルでの横溢れを避ける */
   width: 100%;
   /* containerには背景を一切指定しない */
   background: transparent !important;
@@ -791,7 +787,7 @@ h3 {
 @media (max-width: 1023px) {
   .top-page-content {
     max-width: 900px; /* タブレットでは十分な幅を確保（800px→900pxに拡大） */
-    min-width: 600px; /* 最小幅を設定（500px→600pxに拡大） */
+    min-width: 0; /* モバイル/タブレットでの横溢れを防ぐ */
   }
   
   /* 1023px幅でも見出しが改行されないようにする */

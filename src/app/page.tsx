@@ -54,42 +54,6 @@ export default function Home() {
     };
   }, []);
 
-  // 開発時のみ、横幅オーバー要素を特定するデバッグログを出力
-  useEffect(() => {
-    if (process.env.NODE_ENV === "production" || typeof window === "undefined") {
-      return;
-    }
-
-    const reportOverflow = () => {
-      const offenders = Array.from(document.querySelectorAll<HTMLElement>("*"))
-        .map((el) => {
-          const scrollWidth = el.scrollWidth;
-          const clientWidth = el.clientWidth;
-          if (scrollWidth > clientWidth + 1) {
-            return {
-              tag: el.tagName,
-              id: el.id || "",
-              className: (typeof el.className === "string" ? el.className : "").slice(0, 120),
-              scrollWidth,
-              clientWidth,
-            };
-          }
-          return null;
-        })
-        .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry))
-        .slice(0, 30);
-
-      if (offenders.length > 0) {
-        // eslint-disable-next-line no-console
-        console.table(offenders);
-      }
-    };
-
-    reportOverflow();
-    window.addEventListener("resize", reportOverflow);
-    return () => window.removeEventListener("resize", reportOverflow);
-  }, []);
-
   // 認証状態の確定までは表示を出さず、ログイン直後のちらつきを防ぐ
   if (status === "loading") {
     return null;
