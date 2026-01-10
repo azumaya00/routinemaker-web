@@ -255,7 +255,7 @@ const Header = () => {
               viewBox="0 0 24 24"
               className="h-5 w-5"
               fill="none"
-              stroke="currentColor"
+              stroke="#3b82f6"
               strokeWidth="2.5"
               strokeLinecap="round"
             >
@@ -267,7 +267,7 @@ const Header = () => {
               aria-hidden="true"
               viewBox="0 0 24 24"
               className="h-5 w-5"
-              fill="currentColor"
+              fill="#3b82f6"
             >
               <path d="M3 5h18v2H3zM3 11h18v2H3zM3 17h18v2H3z" />
             </svg>

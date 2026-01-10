@@ -465,8 +465,9 @@ h3 {
 }
 
 /* ハンバーガーメニューボタン: iOS Safari 対策で fill/stroke を直接設定 */
+/* 試行5: 固定色テストのため一時的にコメントアウト */
+/*
 .header-hamburger-btn svg {
-  /* 閉じている時（三本線）は fill、開いている時（×）は stroke */
 }
 .header-hamburger-btn.public svg {
   fill: var(--accent);
@@ -476,6 +477,7 @@ h3 {
   fill: var(--fg);
   stroke: var(--fg);
 }
+*/
 
 /* 
   ドロワーメニュー: オーバーレイ＋右からスライド
