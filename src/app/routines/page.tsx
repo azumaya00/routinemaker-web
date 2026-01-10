@@ -202,7 +202,7 @@ export default function RoutinesPage() {
               viewBox="0 0 24 24"
               className="h-5 w-5"
               fill="none"
-              stroke="var(--fg)" // iOS Safari向けに色を明示
+              stroke="var(--fg)"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"

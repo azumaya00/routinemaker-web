@@ -22,7 +22,7 @@ const notoSansJP = Noto_Sans_JP({
 
 export const metadata: Metadata = {
   title: "RoutineMaker",
-  description: "Minimal auth scaffolding for RoutineMaker",
+  description: "RoutineMaker は「今やるひとつ」に集中するためのタスク管理アプリです。",
 };
 
 export default function RootLayout({
@@ -33,6 +33,8 @@ export default function RootLayout({
   return (
     <html lang="ja" suppressHydrationWarning>
       <head>
+        <meta httpEquiv="content-language" content="ja" />
+        <meta name="language" content="ja" />
         {/* SSR/CSRのちらつき対策: テーマとダークモードの初期値を注入 */}
         {/* このscriptはHTMLのhead内で実行され、Reactのhydration前にテーマを適用する */}
         <script
