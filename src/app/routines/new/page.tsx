@@ -295,7 +295,7 @@ export default function RoutineNewPage() {
                 viewBox="0 0 24 24"
                 className="h-6 w-6"
                 fill="none"
-                stroke="currentColor"
+                stroke="var(--fg)" // iOS Safari でも確実に色を出す
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"

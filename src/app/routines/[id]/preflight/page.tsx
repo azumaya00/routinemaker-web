@@ -104,7 +104,7 @@ function SortableTaskItem({
           viewBox="0 0 20 20"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          style={{ color: "var(--fg)" }}
+          style={{ color: "var(--fg)", stroke: "var(--fg)" }} // currentColor が効かない環境向けに明示
         >
           <circle cx="6" cy="6" r="1.5" fill="currentColor" />
           <circle cx="10" cy="6" r="1.5" fill="currentColor" />
@@ -340,7 +340,7 @@ export default function PreflightPage() {
                     viewBox="0 0 20 20"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
-                    style={{ color: "var(--fg)" }}
+                    style={{ color: "var(--fg)", stroke: "var(--fg)" }} // currentColor が効かない環境向けに明示
                   >
                     <circle cx="6" cy="6" r="1.5" fill="currentColor" />
                     <circle cx="10" cy="6" r="1.5" fill="currentColor" />

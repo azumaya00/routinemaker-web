@@ -246,7 +246,8 @@ const Header = () => {
           style={{ 
             minWidth: "32px", 
             minHeight: "32px",
-            color: isTopPage ? "#3b82f6" : "var(--fg)", // テーマに応じて確実に色を適用
+            // iOS Safari で currentColor が抜けないようにボタン自身に色を明示
+            color: isTopPage ? "#3b82f6" : "var(--fg)", // テーマに応じて視認性を確保
             marginRight: "12px" // 右側に12pxの余白を追加
           }}
         >
@@ -255,13 +256,11 @@ const Header = () => {
             viewBox="0 0 24 24"
             className="h-5 w-5"
             fill="none"
-            stroke="currentColor" // 親のcolorを確実に継承
+            stroke="var(--fg)" // スマホでの currentColor 不具合を避ける
             strokeWidth="2.5"
             strokeLinecap="round"
             style={{ 
-              padding: 0,
-              // スマホでも確実に見えるように色を明示的に設定（背景var(--muted)とのコントラスト確保）
-              color: isTopPage ? "#3b82f6" : "var(--fg)"
+              padding: 0
             }}
           >
             {menuOpen ? (

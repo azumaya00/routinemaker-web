@@ -190,7 +190,7 @@ export default function HistoryDetailPage() {
                 viewBox="0 0 32 32"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
-                style={{ color: "var(--gray-500)" }} /* テーマ変数を使用（ダークモード対応） */
+                style={{ color: "var(--fg)" }} /* テーマに追従する中間色 */
               >
                 <circle cx="16" cy="16" r="16" fill="currentColor" />
                 <rect x="12" y="8" width="3" height="16" fill="white" />
