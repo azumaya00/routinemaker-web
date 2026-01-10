@@ -253,7 +253,7 @@ const Header = () => {
             <svg
               aria-hidden="true"
               viewBox="0 0 24 24"
-              className="h-5 w-5"
+              style={{ width: "20px", height: "20px" }}
               fill="none"
               stroke="#3b82f6"
               strokeWidth="2.5"
@@ -266,7 +266,7 @@ const Header = () => {
             <svg
               aria-hidden="true"
               viewBox="0 0 24 24"
-              className="h-5 w-5"
+              style={{ width: "20px", height: "20px" }}
               fill="#3b82f6"
             >
               <path d="M3 5h18v2H3zM3 11h18v2H3zM3 17h18v2H3z" />
