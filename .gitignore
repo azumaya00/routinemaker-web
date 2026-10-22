@@ -35,3 +35,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# セキュリティ監査の記録（公開リポジトリのため Git に載せない）
+SECURITY_AUDIT.md
