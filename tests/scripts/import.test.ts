@@ -57,6 +57,26 @@ describe("MariaDB ダンプの移行", () => {
     expect(history.id).toBe(24);
   });
 
+  test("histories の外部キーが不正なら、4テーブルへの投入をすべて取り消す", async () => {
+    const { db } = await createTestContext();
+    const rows = toPgRows(parseDump(await readDump()));
+    rows.histories[0].routineId = 99999;
+
+    await expect(importInto(db, rows)).rejects.toThrow();
+    expect(await db.select().from(users)).toHaveLength(0);
+    expect(await db.select().from(userSettings)).toHaveLength(0);
+    expect(await db.select().from(routines)).toHaveLength(0);
+    expect(await db.select().from(histories)).toHaveLength(0);
+  });
+
+  test("空のテーブルは INSERT せず、採番を初期値に合わせる", async () => {
+    const { db } = await createTestContext();
+    await importInto(db, { users: [], user_settings: [], routines: [], histories: [] });
+
+    const [created] = await db.insert(users).values({ name: "次", email: "next@example.com" }).returning();
+    expect(created.id).toBe(1);
+  });
+
   test("移行先のどれか1テーブルでも空でなければ、投入前に中止する", async () => {
     const { db } = await createTestContext();
     await db.execute(sql`SET session_replication_role = 'replica'`);

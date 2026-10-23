@@ -1,7 +1,8 @@
 import { readFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 import { count, sql } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/neon-http";
+import type { BatchItem } from "drizzle-orm/batch";
+import { drizzle, type NeonHttpDatabase } from "drizzle-orm/neon-http";
 import type { Db } from "../src/server/db/client.ts";
 import * as schema from "../src/server/db/schema.ts";
 
@@ -146,18 +147,33 @@ export function toPgRows(parsed: Parsed): PgRows {
 
 export async function importInto(db: Db, rows: PgRows): Promise<void> {
   const targets = [users, userSettings, routines, histories] as const;
-  // neon-http は通常のトランザクションを持たないため、書き込み前に全対象を確認する。
   for (const table of targets) {
     const existing = await db.select({ id: table.id }).from(table).limit(1);
     if (existing.length > 0) throw new Error(`${tableNames[targets.indexOf(table)]} は空ではありません。移行を中止しました`);
   }
-  if (rows.users.length) await db.insert(users).values(rows.users);
-  if (rows.user_settings.length) await db.insert(userSettings).values(rows.user_settings);
-  if (rows.routines.length) await db.insert(routines).values(rows.routines);
-  if (rows.histories.length) await db.insert(histories).values(rows.histories);
-  for (const name of tableNames) {
-    const maxId = rows[name].reduce((max, row) => Math.max(max, row.id ?? 0), 0);
-    if (maxId > 0) await db.execute(sql`SELECT setval(pg_get_serial_sequence(${name}, 'id'), ${maxId}, true)`);
+
+  const buildStatements = (executor: Pick<Db, "insert" | "execute">): BatchItem<"pg">[] => {
+    const statements: BatchItem<"pg">[] = [];
+    if (rows.users.length) statements.push(executor.insert(users).values(rows.users));
+    if (rows.user_settings.length) statements.push(executor.insert(userSettings).values(rows.user_settings));
+    if (rows.routines.length) statements.push(executor.insert(routines).values(rows.routines));
+    if (rows.histories.length) statements.push(executor.insert(histories).values(rows.histories));
+    for (const name of tableNames) {
+      const maxId = rows[name].reduce((max, row) => Math.max(max, row.id ?? 0), 0);
+      statements.push(executor.execute(sql`SELECT setval(pg_get_serial_sequence(${name}, 'id'), ${maxId || 1}, ${maxId > 0})`));
+    }
+    return statements;
+  };
+
+  // neon-http だけが batch を持ち、PGlite は transaction で逐次実行できる。
+  if ("batch" in db) {
+    const neonDb = db as NeonHttpDatabase<typeof schema>;
+    const [first, ...rest] = buildStatements(db);
+    await neonDb.batch([first, ...rest]);
+  } else {
+    await db.transaction(async (tx) => {
+      for (const statement of buildStatements(tx)) await statement;
+    });
   }
 }
 
