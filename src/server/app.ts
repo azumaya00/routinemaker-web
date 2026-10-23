@@ -4,7 +4,10 @@ import { jsonError } from "./lib/errors";
 
 export function createApp(deps: AppDeps): Hono<AppEnv> {
   const app = new Hono<AppEnv>().basePath("/api");
-  void deps;
+  app.use("*", async (c, next) => {
+    c.set("deps", deps);
+    await next();
+  });
   app.get("/health", (c) => c.json({ status: "ok" }));
   app.notFound((c) => jsonError(c, 404, "Not Found."));
   app.onError((error, c) => {

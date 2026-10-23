@@ -17,3 +17,9 @@ export type AppDeps = {
   now?: () => Date;
 };
 export type AppEnv = { Variables: { user: UserRow; sessionToken: string } };
+
+declare module "hono" {
+  interface ContextVariableMap {
+    deps: AppDeps;
+  }
+}
