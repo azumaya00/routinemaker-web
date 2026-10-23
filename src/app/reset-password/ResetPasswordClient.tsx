@@ -22,6 +22,9 @@ export default function ResetPasswordClient() {
   const { showFlash } = useFlash();
   
   const [email, setEmail] = useState("");
+  const [isEmailFromLink, setIsEmailFromLink] = useState(
+    () => !!searchParams.get("email")
+  );
   const [token, setToken] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
@@ -33,11 +36,17 @@ export default function ResetPasswordClient() {
     const tokenParam = searchParams.get("token");
     const emailParam = searchParams.get("email");
 
+    if (window.location.search) {
+      // Next.js の履歴情報を引き継ぎ、URL と useSearchParams を一致させるため null を渡す。
+      window.history.replaceState(null, "", "/reset-password");
+    }
+
     if (tokenParam) {
       setToken(tokenParam);
     }
     if (emailParam) {
       setEmail(decodeURIComponent(emailParam));
+      setIsEmailFromLink(true);
     }
   }, [searchParams]);
 
@@ -113,7 +122,7 @@ export default function ResetPasswordClient() {
             className="rm-input auth-page-input"
             type="email"
             placeholder="example@email.com"
-            disabled={isSubmitting || !!searchParams.get("email")}
+            disabled={isSubmitting || isEmailFromLink}
           />
         </label>
         

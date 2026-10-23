@@ -1,10 +1,10 @@
 // 画面全体の枠を統一するための最小レイアウト定義。
 import type { Metadata } from "next";
 import { Josefin_Sans, Noto_Sans_JP } from "next/font/google";
-import Script from "next/script";
 
 import { AppShell } from "@/components/AppShell";
 import { FlashMessageProvider } from "@/components/FlashMessageProvider";
+import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import "./globals.css";
 
 // ロゴ用フォント: Josefin Sans（ヘッダーのサービス名に使用）
@@ -106,18 +106,7 @@ export default function RootLayout({
       <body
         className={`${josefinSans.variable} ${notoSansJP.variable} antialiased`}
       >
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-0JZNBNKFVF"
-          strategy="afterInteractive"
-        />
-        <Script id="ga-init" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-0JZNBNKFVF');
-          `}
-        </Script>
+        <GoogleAnalytics />
         <FlashMessageProvider>
           <AppShell>{children}</AppShell>
         </FlashMessageProvider>
