@@ -69,7 +69,7 @@ Laravel の実績ははんぷるで残すので、routinemaker は PHP をやめ
 | DB ドライバー | `@neondatabase/serverless` |
 | 入力チェック | `zod`、`@hono/zod-validator` |
 | パスワードのハッシュ化 | `bcryptjs`（既存の `$2y$` 形式を照合できるか、実装前に確かめる） |
-| Google ログイン | `arctic`（OAuth の手順を薄く包むだけのライブラリ） |
+| Google ログイン | なし。fetch で自前に書く（arctic を候補にしていたが、2026-10-23 に npm 側で「Package no longer supported」の表示が付いていたため取りやめた） |
 | メール送信 | `nodemailer` |
 
 ## ファイル構成
