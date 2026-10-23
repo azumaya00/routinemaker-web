@@ -1,0 +1,4 @@
+minimumReleaseAgeExclude:
+  - next
+  - "@next/*"
+  - eslint-config-next
