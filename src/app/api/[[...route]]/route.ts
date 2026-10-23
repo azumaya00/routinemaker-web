@@ -2,7 +2,7 @@ import { handle } from "hono/vercel";
 import { createApp } from "@/server/app";
 import { createNeonDb } from "@/server/db/client";
 import { createSmtpMailer } from "@/server/lib/mail";
-import type { GoogleOAuth } from "@/server/types";
+import { createGoogleOAuth } from "@/server/lib/google";
 
 export const runtime = "nodejs";
 
@@ -12,21 +12,11 @@ function env(name: string): string {
   return value;
 }
 
-function createGoogle(): GoogleOAuth {
-  env("GOOGLE_CLIENT_ID");
-  env("GOOGLE_CLIENT_SECRET");
-  env("GOOGLE_REDIRECT_URI");
-  return {
-    createAuthorizationURL: () => { throw new Error("Google OAuth is not implemented yet"); },
-    validateCallback: async () => { throw new Error("Google OAuth is not implemented yet"); },
-  };
-}
-
 function createHandler() {
   const app = createApp({
     db: createNeonDb(env("DATABASE_URL")),
     mailer: createSmtpMailer({ host: env("MAIL_HOST"), port: Number(env("MAIL_PORT")), user: env("MAIL_USERNAME"), pass: env("MAIL_PASSWORD"), from: env("MAIL_FROM_ADDRESS") }),
-    google: createGoogle(),
+    google: createGoogleOAuth({ clientId: env("GOOGLE_CLIENT_ID"), clientSecret: env("GOOGLE_CLIENT_SECRET"), redirectUri: env("GOOGLE_REDIRECT_URI") }),
     appUrl: env("APP_URL"),
   });
   return handle(app);
