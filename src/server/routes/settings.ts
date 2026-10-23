@@ -7,6 +7,8 @@ import { requireAuth } from "../middleware/auth";
 import type { AppEnv } from "../types";
 
 export async function getOrCreateSettings(db: Db, userId: number, now: Date): Promise<UserSettingsRow> {
+  const [existing] = await db.select().from(userSettings).where(eq(userSettings.userId, userId)).limit(1);
+  if (existing) return existing;
   await db.insert(userSettings).values({ userId, createdAt: now, updatedAt: now }).onConflictDoNothing({ target: userSettings.userId });
   const [settings] = await db.select().from(userSettings).where(eq(userSettings.userId, userId)).limit(1);
   return settings;

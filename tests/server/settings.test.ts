@@ -15,6 +15,22 @@ test("GET /api/settings は設定がなければ既定値を作って返す", as
     created_at: "2026-10-23T00:00:00.000Z", updated_at: "2026-10-23T00:00:00.000Z" } });
 });
 
+test("GET /api/settings を繰り返しても次のユーザーの設定 ID が飛ばない", async () => {
+  const ctx = await createTestContext();
+  const first = await loginAs(ctx, {});
+  const ids: number[] = [];
+  for (let i = 0; i < 3; i++) {
+    const res = await ctx.app.request("/api/settings", { headers: { Cookie: first.cookie } });
+    expect(res.status).toBe(200);
+    ids.push((await res.json()).data.id);
+  }
+  expect(ids).toEqual([1, 1, 1]);
+  const second = await loginAs(ctx, {});
+  const res = await ctx.app.request("/api/settings", { headers: { Cookie: second.cookie } });
+  expect((await res.json()).data.id).toBe(2);
+  expect((await ctx.db.select().from(userSettings).where(eq(userSettings.userId, first.user.id)))).toHaveLength(1);
+});
+
 test("PATCH /api/settings は指定された項目だけ更新して返す", async () => {
   const ctx = await createTestContext();
   const { user, cookie } = await loginAs(ctx, {});
