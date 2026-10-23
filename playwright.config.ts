@@ -10,7 +10,7 @@ import { defineConfig, devices } from '@playwright/test';
  * 
  * 前提条件:
  * - routinemaker-web が localhost:3000 で起動していること
- * - routinemaker-api が localhost:8000 で起動していること
+ * - 同じ Next.js アプリの /api/login などで API が動くこと
  * - テスト用ユーザーが存在すること（環境変数 E2E_TEST_EMAIL, E2E_TEST_PASSWORD で指定）
  */
 

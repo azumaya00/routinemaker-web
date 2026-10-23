@@ -8,14 +8,10 @@
    pnpm dev
    ```
 
-2. **routinemaker-api** が `localhost:8000` で起動していること
-   ```bash
-   cd routinemaker-api
-   php artisan serve
-   ```
+2. **API** が同じアプリの `localhost:3000/api/health` で動いていること。`.env.local` には [SETUP.md](../SETUP.md) の開発用環境変数を設定すること。
 
-3. **テスト用ユーザー** が存在すること
-   - 環境変数で指定するか、テスト内で新規登録する
+3. **テスト用ユーザー** が開発用 Neon ブランチに存在すること
+   - 環境変数 `E2E_TEST_EMAIL` と `E2E_TEST_PASSWORD` で指定する
    - デフォルト: `test@example.com` / `password`
 
 ## セットアップ
@@ -96,9 +92,9 @@ E2E_TEST_PASSWORD=your-password
 
 ### テストが失敗する場合
 
-1. **webとapiが起動しているか確認**
+1. **web と API が起動しているか確認**
    - `http://localhost:3000` にアクセスできるか
-   - `http://localhost:8000` にアクセスできるか
+   - `http://localhost:3000/api/health` にアクセスできるか
 
 2. **テスト用ユーザーが存在するか確認**
    - 環境変数で指定したユーザーがDBに存在するか

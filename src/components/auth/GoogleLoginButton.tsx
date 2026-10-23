@@ -1,22 +1,15 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 
 type GoogleLoginButtonProps = {
   fullWidth?: boolean;
 };
 
 export function GoogleLoginButton({ fullWidth = false }: GoogleLoginButtonProps) {
-  // Google OAuth リダイレクト先（API ベースURLを環境変数から組み立てる）
-  const redirectUrl = useMemo(() => {
-    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
-    return `${baseUrl}/api/auth/google/redirect`;
-  }, []);
-
-  // クリック時に Google 認証へ遷移させる（API 側に処理を委譲）
   const handleClick = useCallback(() => {
-    window.location.href = redirectUrl;
-  }, [redirectUrl]);
+    window.location.href = new URL("/api/auth/google/redirect", window.location.origin).toString();
+  }, []);
 
   return (
     <button

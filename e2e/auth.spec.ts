@@ -5,7 +5,7 @@
  * - ログイン → /routines表示 → ログアウトできる
  * 
  * 実行方法:
- * - 前提: web (localhost:3000) と api (localhost:8000) が起動していること
+ * - 前提: web と /api/login が localhost:3000 で動くこと
  * - 環境変数: E2E_TEST_EMAIL, E2E_TEST_PASSWORD でテストユーザーを指定
  * - 実行: pnpm test:e2e e2e/auth.spec.ts
  */

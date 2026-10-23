@@ -17,30 +17,7 @@ export type UserSettings = {
   show_celebration: boolean;
 };
 
-// 環境ごとの API を差し替えるための唯一の入口。
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8001";
-
-const STATEFUL_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
-
-// Sanctum SPA の前提として XSRF-TOKEN は client 側で読む。
-const readCookieValue = (name: string) => {
-  if (typeof document === "undefined") {
-    return null;
-  }
-
-  const prefix = `${encodeURIComponent(name)}=`;
-  const cookie = document.cookie
-    .split(";")
-    .map((part) => part.trim())
-    .find((part) => part.startsWith(prefix));
-
-  if (!cookie) {
-    return null;
-  }
-
-  return decodeURIComponent(cookie.slice(prefix.length));
-};
+const API_BASE_URL = "";
 
 // エラーハンドリング用に最低限のヘッダーだけを残す。
 const pickHeaders = (response: Response) => {
@@ -74,29 +51,18 @@ type ApiRequestOptions = {
 };
 
 // 認証方式を cookie に固定するため、credentials は常に include。
-// CSRF が必要なルートだけ X-XSRF-TOKEN を付ける方針。
 export const apiRequest = async (
   path: string,
   options: RequestInit = {},
-  { includeXsrfHeader = false }: ApiRequestOptions = {}
+  _legacyOptions: ApiRequestOptions = {}
 ): Promise<ApiResult> => {
+  // 既存の公開引数は維持し、新しい API には旧オプションを渡さない。
+  void _legacyOptions;
   try {
     const headers = new Headers(options.headers);
-    const method = (options.method ?? "GET").toUpperCase();
-    const isBrowser =
-      typeof window !== "undefined" && typeof document !== "undefined";
 
     if (!headers.has("Accept")) {
       headers.set("Accept", "application/json");
-    }
-
-    const shouldAttachXsrf =
-      includeXsrfHeader || (isBrowser && STATEFUL_METHODS.has(method));
-    if (shouldAttachXsrf) {
-      const token = readCookieValue("XSRF-TOKEN");
-      if (token) {
-        headers.set("X-XSRF-TOKEN", token);
-      }
     }
 
     const response = await fetch(`${API_BASE_URL}${path}`, {
@@ -121,9 +87,12 @@ export const apiRequest = async (
   }
 };
 
-// ログイン/ログアウト前に呼ぶ前提の CSRF 取得。
-export const getCsrfCookie = () =>
-  apiRequest("/sanctum/csrf-cookie", { method: "GET" });
+// 呼び出し側を変えずに旧準備処理の通信だけなくすため、成功結果を返す。
+export const getCsrfCookie = async (): Promise<ApiResult> => ({
+  status: 204,
+  headers: {},
+  body: "",
+});
 
 // API 疎通確認用（本番デプロイ時の確認用）
 export const checkHealth = async (): Promise<void> => {
@@ -140,36 +109,32 @@ export const checkHealth = async (): Promise<void> => {
   }
 };
 
-// Sanctum SPA のセッション開始は POST /login で行う前提。
 export const login = (email: string, password: string) =>
   apiRequest(
-    "/login",
+    "/api/login",
     {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ email, password }),
-    },
-    { includeXsrfHeader: true }
+    }
   );
 
 // ログアウトはサーバ側のセッション破棄のみを担う。
 export const logout = () =>
   apiRequest(
-    "/logout",
-    { method: "POST", keepalive: true },
-    { includeXsrfHeader: true }
+    "/api/logout",
+    { method: "POST", keepalive: true }
   );
 
-// 登録は /register で行い、その後のセッション確立は API 側に寄せる。
 export const register = (
   email: string,
   password: string,
   passwordConfirmation: string
 ) =>
   apiRequest(
-    "/register",
+    "/api/register",
     {
       method: "POST",
       headers: {
@@ -180,13 +145,11 @@ export const register = (
         password,
         password_confirmation: passwordConfirmation,
       }),
-    },
-    { includeXsrfHeader: true }
+    }
   );
 
 // パスワードリセットリンク送信
 export const forgotPassword = async (email: string) => {
-  await getCsrfCookie();
   return apiRequest(
     "/api/forgot-password",
     {
@@ -195,8 +158,7 @@ export const forgotPassword = async (email: string) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ email }),
-    },
-    { includeXsrfHeader: true }
+    }
   );
 };
 
@@ -207,7 +169,6 @@ export const resetPassword = async (
   password: string,
   passwordConfirmation: string
 ) => {
-  await getCsrfCookie();
   return apiRequest(
     "/api/reset-password",
     {
@@ -221,8 +182,7 @@ export const resetPassword = async (
         password,
         password_confirmation: passwordConfirmation,
       }),
-    },
-    { includeXsrfHeader: true }
+    }
   );
 };
 
@@ -237,8 +197,7 @@ export const deleteAccount = (password?: string) =>
       },
       // パスワードを送る必要がない場合はフィールドごと省略する
       body: JSON.stringify(password ? { password } : {}),
-    },
-    { includeXsrfHeader: true }
+    }
   );
 
 // /api/me の成否を認証状態の唯一の判断材料に固定する。
@@ -249,8 +208,7 @@ export const getMe = fetchMe;
 export const dismissTutorial = () =>
   apiRequest(
     "/api/tutorial/dismiss",
-    { method: "POST" },
-    { includeXsrfHeader: true }
+    { method: "POST" }
   );
 
 // 設定は patch で更新し、レスポンスの settings を採用する前提。
@@ -263,8 +221,7 @@ export const updateSettings = (payload: Partial<UserSettings>) =>
         "Content-Type": "application/json",
       },
       body: JSON.stringify(payload),
-    },
-    { includeXsrfHeader: true }
+    }
   );
 
 // Routine の Web 側モデルは最小形に固定する（Phase 3 まで）。
@@ -289,8 +246,7 @@ export const createRoutine = (payload: RoutinePayload) =>
         "Content-Type": "application/json",
       },
       body: JSON.stringify(payload),
-    },
-    { includeXsrfHeader: true }
+    }
   );
 
 export const updateRoutine = (id: number, payload: RoutinePayload) =>
@@ -302,15 +258,13 @@ export const updateRoutine = (id: number, payload: RoutinePayload) =>
         "Content-Type": "application/json",
       },
       body: JSON.stringify(payload),
-    },
-    { includeXsrfHeader: true }
+    }
   );
 
 export const deleteRoutine = (id: number) =>
   apiRequest(
     `/api/routines/${id}`,
-    { method: "DELETE" },
-    { includeXsrfHeader: true }
+    { method: "DELETE" }
   );
 
 // 履歴は一覧と詳細で用途が分かれるため、取得口を明示的に分ける。
@@ -324,22 +278,19 @@ export const getHistory = (id: number) =>
 export const startHistory = (routineId: number) =>
   apiRequest(
     `/api/routines/${routineId}/start`,
-    { method: "POST" },
-    { includeXsrfHeader: true }
+    { method: "POST" }
   );
 
 // 完了時は履歴 ID を使って確定させる前提。
 export const completeHistory = (historyId: number) =>
   apiRequest(
     `/api/histories/${historyId}/complete`,
-    { method: "POST" },
-    { includeXsrfHeader: true }
+    { method: "POST" }
   );
 
 // 中断時も履歴 ID を使って状態を確定させる。
 export const abortHistory = (historyId: number) =>
   apiRequest(
     `/api/histories/${historyId}/abort`,
-    { method: "POST" },
-    { includeXsrfHeader: true }
+    { method: "POST" }
   );
