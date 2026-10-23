@@ -3,6 +3,7 @@ import { createApp } from "@/server/app";
 import { createNeonDb } from "@/server/db/client";
 import { createSmtpMailer } from "@/server/lib/mail";
 import { createGoogleOAuth } from "@/server/lib/google";
+import { toStandardRequest } from "@/server/lib/standard-request";
 
 export const runtime = "nodejs";
 
@@ -23,7 +24,7 @@ function createHandler() {
 }
 
 function serve(request: Request) {
-  return createHandler()(request);
+  return createHandler()(toStandardRequest(request));
 }
 
 export const GET = serve;
