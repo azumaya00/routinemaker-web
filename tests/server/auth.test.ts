@@ -122,6 +122,16 @@ test("ログアウトはセッションと Cookie を削除する", async () => 
   expect(await ctx.db.select().from(sessions).where(eq(sessions.userId, user.id))).toHaveLength(0);
 });
 
+test("残り60分未満でログアウトしても削除 Cookie だけを返す", async () => {
+  const ctx = await createTestContext();
+  const { cookie } = await loginAs(ctx, {});
+  ctx.now.value = new Date("2026-10-23T01:00:01.000Z");
+  const res = await post(ctx.app, "/api/logout", undefined, cookie);
+  expect(res.status).toBe(204);
+  expect(res.headers.getSetCookie()).toHaveLength(1);
+  expect(res.headers.getSetCookie()[0]).toMatch(/rm_session=;.*Max-Age=0/);
+});
+
 test("未ログインのログアウトは 401", async () => {
   const ctx = await createTestContext();
   const res = await post(ctx.app, "/api/logout");

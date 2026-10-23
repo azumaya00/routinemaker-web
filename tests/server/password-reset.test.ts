@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { expect, test, vi } from "vitest";
 import { passwordResetTokens, sessions, users } from "@/server/db/schema";
 import { hashPassword, verifyPassword } from "@/server/lib/password";
+import { createSession } from "@/server/lib/session";
 import { createTestContext, loginAs } from "./helpers";
 
 type Context = Awaited<ReturnType<typeof createTestContext>>;
@@ -116,6 +117,17 @@ test("退会済みユーザーは再設定で復帰する", async () => {
   const [updated] = await ctx.db.select().from(users).where(eq(users.id, user.id));
   expect(updated.deletedAt).toBeNull();
   expect(await verifyPassword("newpassword1", updated.password)).toBe(true);
+});
+
+test("再設定による復元で DB に残った退会前のセッションを消す", async () => {
+  const ctx = await createTestContext();
+  const [user] = await ctx.db.insert(users).values({ name: "Former", email: "former@example.com", deletedAt: ctx.now.value }).returning();
+  const oldCookie = `rm_session=${await createSession(ctx.db, user.id, ctx.now.value)}`;
+  const token = await requestToken(ctx, user.email);
+  const res = await post(ctx, "/api/reset-password", { token, email: user.email, password: "newpassword1", password_confirmation: "newpassword1" });
+  expect(res.status).toBe(200);
+  expect((await ctx.app.request("/api/me", { headers: { Cookie: oldCookie } })).status).toBe(401);
+  expect(await ctx.db.select().from(sessions).where(eq(sessions.userId, user.id))).toHaveLength(0);
 });
 
 test.each(["expired", "invalid"])("%s トークンは 422", async (kind) => {

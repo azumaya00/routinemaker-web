@@ -23,6 +23,7 @@ function checkEmail(ctx: z.RefinementCtx, value: unknown, register: boolean) {
   const required = register ? "メールアドレスは必須です。" : validationMessage("required", "email");
   const invalid = register ? "有効なメールアドレスを入力してください。" : validationMessage("email", "email");
   if (value === undefined || value === null || value === "") addIssue(ctx, "email", required);
+  else if (typeof value === "string" && Array.from(value).length > 255) addIssue(ctx, "email", validationMessage("max:255", "email"));
   else if (!emailRule.safeParse(value).success) addIssue(ctx, "email", invalid);
 }
 
@@ -33,6 +34,11 @@ function checkPassword(ctx: z.RefinementCtx, password: unknown, confirmation: un
   }
   if (typeof password !== "string") {
     addIssue(ctx, "password", validationMessage("string", "password"));
+    return;
+  }
+  // bcrypt は72バイト以降を無視するため、ハッシュ化前に拒否する。
+  if (Buffer.byteLength(password, "utf8") > 72) {
+    addIssue(ctx, "password", "The password field must not be greater than 72 characters.");
     return;
   }
   if (password !== confirmation) addIssue(ctx, "password", "パスワードが一致しません。");
@@ -47,6 +53,8 @@ const loginSchema = z.object({ email: z.unknown().optional(), password: z.unknow
     addIssue(ctx, "password", validationMessage("required", "password"));
   } else if (typeof value.password !== "string") {
     addIssue(ctx, "password", validationMessage("string", "password"));
+  } else if (Buffer.byteLength(value.password, "utf8") > 72) {
+    addIssue(ctx, "password", "The password field must not be greater than 72 characters.");
   }
 });
 
@@ -66,6 +74,7 @@ const resetPasswordSchema = z.object({
 }).superRefine((value, ctx) => {
   if (value.token === undefined || value.token === null || value.token === "") addIssue(ctx, "token", "トークンは必須です。");
   else if (typeof value.token !== "string") addIssue(ctx, "token", validationMessage("string", "token"));
+  else if (Array.from(value.token).length > 255) addIssue(ctx, "token", validationMessage("max:255", "token"));
   checkEmail(ctx, value.email, true);
   checkPassword(ctx, value.password, value.password_confirmation);
 });
@@ -130,6 +139,7 @@ export function registerAuthRoutes(app: Hono<AppEnv>): void {
 
   app.post("/logout", requireAuth, async (c) => {
     await deleteSession(c.var.deps.db, c.var.sessionToken);
+    c.set("sessionRevoked", true);
     clearSessionCookie(c);
     return c.body(null, 204);
   });

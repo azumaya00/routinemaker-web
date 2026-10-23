@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { expect, test } from "vitest";
 import { sessions, userSettings, users } from "@/server/db/schema";
 import { hashPassword } from "@/server/lib/password";
+import { createSession } from "@/server/lib/session";
 import { createTestContext, loginAs } from "./helpers";
 
 const origin = "https://routinemaker.test";
@@ -56,6 +57,26 @@ test("DELETE /api/me は正しいパスワードで論理削除してセッシ�
   expect((await ctx.db.select().from(users).where(eq(users.id, user.id)))[0].updatedAt?.toISOString()).toBe("2026-10-23T00:00:00.000Z");
   expect(await ctx.db.select().from(sessions).where(eq(sessions.userId, user.id))).toHaveLength(0);
   expect((await ctx.app.request("/api/me", { headers: { Cookie: cookie } })).status).toBe(401);
+});
+
+test("端末 A の退会で端末 B のセッションも削除する", async () => {
+  const ctx = await createTestContext();
+  const { user, cookie } = await loginAs(ctx, { password: await hashPassword("secret123") });
+  const otherCookie = `rm_session=${await createSession(ctx.db, user.id, ctx.now.value)}`;
+  const res = await ctx.app.request("/api/me", { method: "DELETE", headers: { Cookie: cookie, Origin: origin, "Content-Type": "application/json" }, body: JSON.stringify({ password: "secret123" }) });
+  expect(res.status).toBe(204);
+  expect(await ctx.db.select().from(sessions).where(eq(sessions.userId, user.id))).toHaveLength(0);
+  expect((await ctx.app.request("/api/me", { headers: { Cookie: otherCookie } })).status).toBe(401);
+});
+
+test("残り60分未満で退会しても削除 Cookie だけを返す", async () => {
+  const ctx = await createTestContext();
+  const { cookie } = await loginAs(ctx, { password: await hashPassword("secret123") });
+  ctx.now.value = new Date("2026-10-23T01:00:01.000Z");
+  const res = await ctx.app.request("/api/me", { method: "DELETE", headers: { Cookie: cookie, Origin: origin, "Content-Type": "application/json" }, body: JSON.stringify({ password: "secret123" }) });
+  expect(res.status).toBe(204);
+  expect(res.headers.getSetCookie()).toHaveLength(1);
+  expect(res.headers.getSetCookie()[0]).toMatch(/rm_session=;.*Max-Age=0/);
 });
 
 test.each([

@@ -141,3 +141,24 @@ test("x-forwarded-for の先頭 IP を使い、別 IP は別に数える", async
   expect((await request("192.0.2.1")).status).toBe(429);
   expect((await request("192.0.2.2")).status).toBe(200);
 });
+
+test("同時に max+5 件送っても通るのは max 件", async () => {
+  const ctx = await createTestContext();
+  const app = new Hono<AppEnv>();
+  app.use("*", async (c, next) => { c.set("deps", ctx.deps); await next(); });
+  app.post("/login", rateLimit("login", 5), (c) => c.json({ ok: true }));
+  const responses = await Promise.all(Array.from({ length: 10 }, () => app.request("/login", { method: "POST", headers: { "x-forwarded-for": "192.0.2.10" } })));
+  expect(responses.filter((res) => res.status === 200)).toHaveLength(5);
+  expect(responses.filter((res) => res.status === 429)).toHaveLength(5);
+});
+
+test("不正または長すぎる転送 IP は unknown として同じ bucket で数える", async () => {
+  const ctx = await createTestContext();
+  const app = new Hono<AppEnv>();
+  app.use("*", async (c, next) => { c.set("deps", ctx.deps); await next(); });
+  app.post("/login", rateLimit("login", 1), (c) => c.json({ ok: true }));
+  const request = (ip: string) => app.request("/login", { method: "POST", headers: { "x-forwarded-for": ip } });
+  expect((await request("not-an-ip")).status).toBe(200);
+  expect((await request("a".repeat(46))).status).toBe(429);
+  expect((await request("2001:db8::1")).status).toBe(200);
+});

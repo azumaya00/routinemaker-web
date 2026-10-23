@@ -3,7 +3,7 @@ import type { Hono } from "hono";
 import { users } from "../db/schema";
 import { validationError, validationMessage } from "../lib/errors";
 import { verifyPassword } from "../lib/password";
-import { clearSessionCookie, deleteSession } from "../lib/session";
+import { clearSessionCookie, deleteUserSessions } from "../lib/session";
 import { requireAuth } from "../middleware/auth";
 import type { AppEnv } from "../types";
 import { getOrCreateSettings, settingsResponse } from "./settings";
@@ -34,14 +34,18 @@ export function registerMeRoutes(app: Hono<AppEnv>): void {
         return validationError(c, { password: ["パスワードは必須です。"] });
       }
       if (typeof password !== "string") return validationError(c, { password: [validationMessage("string", "password")] });
+      // bcrypt は72バイト以降を無視するため、照合前に拒否する。
+      if (Buffer.byteLength(password, "utf8") > 72) return validationError(c, { password: ["The password field must not be greater than 72 characters."] });
       if (!await verifyPassword(password, user.password)) return validationError(c, { password: ["パスワードが一致しません。"] });
     } else if (password !== undefined && password !== null && typeof password !== "string") {
       return validationError(c, { password: [validationMessage("string", "password")] });
     }
+    if (typeof password === "string" && Buffer.byteLength(password, "utf8") > 72) return validationError(c, { password: ["The password field must not be greater than 72 characters."] });
     const deps = c.var.deps;
     const now = deps.now?.() ?? new Date();
     await deps.db.update(users).set({ deletedAt: now, updatedAt: now }).where(eq(users.id, user.id));
-    await deleteSession(deps.db, c.var.sessionToken);
+    await deleteUserSessions(deps.db, user.id);
+    c.set("sessionRevoked", true);
     clearSessionCookie(c);
     return c.body(null, 204);
   });

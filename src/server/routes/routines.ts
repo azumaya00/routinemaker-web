@@ -52,7 +52,9 @@ function validateRoutine(input: Record<string, unknown>, isUpdate: boolean, plan
         if (typeof task !== "string") errors[field] = [validationMessage("string", field)];
         else if (characterCount(task) > 255) errors[field] = [validationMessage("max:255", field)];
       });
-      if (plan !== "unlimited" && tasks.length > 10) {
+      if (tasks.length > 100) {
+        errors.tasks = [...(errors.tasks ?? []), "The tasks field must not have more than 100 items."];
+      } else if (plan !== "unlimited" && tasks.length > 10) {
         errors.tasks = [...(errors.tasks ?? []), "Tasks must not exceed 10 for this plan."];
       }
     }

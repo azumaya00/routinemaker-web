@@ -2,7 +2,6 @@ import { sql } from "drizzle-orm";
 import {
   bigint,
   boolean,
-  index,
   jsonb,
   pgTable,
   timestamp,
@@ -80,8 +79,9 @@ export const sessions = pgTable("sessions", {
 export const rateLimits = pgTable("rate_limits", {
   id: id(),
   key: varchar({ length: 255 }).notNull(),
-  createdAt: date("created_at").notNull(),
-}, (table) => [index("rate_limits_key_created_at_index").on(table.key, table.createdAt)]);
+  windowStart: date("window_start").notNull(),
+  count: bigint({ mode: "number" }).notNull().default(0),
+}, (table) => [uniqueIndex("rate_limits_key_window_start_unique").on(table.key, table.windowStart)]);
 
 export type UserRow = typeof users.$inferSelect;
 export type UserSettingsRow = typeof userSettings.$inferSelect;

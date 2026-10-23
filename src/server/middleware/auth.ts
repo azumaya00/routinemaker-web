@@ -13,5 +13,5 @@ export const requireAuth: MiddlewareHandler<AppEnv> = async (c, next) => {
   c.set("user", session.user);
   c.set("sessionToken", token);
   await next();
-  if (session.extended) setSessionCookie(c, token);
+  if (session.extended && !c.var.sessionRevoked) setSessionCookie(c, token);
 };

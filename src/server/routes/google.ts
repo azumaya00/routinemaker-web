@@ -4,7 +4,7 @@ import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import type { Hono } from "hono";
 import { users } from "../db/schema";
 import { jsonError } from "../lib/errors";
-import { createSession, setSessionCookie } from "../lib/session";
+import { createSession, deleteUserSessions, setSessionCookie } from "../lib/session";
 import { rateLimit } from "../middleware/rateLimit";
 import type { AppEnv } from "../types";
 
@@ -50,6 +50,7 @@ export function registerGoogleRoutes(app: Hono<AppEnv>): void {
       .where(and(eq(users.provider, "google"), eq(users.providerId, profile.sub))).limit(1);
     let user;
     if (matched) {
+      if (matched.deletedAt) await deleteUserSessions(deps.db, matched.id);
       [user] = await deps.db.update(users).set({
         deletedAt: null,
         ...(matched.deletedAt ? { plan: "free" } : {}),

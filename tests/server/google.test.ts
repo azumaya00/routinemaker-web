@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { expect, test } from "vitest";
 import { sessions, users } from "@/server/db/schema";
 import { validateSession } from "@/server/lib/session";
+import { createSession } from "@/server/lib/session";
 import { createTestContext, loginAs } from "./helpers";
 
 type Ctx = Awaited<ReturnType<typeof createTestContext>>;
@@ -92,6 +93,28 @@ test("A: provider_id が一致する退会済みユーザーは復元し free �
   expect(res.status).toBe(302);
   const [updated] = await ctx.db.select().from(users).where(eq(users.id, user.id));
   expect(updated).toMatchObject({ deletedAt: null, plan: "free", email: "test@example.com", name: "Test User" });
+});
+
+test("Google 復元時に DB に残った退会前のセッションを消す", async () => {
+  const ctx = await createTestContext();
+  const [user] = await ctx.db.insert(users).values({ name: "Former", email: "old@example.test", provider: "google", providerId: "google-test-id", deletedAt: ctx.now.value }).returning();
+  const oldCookie = `rm_session=${await createSession(ctx.db, user.id, ctx.now.value)}`;
+  const { cookie, state } = await begin(ctx);
+  expect((await callback(ctx, state, cookie)).status).toBe(302);
+  expect((await ctx.app.request("/api/me", { headers: { Cookie: oldCookie } })).status).toBe(401);
+  expect(await ctx.db.select().from(sessions).where(eq(sessions.userId, user.id))).toHaveLength(1);
+});
+
+test("退会後の Google 復元でも退会前の端末 B の Cookie は無効のまま", async () => {
+  const ctx = await createTestContext();
+  const { user, cookie: firstCookie } = await loginAs(ctx, { provider: "google", providerId: "google-test-id", password: null });
+  const secondCookie = `rm_session=${await createSession(ctx.db, user.id, ctx.now.value)}`;
+  const deleted = await ctx.app.request("/api/me", { method: "DELETE", headers: { Cookie: firstCookie, Origin: "https://routinemaker.test" } });
+  expect(deleted.status).toBe(204);
+  const { cookie, state } = await begin(ctx);
+  const restored = await callback(ctx, state, cookie);
+  expect(restored.status).toBe(302);
+  expect((await ctx.app.request("/api/me", { headers: { Cookie: secondCookie } })).status).toBe(401);
 });
 
 test.each([
