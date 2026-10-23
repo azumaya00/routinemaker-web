@@ -8,6 +8,7 @@ import { registerMeRoutes } from "./routes/me";
 import { registerSettingsRoutes } from "./routes/settings";
 import { registerAdminRoutes } from "./routes/admin";
 import { registerRoutineRoutes } from "./routes/routines";
+import { registerHistoryRoutes } from "./routes/histories";
 
 export function createApp(deps: AppDeps): Hono<AppEnv> {
   const app = new Hono<AppEnv>().basePath("/api");
@@ -22,6 +23,7 @@ export function createApp(deps: AppDeps): Hono<AppEnv> {
   registerMeRoutes(app);
   registerSettingsRoutes(app);
   registerRoutineRoutes(app);
+  registerHistoryRoutes(app);
   registerAdminRoutes(app);
   app.notFound((c) => jsonError(c, 404, "Not Found."));
   app.onError((error, c) => {
