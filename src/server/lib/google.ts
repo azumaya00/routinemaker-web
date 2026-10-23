@@ -42,7 +42,7 @@ export function createGoogleOAuth(opts: GoogleOptions, fetchImpl: typeof fetch =
       const claims: unknown = JSON.parse(Buffer.from(parts[1], "base64url").toString("utf8"));
       if (!claims || typeof claims !== "object") throw new Error("Google claims malformed");
       const value = claims as Record<string, unknown>;
-      // The token is received directly from Google's TLS endpoint; these claims still bind it to this client and time.
+      // トークンは Google の TLS エンドポイントから直接受け取るが、各クレームでこのクライアントと有効期限も確かめる。
       if (value.aud !== opts.clientId || !["https://accounts.google.com", "accounts.google.com"].includes(String(value.iss))
         || typeof value.exp !== "number" || value.exp <= Math.floor(Date.now() / 1000)
         || typeof value.sub !== "string" || !value.sub) {
