@@ -1,9 +1,16 @@
 import { createHash } from "node:crypto";
 import type { GoogleOAuth, GoogleProfile } from "../types";
 
-type GoogleOptions = { clientId: string; clientSecret: string; redirectUri: string };
+type GoogleOptions = {
+  clientId: string;
+  clientSecret: string;
+  redirectUri: string
+};
 
-export function createGoogleOAuth(opts: GoogleOptions, fetchImpl: typeof fetch = fetch): GoogleOAuth {
+export function createGoogleOAuth(
+  opts: GoogleOptions,
+  fetchImpl: typeof fetch = fetch,
+): GoogleOAuth {
   return {
     createAuthorizationURL(state, codeVerifier) {
       const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
@@ -32,18 +39,28 @@ export function createGoogleOAuth(opts: GoogleOptions, fetchImpl: typeof fetch =
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: form.toString(),
       });
-      if (!response.ok) throw new Error("Google token exchange failed");
+      if (!response.ok) {
+        throw new Error("Google token exchange failed");
+      }
       const body: unknown = await response.json();
-      if (!body || typeof body !== "object" || !("id_token" in body) || typeof body.id_token !== "string") {
+      if (
+        !body || typeof body !== "object" || !("id_token" in body) ||
+        typeof body.id_token !== "string"
+      ) {
         throw new Error("Google id_token missing");
       }
       const parts = body.id_token.split(".");
-      if (parts.length !== 3) throw new Error("Google id_token malformed");
+      if (parts.length !== 3) {
+        throw new Error("Google id_token malformed");
+      }
       const claims: unknown = JSON.parse(Buffer.from(parts[1], "base64url").toString("utf8"));
-      if (!claims || typeof claims !== "object") throw new Error("Google claims malformed");
+      if (!claims || typeof claims !== "object") {
+        throw new Error("Google claims malformed");
+      }
       const value = claims as Record<string, unknown>;
       // トークンは Google の TLS エンドポイントから直接受け取るが、各クレームでこのクライアントと有効期限も確かめる。
-      if (value.aud !== opts.clientId || !["https://accounts.google.com", "accounts.google.com"].includes(String(value.iss))
+      if (value.aud !== opts.clientId ||
+        !["https://accounts.google.com", "accounts.google.com"].includes(String(value.iss))
         || typeof value.exp !== "number" || value.exp <= Math.floor(Date.now() / 1000)
         || typeof value.sub !== "string" || !value.sub) {
         throw new Error("Google id_token invalid");

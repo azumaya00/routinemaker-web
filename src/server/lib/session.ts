@@ -6,7 +6,9 @@ import type { Db } from "../db/client";
 import { sessions, users, type UserRow } from "../db/schema";
 
 export const SESSION_COOKIE = "rm_session";
+
 export const SESSION_LIFETIME_MINUTES = 120;
+
 const lifetimeMs = SESSION_LIFETIME_MINUTES * 60_000;
 
 function sessionId(token: string): string {
@@ -24,19 +26,34 @@ export async function createSession(db: Db, userId: number, now: Date): Promise<
   return token;
 }
 
-export async function validateSession(db: Db, token: string, now: Date): Promise<{ user: UserRow; extended: boolean } | null> {
-  const [match] = await db.select({ user: users, session: sessions })
+export async function validateSession(db: Db, token: string, now: Date): Promise<{
+  user: UserRow;
+  extended: boolean
+} | null> {
+  const [match] = await db.select({
+    user: users,
+    session: sessions
+  })
     .from(sessions)
     .innerJoin(users, eq(sessions.userId, users.id))
-    .where(and(eq(sessions.id, sessionId(token)), gt(sessions.expiresAt, now), isNull(users.deletedAt)))
+    .where(and(
+      eq(sessions.id, sessionId(token)),
+      gt(sessions.expiresAt, now),
+      isNull(users.deletedAt),
+    ))
     .limit(1);
-  if (!match) return null;
+  if (!match) {
+    return null;
+  }
   const extended = match.session.expiresAt.getTime() - now.getTime() < lifetimeMs / 2;
   if (extended) {
     await db.update(sessions).set({ expiresAt: new Date(now.getTime() + lifetimeMs) })
       .where(eq(sessions.id, match.session.id));
   }
-  return { user: match.user, extended };
+  return {
+    user: match.user,
+    extended
+  };
 }
 
 export async function deleteSession(db: Db, token: string): Promise<void> {
@@ -58,5 +75,10 @@ export function setSessionCookie(c: Context, token: string): void {
 }
 
 export function clearSessionCookie(c: Context): void {
-  deleteCookie(c, SESSION_COOKIE, { path: "/", secure: true, sameSite: "Lax", httpOnly: true });
+  deleteCookie(c, SESSION_COOKIE, {
+    path: "/",
+    secure: true,
+    sameSite: "Lax",
+    httpOnly: true
+  });
 }

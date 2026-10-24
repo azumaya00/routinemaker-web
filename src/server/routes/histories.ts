@@ -8,10 +8,16 @@ import type { AppEnv } from "../types";
 import { findOwnRoutine } from "./routines";
 
 async function findOwnHistory(db: Db, userId: number, idParam: string): Promise<HistoryRow | null> {
-  if (!/^\d+$/.test(idParam)) return null;
+  if (!/^\d+$/.test(idParam)) {
+    return null;
+  }
   const id = Number(idParam);
-  if (!Number.isSafeInteger(id)) return null;
-  const [history] = await db.select().from(histories).where(and(eq(histories.id, id), eq(histories.userId, userId))).limit(1);
+  if (!Number.isSafeInteger(id)) {
+    return null;
+  }
+  const [history] = await db.select().from(histories)
+    .where(and(eq(histories.id, id), eq(histories.userId, userId)))
+    .limit(1);
   return history ?? null;
 }
 
@@ -48,7 +54,9 @@ export function registerHistoryRoutes(app: Hono<AppEnv>): void {
   app.post("/routines/:id/start", requireAuth, async (c) => {
     const { db } = c.var.deps;
     const routine = await findOwnRoutine(db, c.var.user.id, c.req.param("id"));
-    if (!routine) return jsonError(c, 404, "Not Found.");
+    if (!routine) {
+      return jsonError(c, 404, "Not Found.");
+    }
     const now = c.var.deps.now?.() ?? new Date();
     const [history] = await db.insert(histories).values({
       userId: c.var.user.id,
@@ -95,7 +103,9 @@ export function registerHistoryRoutes(app: Hono<AppEnv>): void {
 
   app.get("/histories/:id", requireAuth, async (c) => {
     const history = await findOwnHistory(c.var.deps.db, c.var.user.id, c.req.param("id"));
-    if (!history) return jsonError(c, 404, "Not Found.");
+    if (!history) {
+      return jsonError(c, 404, "Not Found.");
+    }
     return c.json({ data: detailResponse(history) });
   });
 
@@ -103,9 +113,15 @@ export function registerHistoryRoutes(app: Hono<AppEnv>): void {
     app.post(`/histories/:id/${action}`, requireAuth, async (c) => {
       const { db } = c.var.deps;
       const history = await findOwnHistory(db, c.var.user.id, c.req.param("id"));
-      if (!history) return jsonError(c, 404, "Not Found.");
+      if (!history) {
+        return jsonError(c, 404, "Not Found.");
+      }
       const now = c.var.deps.now?.() ?? new Date();
-      const [saved] = await db.update(histories).set({ finishedAt: now, completed, updatedAt: now })
+      const [saved] = await db.update(histories).set({
+        finishedAt: now,
+        completed,
+        updatedAt: now
+      })
         .where(eq(histories.id, history.id)).returning();
       return c.json({ data: historyResponse(saved) });
     });

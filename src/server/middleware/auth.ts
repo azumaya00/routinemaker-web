@@ -6,12 +6,18 @@ import type { AppEnv } from "../types";
 
 export const requireAuth: MiddlewareHandler<AppEnv> = async (c, next) => {
   const token = getCookie(c, SESSION_COOKIE);
-  if (!token) return jsonError(c, 401, "Unauthenticated.");
+  if (!token) {
+    return jsonError(c, 401, "Unauthenticated.");
+  }
   const deps = c.var.deps;
   const session = await validateSession(deps.db, token, deps.now?.() ?? new Date());
-  if (!session) return jsonError(c, 401, "Unauthenticated.");
+  if (!session) {
+    return jsonError(c, 401, "Unauthenticated.");
+  }
   c.set("user", session.user);
   c.set("sessionToken", token);
   await next();
-  if (session.extended && !c.var.sessionRevoked) setSessionCookie(c, token);
+  if (session.extended && !c.var.sessionRevoked) {
+    setSessionCookie(c, token);
+  }
 };
