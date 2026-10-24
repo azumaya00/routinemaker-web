@@ -5,6 +5,9 @@ export function toStandardRequest(request: Request): Request {
     method,
     headers: request.headers,
     signal: request.signal,
-    ...(method === "GET" || method === "HEAD" ? {} : { body: request.body, ...(request.body ? { duplex: "half" as const } : {}) }),
+    ...(method === "GET" || method === "HEAD" ? {} : {
+      body: request.body,
+      ...(request.body ? { duplex: "half" as const } : {})
+    }),
   });
 }

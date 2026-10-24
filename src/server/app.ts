@@ -18,7 +18,10 @@ export function createApp(deps: AppDeps): Hono<AppEnv> {
     await next();
   });
   app.use("*", csrf);
-  app.use("*", bodyLimit({ maxSize: 64 * 1024, onError: (c) => jsonError(c, 413, "Payload Too Large.") }));
+  app.use("*", bodyLimit({
+    maxSize: 64 * 1024,
+    onError: (c) => jsonError(c, 413, "Payload Too Large.")
+  }));
   app.get("/health", (c) => c.json({ status: "ok" }));
   registerAuthRoutes(app);
   registerGoogleRoutes(app);

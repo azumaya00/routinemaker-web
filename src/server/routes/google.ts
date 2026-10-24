@@ -9,15 +9,24 @@ import { rateLimit } from "../middleware/rateLimit";
 import type { AppEnv } from "../types";
 
 const stateCookie = "rm_google_state";
+
 const verifierCookie = "rm_google_verifier";
+
 const cookiePath = "/api/auth/google";
+
 const authFailed = "Google認証に失敗しました。もう一度お試しください。";
 
 export function registerGoogleRoutes(app: Hono<AppEnv>): void {
   app.get("/auth/google/redirect", rateLimit("google", 10), (c) => {
     const state = randomBytes(32).toString("base64url");
     const verifier = randomBytes(32).toString("base64url");
-    const cookieOptions = { path: cookiePath, maxAge: 600, httpOnly: true, secure: true, sameSite: "Lax" as const };
+    const cookieOptions = {
+      path: cookiePath,
+      maxAge: 600,
+      httpOnly: true,
+      secure: true,
+      sameSite: "Lax" as const
+    };
     setCookie(c, stateCookie, state, cookieOptions);
     setCookie(c, verifierCookie, verifier, cookieOptions);
     return c.redirect(c.var.deps.google.createAuthorizationURL(state, verifier).toString());
@@ -26,8 +35,18 @@ export function registerGoogleRoutes(app: Hono<AppEnv>): void {
   app.get("/auth/google/callback", rateLimit("google", 10), async (c) => {
     const expectedState = getCookie(c, stateCookie);
     const verifier = getCookie(c, verifierCookie);
-    deleteCookie(c, stateCookie, { path: cookiePath, secure: true, httpOnly: true, sameSite: "Lax" });
-    deleteCookie(c, verifierCookie, { path: cookiePath, secure: true, httpOnly: true, sameSite: "Lax" });
+    deleteCookie(c, stateCookie, {
+      path: cookiePath,
+      secure: true,
+      httpOnly: true,
+      sameSite: "Lax"
+    });
+    deleteCookie(c, verifierCookie, {
+      path: cookiePath,
+      secure: true,
+      httpOnly: true,
+      sameSite: "Lax"
+    });
     const state = c.req.query("state");
     const code = c.req.query("code");
     if (!state || !expectedState || state !== expectedState || !code || !verifier) {
@@ -50,7 +69,9 @@ export function registerGoogleRoutes(app: Hono<AppEnv>): void {
       .where(and(eq(users.provider, "google"), eq(users.providerId, profile.sub))).limit(1);
     let user;
     if (matched) {
-      if (matched.deletedAt) await deleteUserSessions(deps.db, matched.id);
+      if (matched.deletedAt) {
+        await deleteUserSessions(deps.db, matched.id);
+      }
       [user] = await deps.db.update(users).set({
         deletedAt: null,
         ...(matched.deletedAt ? { plan: "free" } : {}),
@@ -79,7 +100,9 @@ export function registerGoogleRoutes(app: Hono<AppEnv>): void {
     }
     const sessionToken = await createSession(deps.db, user.id, deps.now?.() ?? new Date());
     setSessionCookie(c, sessionToken);
-    if (c.req.header("accept")?.includes("application/json")) return c.body(null, 204);
+    if (c.req.header("accept")?.includes("application/json")) {
+      return c.body(null, 204);
+    }
     return c.redirect(new URL("/routines", deps.appUrl).toString());
   });
 }

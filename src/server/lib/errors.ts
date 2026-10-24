@@ -8,11 +8,23 @@ export function jsonError(c: Context, status: number, message: string): Response
 export function validationError(c: Context, errors: Record<string, string[]>): Response {
   const messages = Object.values(errors).flat();
   const more = messages.length - 1;
-  const message = `${messages[0] ?? "The given data was invalid."}${more > 0 ? ` (and ${more} more ${more === 1 ? "error" : "errors"})` : ""}`;
-  return c.json({ message, errors }, 422);
+  const message = `${messages[0] ?? "The given data was invalid."}${
+    more > 0 ? ` (and ${more} more ${more === 1 ? "error" : "errors"})` : ""
+  }`;
+  return c.json({
+    message,
+    errors
+  }, 422);
 }
 
-export type ValidationRule = "required" | "string" | "email" | "max:255" | "array" | "in" | "boolean";
+export type ValidationRule =
+  | "required"
+  | "string"
+  | "email"
+  | "max:255"
+  | "array"
+  | "in"
+  | "boolean";
 
 export function validationMessage(rule: ValidationRule, field: string): string {
   const attr = field.replaceAll("_", " ");

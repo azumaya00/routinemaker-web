@@ -10,6 +10,7 @@ import {
 } from "drizzle-orm/pg-core";
 
 const id = () => bigint({ mode: "number" }).primaryKey().generatedByDefaultAsIdentity();
+
 const date = (name: string) => timestamp(name, { withTimezone: true });
 
 export const users = pgTable("users", {
@@ -31,7 +32,8 @@ export const users = pgTable("users", {
 
 export const userSettings = pgTable("user_settings", {
   id: id(),
-  userId: bigint("user_id", { mode: "number" }).notNull().unique().references(() => users.id, { onDelete: "cascade" }),
+  userId: bigint("user_id", { mode: "number" })
+    .notNull().unique().references(() => users.id, { onDelete: "cascade" }),
   theme: varchar({ length: 255 }).notNull().default("light"),
   darkMode: varchar("dark_mode", { length: 255 }).notNull().default("system"),
   showRemainingTasks: boolean("show_remaining_tasks").notNull().default(false),
@@ -43,7 +45,8 @@ export const userSettings = pgTable("user_settings", {
 
 export const routines = pgTable("routines", {
   id: id(),
-  userId: bigint("user_id", { mode: "number" }).notNull().references(() => users.id, { onDelete: "cascade" }),
+  userId: bigint("user_id", { mode: "number" })
+    .notNull().references(() => users.id, { onDelete: "cascade" }),
   title: varchar({ length: 255 }).notNull(),
   tasks: jsonb().$type<string[]>().notNull(),
   createdAt: date("created_at"),
@@ -52,8 +55,10 @@ export const routines = pgTable("routines", {
 
 export const histories = pgTable("histories", {
   id: id(),
-  userId: bigint("user_id", { mode: "number" }).notNull().references(() => users.id, { onDelete: "cascade" }),
-  routineId: bigint("routine_id", { mode: "number" }).notNull().references(() => routines.id, { onDelete: "cascade" }),
+  userId: bigint("user_id", { mode: "number" })
+    .notNull().references(() => users.id, { onDelete: "cascade" }),
+  routineId: bigint("routine_id", { mode: "number" })
+    .notNull().references(() => routines.id, { onDelete: "cascade" }),
   title: varchar({ length: 255 }).notNull(),
   tasks: jsonb().$type<string[]>().notNull(),
   startedAt: date("started_at").notNull(),
@@ -71,7 +76,8 @@ export const passwordResetTokens = pgTable("password_reset_tokens", {
 
 export const sessions = pgTable("sessions", {
   id: varchar({ length: 64 }).primaryKey(),
-  userId: bigint("user_id", { mode: "number" }).notNull().references(() => users.id, { onDelete: "cascade" }),
+  userId: bigint("user_id", { mode: "number" })
+    .notNull().references(() => users.id, { onDelete: "cascade" }),
   expiresAt: date("expires_at").notNull(),
   createdAt: date("created_at").notNull(),
 });
@@ -81,12 +87,20 @@ export const rateLimits = pgTable("rate_limits", {
   key: varchar({ length: 255 }).notNull(),
   windowStart: date("window_start").notNull(),
   count: bigint({ mode: "number" }).notNull().default(0),
-}, (table) => [uniqueIndex("rate_limits_key_window_start_unique").on(table.key, table.windowStart)]);
+}, (table) => [
+  uniqueIndex("rate_limits_key_window_start_unique").on(table.key, table.windowStart),
+]);
 
 export type UserRow = typeof users.$inferSelect;
+
 export type UserSettingsRow = typeof userSettings.$inferSelect;
+
 export type RoutineRow = typeof routines.$inferSelect;
+
 export type HistoryRow = typeof histories.$inferSelect;
+
 export type PasswordResetTokenRow = typeof passwordResetTokens.$inferSelect;
+
 export type SessionRow = typeof sessions.$inferSelect;
+
 export type RateLimitRow = typeof rateLimits.$inferSelect;
